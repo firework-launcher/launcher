@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block content %}
+<html>
+  <style>
+    .html {
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+    .btn-primary {
+      font-size: 75%;
+    }
+    .btn-danger {
+      font-size: 75%;
+    }
+  </style>
+  <body>
+    <br/>
+    <div class="container">
+      {% if has_admin %}
+        {% for x in range(8) %}
+          <div class="row mb-3">
+            <div class="col-4 themed-grid-col">
+              <a class="btn btn-primary" id="{{ col(site_id) }}" href="/trigger_firework/{{ col(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+              <a class="btn btn-primary" id="{{ col(site_id) }}" href="/trigger_firework/{{ col(site_id) }}" role="button">#{{ add_col(site_id) }}</a></div>
+            <div class="col-4 themed-grid-col">
+              <a class="btn btn-primary" id="{{ col(site_id) }}" href="/trigger_firework/{{ col(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+              <a class="btn btn-primary" id="{{ col(site_id) }}" href="/trigger_firework/{{ col(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        {% for x in range(7) %}
+          <div class="row mb-3">
+            <div class="col-4 themed-grid-col">
+              <a class="btn btn-primary" id="{{ col(site_id) }}" href="/trigger_firework/{{ col(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+              <a class="btn btn-primary" id="{{ col(site_id) }}" href="/trigger_firework/{{ col(site_id) }}" role="button">#{{ add_col(site_id) }}</a></div>
+            <div class="col-4 themed-grid-col">
+              <a class="btn btn-primary" id="{{ col(site_id) }}" href="/trigger_firework/{{ col(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+              <a class="btn btn-primary" id="{{ col(site_id) }}" href="/trigger_firework/{{ col(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+      
+
+    </div>
+    <script type="text/javascript">
+      function changeClassRed(id) {
+        var doc = document.getElementById(id);
+        doc.className = "btn btn-danger";
+        doc.href = "#";
+      }
+    </script>
+    {% for fireworks_launched in data: %}
+      {% for firework in fireworks_launched %}
+        <script>
+          changeClassRed("{{ firework }}")
+        </script>
+      {% endfor %}
+      {% if get_if_reset() %}
+        <script>
+          location.reload(true)
+        </script>
+      {% endif %}
+  </body>
+</html>
+{% endfor %}
+{% endblock %}

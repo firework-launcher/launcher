@@ -22,33 +22,35 @@
   </style>
   <body>
     <br/>
-    <div class="container" style="text-align:center">
-      {% if has_admin %}
-        {% for x in range(8) %}
-          <div class="row mb-3">
-            <div class="col-4 themed-grid-col">
-              <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
-              <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a></div>
-            <div class="col-4 themed-grid-col">
-              <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
-              <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+    <center>
+      <div class="container" style="text-align:center">
+        {% if has_admin %}
+          {% for x in range(8) %}
+            <div class="row mb-3">
+              <div class="col-4 themed-grid-col">
+                <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+                <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a></div>
+              <div class="col-4 themed-grid-col">
+                <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+                <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+              </div>
             </div>
-          </div>
-        {% endfor %}
-      {% else %}
-        {% for x in range(7) %}
-          <div class="row mb-3">
-            <div class="col-4 themed-grid-col">
-              <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
-              <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a></div>
-            <div class="col-4 themed-grid-col">
-              <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
-              <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+          {% endfor %}
+        {% else %}
+          {% for x in range(7) %}
+            <div class="row mb-3">
+              <div class="col-4 themed-grid-col">
+                <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+                <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a></div>
+              <div class="col-4 themed-grid-col">
+                <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+                <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+              </div>
             </div>
-          </div>
-        {% endfor %}
-      {% endif %}
-    </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </center>
     {% if darkmode %}
       <div class="d-grid gap-2 col-6 mx-auto">
         <a class="btn btn-outline-primary" href="/lightmode">Change to light theme</a>

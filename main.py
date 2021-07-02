@@ -117,7 +117,8 @@ def remove_admin():
 @app.before_request
 def rickastley():
     if not request.remote_addr == '192.168.3.1':
-        return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
+        #return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
+        pass
 
 def firework_serial_write():
     global queue

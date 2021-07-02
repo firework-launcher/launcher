@@ -1,4 +1,3 @@
-from typing import get_args
 from flask import Flask, render_template, redirect, request, Response, make_response
 import uuid
 import threading

@@ -90,13 +90,13 @@ def admin():
     resp.set_cookie('admin', 'true')
     return resp
 
-@app.route('/darkmode')
+@app.route('/dark_mode')
 def darkmode():
     resp = make_response(redirect('/'))
     resp.set_cookie('dark_mode', 'true')
     return resp
 
-@app.route('/lightmode')
+@app.route('/light_mode')
 def darkmode():
     resp = make_response(redirect('/'))
     resp.set_cookie('dark_mode', 'false')

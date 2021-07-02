@@ -75,8 +75,14 @@ def home():
 
 @app.route('/get_admin')
 def admin():
-    resp = make_response('You have been given admin')
+    resp = make_response(redirect('/'))
     resp.set_cookie('admin', 'true')
+    return resp
+
+@app.route('/remove_admin')
+def remove_admin():
+    resp = make_response(redirect('/'))
+    resp.set_cookie('admin', 'false')
     return resp
 
 @app.before_request

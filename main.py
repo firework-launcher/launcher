@@ -118,8 +118,6 @@ def remove_admin():
 def rickastley():
     if not request.remote_addr == '192.168.3.1':
         return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
-    if not 'Mobile' in request.headers['User-Agent']:
-        return render_template('on_pc.html')
 
 def firework_serial_write():
     global queue

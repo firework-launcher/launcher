@@ -61,6 +61,12 @@ def home():
         pass
     else:
         cookies['admin'] = 'false'
+
+    if 'dark_mode' in cookies:
+        pass
+    else:
+        cookies['dark_mode'] = 'false'
+    
     def g():
         while True:
             time.sleep(0.1)
@@ -68,15 +74,32 @@ def home():
             yield fireworks_launched
     site_id = str(uuid.uuid4())
     col_num[site_id] = 0
-    if cookies['admin'] == 'true':
-        return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=True, get_class_name=get_class_name, get_href=get_href))
+    if cookies['dark_mode'] == 'true':
+        if cookies['admin'] == 'true':
+            return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=True, get_class_name=get_class_name, get_href=get_href, darkmode=True))
+        else:
+            return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=False, get_class_name=get_class_name, get_href=get_href, darkmode=True))
     else:
-        return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=False, get_class_name=get_class_name, get_href=get_href))
-
+        if cookies['admin'] == 'true':
+            return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=True, get_class_name=get_class_name, get_href=get_href, darkmode=False))
+        else:
+            return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=False, get_class_name=get_class_name, get_href=get_href, darkmode=False))
 @app.route('/get_admin')
 def admin():
     resp = make_response(redirect('/'))
     resp.set_cookie('admin', 'true')
+    return resp
+
+@app.route('/darkmode')
+def darkmode():
+    resp = make_response(redirect('/'))
+    resp.set_cookie('dark_mode', 'true')
+    return resp
+
+@app.route('/lightmode')
+def darkmode():
+    resp = make_response(redirect('/'))
+    resp.set_cookie('dark_mode', 'false')
     return resp
 
 @app.route('/remove_admin')

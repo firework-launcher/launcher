@@ -26,14 +26,12 @@ def col(site_id):
 
 def get_class_name(site_id):
     if str(col_num[site_id]) in fireworks_launched:
-        print('IT WORKED')
         return 'danger'
     else:
         return 'primary'
 
 def get_href(site_id):
     if str(col_num[site_id]) in fireworks_launched:
-        print('IT WORKED')
         return '#'
     else:
         return '/trigger_firework/{}'.format(col_num[site_id])

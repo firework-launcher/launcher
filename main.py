@@ -2,8 +2,7 @@ from flask import Flask, render_template, redirect, request, Response, make_resp
 import uuid
 import threading
 import time
-import os
-import serial
+from serial import Serial
 app = Flask(__name__)
 col_num = {}
 fireworks_launched = []
@@ -16,7 +15,7 @@ def stream_template(template_name, **context):
     rv = t.stream(context)
     return rv
 
-ser = serial.Serial('/dev/ttyACM0', 115200)
+ser = Serial('/dev/ttyACM0', 115200)
 def add_col(site_id):
     global col_num
     col_num[site_id] = col_num[site_id] + 1

@@ -1,3 +1,4 @@
+from typing import get_args
 from flask import Flask, render_template, redirect, request, Response, make_response
 import uuid
 import threading
@@ -23,6 +24,22 @@ def add_col(site_id):
 
 def col(site_id):
     return col_num[site_id]
+
+def get_class_name(site_id):
+    if str(col_num[site_id]) in fireworks_launched:
+        print('IT WORKED')
+        return 'danger'
+    else:
+        return 'primary'
+
+def get_href(site_id):
+    if str(col_num[site_id]) in fireworks_launched:
+        print('IT WORKED')
+        return '#'
+    else:
+        return '/trigger_firework/{}'.format(col_num[site_id])
+
+    
 
 def ifnot_col_33(site_id):
     if col_num[site_id] == 32:
@@ -54,9 +71,9 @@ def home():
     site_id = str(uuid.uuid4())
     col_num[site_id] = 0
     if cookies['admin'] == 'true':
-        return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=True))
+        return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=True, get_class_name=get_class_name, get_href=get_href))
     else:
-        return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=False))
+        return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=False, get_class_name=get_class_name, get_href=get_href))
 
 @app.route('/get_admin')
 def admin():

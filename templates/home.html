@@ -21,11 +21,11 @@
         {% for x in range(8) %}
           <div class="row mb-3">
             <div class="col-4 themed-grid-col">
-              <a class="btn btn-primary" id="{{ col(site_id) }}" href="/trigger_firework/{{ col(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
-              <a class="btn btn-primary" id="{{ col(site_id) }}" href="/trigger_firework/{{ col(site_id) }}" role="button">#{{ add_col(site_id) }}</a></div>
+              <a class="btn btn-{{ get_class_name() }}" id="{{ col(site_id) }}" href="{{ get_href() }}" role="button">#{{ add_col(site_id) }}</a>
+              <a class="btn btn-{{ get_class_name() }}" id="{{ col(site_id) }}" href="{{ get_href() }}" role="button">#{{ add_col(site_id) }}</a></div>
             <div class="col-4 themed-grid-col">
-              <a class="btn btn-primary" id="{{ col(site_id) }}" href="/trigger_firework/{{ col(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
-              <a class="btn btn-primary" id="{{ col(site_id) }}" href="/trigger_firework/{{ col(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+              <a class="btn btn-{{ get_class_name() }}" id="{{ col(site_id) }}" href="{{ get_href() }}" role="button">#{{ add_col(site_id) }}</a>
+              <a class="btn btn-{{ get_class_name() }}" id="{{ col(site_id) }}" href="{{ get_href() }}" role="button">#{{ add_col(site_id) }}</a>
             </div>
           </div>
         {% endfor %}
@@ -33,11 +33,11 @@
         {% for x in range(7) %}
           <div class="row mb-3">
             <div class="col-4 themed-grid-col">
-              <a class="btn btn-primary" id="{{ col(site_id) }}" href="/trigger_firework/{{ col(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
-              <a class="btn btn-primary" id="{{ col(site_id) }}" href="/trigger_firework/{{ col(site_id) }}" role="button">#{{ add_col(site_id) }}</a></div>
+              <a class="btn btn-{{ get_class_name() }}" id="{{ col(site_id) }}" href="{{ get_href() }}" role="button">#{{ add_col(site_id) }}</a>
+              <a class="btn btn-{{ get_class_name() }}" id="{{ col(site_id) }}" href="{{ get_href() }}" role="button">#{{ add_col(site_id) }}</a></div>
             <div class="col-4 themed-grid-col">
-              <a class="btn btn-primary" id="{{ col(site_id) }}" href="/trigger_firework/{{ col(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
-              <a class="btn btn-primary" id="{{ col(site_id) }}" href="/trigger_firework/{{ col(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+              <a class="btn btn-{{ get_class_name() }}" id="{{ col(site_id) }}" href="{{ get_href() }}" role="button">#{{ add_col(site_id) }}</a>
+              <a class="btn btn-{{ get_class_name() }}" id="{{ col(site_id) }}" href="{{ get_href() }}" role="button">#{{ add_col(site_id) }}</a>
             </div>
           </div>
         {% endfor %}

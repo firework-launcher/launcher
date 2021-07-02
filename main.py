@@ -127,7 +127,7 @@ def reset():
     fireworks_launched = []
     queue = []
     if_reset = True
-    time.sleep(1.8)
+    time.sleep(1)
     if_reset = False
     
 

@@ -124,11 +124,12 @@ def reset():
     global queue
     global fireworks_launched
     global if_reset
+    fireworks_launched = []
+    queue = []
     if_reset = True
     time.sleep(1.8)
     if_reset = False
-    fireworks_launched = []
-    queue = []
+    
 
     return redirect('/')
 

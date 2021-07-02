@@ -2,6 +2,7 @@ from flask import Flask, render_template, redirect, request, Response, make_resp
 import uuid
 import threading
 import time
+import os
 import serial
 app = Flask(__name__)
 col_num = {}
@@ -129,6 +130,11 @@ def reset():
     if_reset = True
     time.sleep(1)
     if_reset = False
+
+@app.route('/restart')
+def restart():
+    pid = os.getpid()
+    
     
 
     return redirect('/')

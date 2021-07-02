@@ -21,11 +21,11 @@
         {% for x in range(8) %}
           <div class="row mb-3">
             <div class="col-4 themed-grid-col">
-              <a class="btn btn-outline-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
-              <a class="btn btn-outline-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a></div>
+              <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+              <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a></div>
             <div class="col-4 themed-grid-col">
-              <a class="btn btn-outline-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
-              <a class="btn btn-outline-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+              <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+              <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
             </div>
           </div>
         {% endfor %}
@@ -33,11 +33,11 @@
         {% for x in range(7) %}
           <div class="row mb-3">
             <div class="col-4 themed-grid-col">
-              <a class="btn btn-outline-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
-              <a class="btn btn-outline-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a></div>
+              <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+              <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a></div>
             <div class="col-4 themed-grid-col">
-              <a class="btn btn-outline-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
-              <a class="btn btn-outline-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+              <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
+              <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
             </div>
           </div>
         {% endfor %}
@@ -51,7 +51,7 @@
     <script type="text/javascript">
       function changeClassRed(id) {
         var doc = document.getElementById(id);
-        doc.className = "btn btn-outline-danger";
+        doc.className = "btn btn{{ get_outline(darkmode) }}-danger";
         doc.href = "#";
       }
     </script>

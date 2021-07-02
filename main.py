@@ -130,13 +130,6 @@ def reset():
     if_reset = True
     time.sleep(1)
     if_reset = False
-
-@app.route('/restart')
-def restart():
-    pid = os.getpid()
-    
-    
-
     return redirect('/')
 
 if __name__ == '__main__':

@@ -89,6 +89,7 @@ def home():
             return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=True, get_class_name=get_class_name, get_href=get_href, darkmode=False, get_outline=get_outline))
         else:
             return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=False, get_class_name=get_class_name, get_href=get_href, darkmode=False, get_outline=get_outline))
+
 @app.route('/get_admin')
 def admin():
     resp = make_response(redirect('/'))
@@ -117,6 +118,8 @@ def remove_admin():
 def rickastley():
     if not request.remote_addr == '192.168.3.1':
         return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
+    if not 'Mobile' in request.headers['User-Agent']:
+        return render_template('on_pc.html')
 
 def firework_serial_write():
     global queue

@@ -1,4 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
 <p>Theme: {{ theme }}</p>
+<div class="d-grid gap-2 col-6 mx-auto">
+    <a class="btn btn{{ get_outline(darkmode) }}-primary" href="/theme/light.css">Light</a>
+</div>
+<br/>
+<div class="d-grid gap-2 col-6 mx-auto">
+    <a class="btn btn{{ get_outline(darkmode) }}-primary" href="/theme/dark.css">Dark</a>
+</div>
 {% endblock %}

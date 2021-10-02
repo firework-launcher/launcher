@@ -108,7 +108,7 @@ def themes():
         pass
     else:
         cookies['theme'] = 'light.css'
-    return render_template('themes.html', theme=cookies['theme'])
+    return render_template('themes.html', theme=cookies['theme'], get_theme_link=get_theme_link)
 
 @app.route('/remove_admin')
 def remove_admin():

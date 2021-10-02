@@ -114,6 +114,10 @@ def remove_admin():
     resp.set_cookie('admin', 'false')
     return resp
 
+@app.route('/customcss')
+def customcss():
+    return render_template('custom_css.html')
+
 @app.before_request
 def rickastley():
     if not request.remote_addr == '192.168.3.1':

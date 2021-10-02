@@ -173,6 +173,6 @@ def reset():
     return redirect('/')
 
 if __name__ == '__main__':
-    termcolor.cprint('WARNING: This is the experimental branch and some features may not work as intended')
+    termcolor.cprint('WARNING: This is the experimental branch and some features may not work as intended', 'red')
     threading.Thread(target=firework_serial_write).start()
     app.run(host='0.0.0.0', port=80)

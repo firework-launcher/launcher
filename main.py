@@ -1,5 +1,5 @@
 from flask import Flask, render_template, redirect, request, Response, make_response
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 import uuid
 import threading
 import termcolor

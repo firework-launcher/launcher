@@ -117,30 +117,10 @@ def remove_admin():
     resp.set_cookie('admin', 'false')
     return resp
 
-@app.route('/customcss')
-def customcss():
-    cookies = dict(request.cookies)
-    if 'dark_mode' in cookies:
-        pass
-    else:
-        cookies['dark_mode'] = 'false'
-    if cookies['dark_mode'] == 'true':
-        return render_template('custom_css.html', darkmode=True, get_outline=get_outline)
-    else:
-        return render_template('custom_css.html', darkmode=False, get_outline=get_outline)
-
 @app.before_request
 def rickastley():
     if not request.remote_addr == '192.168.3.1':
         return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
-
-@app.route('/cssfileupload', methods = ['POST', 'GET'])
-def cssfileupload():
-    if request.method == 'POST':
-        f = request.files['cssfile']
-        os.system('touch static/' + secure_filename(f.filename))
-        f.save('static/' + secure_filename(f.filename))
-    return redirect('/customcss')
 
 def firework_serial_write():
     global queue

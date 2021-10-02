@@ -110,7 +110,7 @@ def themes():
         pass
     else:
         cookies['theme'] = 'light.css'
-    if cookies['theme'] == 'dark.css':
+    if cookies['theme'] == 'dark.css' or cookies['theme'] == 'dark_red.css':
         darkmode = True
     else:
         darkmode = False

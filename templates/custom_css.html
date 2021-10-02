@@ -1,4 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>Test</h1>
+{% if darkmode %}
+    <style>
+        h4 {
+            color: white;
+        }
+        body {
+            padding: 10px;
+        }
+    </style>
+{% endif %}
+<h4>Please enter css below:</h4>
+<textarea class="form-control" id="exampleFormControlTextarea1" rows="5"></textarea>
+<br/>
+<button class="btn btn{{ get_outline(darkmode) }}-primary">Upload & Save</button>
 {% endblock %}

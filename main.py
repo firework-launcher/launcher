@@ -70,10 +70,10 @@ def home():
     else:
         cookies['admin'] = 'false'
 
-    if 'dark_mode' in cookies:
+    if 'theme' in cookies:
         pass
     else:
-        cookies['dark_mode'] = 'false'
+        cookies['theme'] = 'light.css'
     
     def g():
         while True:
@@ -82,16 +82,10 @@ def home():
             yield fireworks_launched
     site_id = str(uuid.uuid4())
     col_num[site_id] = 0
-    if cookies['dark_mode'] == 'true':
-        if cookies['admin'] == 'true':
-            return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=True, get_class_name=get_class_name, get_href=get_href, darkmode=True, get_outline=get_outline))
-        else:
-            return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=False, get_class_name=get_class_name, get_href=get_href, darkmode=True, get_outline=get_outline))
+    if cookies['admin'] == 'true':
+        return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=True, get_class_name=get_class_name, get_href=get_href, theme=cookies['theme'], get_outline=get_outline))
     else:
-        if cookies['admin'] == 'true':
-            return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=True, get_class_name=get_class_name, get_href=get_href, darkmode=False, get_outline=get_outline))
-        else:
-            return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=False, get_class_name=get_class_name, get_href=get_href, darkmode=False, get_outline=get_outline))
+        return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=False, get_class_name=get_class_name, get_href=get_href, theme=cookies['theme'], get_outline=get_outline))
 
 @app.route('/get_admin')
 def admin():
@@ -99,17 +93,16 @@ def admin():
     resp.set_cookie('admin', 'true')
     return resp
 
-@app.route('/darkmode')
-def darkmode():
+@app.route('/theme/<string:theme>')
+def select_theme(theme):
     resp = make_response(redirect('/'))
-    resp.set_cookie('dark_mode', 'true')
+    resp.set_cookie('theme', theme)
     return resp
 
-@app.route('/lightmode')
-def lightmode():
-    resp = make_response(redirect('/'))
-    resp.set_cookie('dark_mode', 'false')
-    return resp
+@app.route('/themes')
+def themes():
+    cookies = dict(request.cookies)
+    return render_template('themes.html', theme=cookies['theme'])
 
 @app.route('/remove_admin')
 def remove_admin():

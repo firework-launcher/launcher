@@ -12,11 +12,13 @@
     </style>
 {% endif %}
 <div class="body">
-    <h4>Please enter css file below or use a theme:</h4>
-    <div class="input-group mb-3">
-        <input type="file" class="form-control" id="css_file_upload">
-      </div>
-    <br/>
-    <button class="btn btn{{ get_outline(darkmode) }}-primary">Upload & Save</button>
+    <h4>Please enter css file below</h4>
+    <form action = "http://fireworkshow.live/cssfileupload" method = "POST" enctype = "multipart/form-data">
+        <div class="input-group mb-3">
+            <input type="file" class="form-control" name="cssfile" id="css_file_upload">
+          </div>
+        <br/>
+        <input type="submit" class="btn btn{{ get_outline(darkmode) }}-primary">Upload & Save</button>
+    </form>
 </div>
 {% endblock %}

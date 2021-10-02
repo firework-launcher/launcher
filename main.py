@@ -1,4 +1,5 @@
 from flask import Flask, render_template, redirect, request, Response, make_response
+from werkzeug import secure_filename
 import uuid
 import threading
 import termcolor
@@ -131,6 +132,13 @@ def customcss():
 def rickastley():
     if not request.remote_addr == '192.168.3.1':
         return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
+
+@app.route('/cssfileupload', methods = ['POST', 'GET'])
+def cssfileupload():
+    if request.method == 'POST':
+        f = request.files['cssfile']
+        f.save('static/' + secure_filename(f.filename))
+    return 'file saved'
 
 def firework_serial_write():
     global queue

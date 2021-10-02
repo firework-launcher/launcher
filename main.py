@@ -4,6 +4,7 @@ import uuid
 import threading
 import termcolor
 import time
+import os
 from serial import Serial
 app = Flask(__name__)
 col_num = {}
@@ -137,8 +138,9 @@ def rickastley():
 def cssfileupload():
     if request.method == 'POST':
         f = request.files['cssfile']
+        os.system('touch static/' + secure_filename(f.filename))
         f.save('static/' + secure_filename(f.filename))
-    return 'file saved'
+    return redirect('/customcss')
 
 def firework_serial_write():
     global queue

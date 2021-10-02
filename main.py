@@ -117,7 +117,15 @@ def remove_admin():
 
 @app.route('/customcss')
 def customcss():
-    return render_template('custom_css.html')
+    cookies = dict(request.cookies)
+    if 'dark_mode' in cookies:
+        pass
+    else:
+        cookies['dark_mode'] = 'false'
+    if cookies['dark_mode'] == 'true':
+        return render_template('custom_css.html', darkmode=True)
+    else:
+        return render_template('custom_css.html', darkmode=False)
 
 @app.before_request
 def rickastley():

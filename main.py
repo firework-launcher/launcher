@@ -71,12 +71,14 @@ def home():
         pass
     else:
         cookies['admin'] = 'false'
-
     if 'theme' in cookies:
         pass
     else:
         cookies['theme'] = 'light.css'
-    
+    if cookies['theme'] == 'dark.css':
+        darkmode = True
+    else:
+        darkmode = False
     def g():
         while True:
             time.sleep(0.1)
@@ -85,9 +87,9 @@ def home():
     site_id = str(uuid.uuid4())
     col_num[site_id] = 0
     if cookies['admin'] == 'true':
-        return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=True, get_class_name=get_class_name, get_href=get_href, theme=cookies['theme'], get_outline=get_outline, get_theme_link=get_theme_link))
+        return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=True, get_class_name=get_class_name, get_href=get_href, theme=cookies['theme'], get_outline=get_outline, get_theme_link=get_theme_link, darkmode=darkmode))
     else:
-        return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=False, get_class_name=get_class_name, get_href=get_href, theme=cookies['theme'], get_outline=get_outline, get_theme_link=get_theme_link))
+        return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=False, get_class_name=get_class_name, get_href=get_href, theme=cookies['theme'], get_outline=get_outline, get_theme_link=get_theme_link, darkmode=darkmode))
 
 @app.route('/get_admin')
 def admin():
@@ -108,7 +110,11 @@ def themes():
         pass
     else:
         cookies['theme'] = 'light.css'
-    return render_template('themes.html', theme=cookies['theme'], get_theme_link=get_theme_link)
+    if cookies['theme'] == 'dark.css':
+        darkmode = True
+    else:
+        darkmode = False
+    return render_template('themes.html', theme=cookies['theme'], get_theme_link=get_theme_link, darkmode=darkmode)
 
 @app.route('/remove_admin')
 def remove_admin():

@@ -102,6 +102,10 @@ def select_theme(theme):
 @app.route('/themes')
 def themes():
     cookies = dict(request.cookies)
+    if 'theme' in cookies:
+        pass
+    else:
+        cookies['theme'] = 'light.css'
     return render_template('themes.html', theme=cookies['theme'])
 
 @app.route('/remove_admin')

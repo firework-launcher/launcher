@@ -19,6 +19,8 @@ def stream_template(template_name, **context):
     return rv
 
 ser = Serial('/dev/ttyACM0', 115200)
+def get_theme_link(theme):
+    return '/static/themes/' + theme
 def add_col(site_id):
     global col_num
     col_num[site_id] = col_num[site_id] + 1

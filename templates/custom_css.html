@@ -5,13 +5,19 @@
         h4 {
             color: white;
         }
-        body {
+        .body {
             padding: 10px;
+        }
+        .form-control {
+            background-color: #2d2c2d;
+            color: white;
         }
     </style>
 {% endif %}
-<h4>Please enter css below:</h4>
-<textarea class="form-control" id="exampleFormControlTextarea1" rows="5"></textarea>
-<br/>
-<button class="btn btn{{ get_outline(darkmode) }}-primary">Upload & Save</button>
+<div class="body">
+    <h4>Please enter css below:</h4>
+    <textarea class="form-control" id="exampleFormControlTextarea1" rows="5"></textarea>
+    <br/>
+    <button class="btn btn{{ get_outline(darkmode) }}-primary">Upload & Save</button>
+</div>
 {% endblock %}

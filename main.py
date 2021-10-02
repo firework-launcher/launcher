@@ -114,7 +114,7 @@ def themes():
         darkmode = True
     else:
         darkmode = False
-    return render_template('themes.html', theme=cookies['theme'], get_theme_link=get_theme_link, darkmode=darkmode)
+    return render_template('themes.html', theme=cookies['theme'], get_theme_link=get_theme_link, darkmode=darkmode, get_outline=get_outline)
 
 @app.route('/remove_admin')
 def remove_admin():

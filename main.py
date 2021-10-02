@@ -123,9 +123,9 @@ def customcss():
     else:
         cookies['dark_mode'] = 'false'
     if cookies['dark_mode'] == 'true':
-        return render_template('custom_css.html', darkmode=True)
+        return render_template('custom_css.html', darkmode=True, get_outline=get_outline)
     else:
-        return render_template('custom_css.html', darkmode=False)
+        return render_template('custom_css.html', darkmode=False, get_outline=get_outline)
 
 @app.before_request
 def rickastley():

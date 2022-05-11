@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.83.1">
+      <title>Firework Automation</title>
+        <link href="/static/bootstrap.css" rel="stylesheet">
+        <style>
+          .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+          }
+
+          @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+              font-size: 3.5rem;
+            }
+          }
+        </style>
+
+
+        <link href="/static/grid.css" rel="stylesheet">
+        <link href="{{ get_theme_link(theme) }}" rel="stylesheet">
+        <style>
+          .themed-grid-col {
+            padding-top: .0rem;
+            padding-bottom: .0rem;
+            margin-left: auto;
+            text-align: center;
+            margin-right: auto;
+            background-color: rgba(86, 61, 124, 0);
+            border: 1px solid rgba(86, 61, 124, 0);
+          }
+          .themed-container {
+            padding: .0rem;
+            background-color: rgba(0, 123, 255, 0);
+            border: 1px solid rgba(0, 123, 255, 0);
+          }
+          .container {
+            text-align: center;
+            padding-left: 0px;
+            padding-right: 0px;
+            padding-top: 0px;
+            padding-bottom: 0px;
+            padding: 0px;
+            margin-top: 0px;
+            margin-bottom: 0px;
+            margin-left: auto;
+            margin-right: auto;
+            margin: 0px;
+          }
+        </style>
+	      <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
+          <div class="container-fluid">
+            <a class="navbar-brand" href="/">Firework Automation</a>
+            <ul class="navbar-nav">
+              {% if has_admin %}
+                <li class="nav-item">
+                  <a class="nav-link active" aria-current="page" href="/reset">Reset</a>
+                </li>
+              {% endif %}
+            </ul>
+          </div>
+        </nav>
+        <script src="/static/bootstrap.js"></script>
+    {% block content %}
+
+    {% endblock %}
+    
+  </body>
+</html>
+

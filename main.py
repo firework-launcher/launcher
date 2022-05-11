@@ -1,7 +1,10 @@
 from flask import Flask, render_template, redirect, request, Response, make_response
+from werkzeug.utils import secure_filename
 import uuid
 import threading
+import termcolor
 import time
+import os
 from serial import Serial
 app = Flask(__name__)
 col_num = {}
@@ -16,6 +19,8 @@ def stream_template(template_name, **context):
     return rv
 
 ser = Serial('/dev/ttyACM0', 115200)
+def get_theme_link(theme):
+    return '/static/themes/' + theme
 def add_col(site_id):
     global col_num
     col_num[site_id] = col_num[site_id] + 1
@@ -66,12 +71,14 @@ def home():
         pass
     else:
         cookies['admin'] = 'false'
-
-    if 'dark_mode' in cookies:
+    if 'theme' in cookies:
         pass
     else:
-        cookies['dark_mode'] = 'false'
-    
+        cookies['theme'] = 'light.css'
+    if cookies['theme'] == 'dark.css' or cookies['theme'] == 'dark_red.css':
+        darkmode = True
+    else:
+        darkmode = False
     def g():
         while True:
             time.sleep(0.1)
@@ -79,16 +86,10 @@ def home():
             yield fireworks_launched
     site_id = str(uuid.uuid4())
     col_num[site_id] = 0
-    if cookies['dark_mode'] == 'true':
-        if cookies['admin'] == 'true':
-            return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=True, get_class_name=get_class_name, get_href=get_href, darkmode=True, get_outline=get_outline))
-        else:
-            return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=False, get_class_name=get_class_name, get_href=get_href, darkmode=True, get_outline=get_outline))
+    if cookies['admin'] == 'true':
+        return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=True, get_class_name=get_class_name, get_href=get_href, theme=cookies['theme'], get_outline=get_outline, get_theme_link=get_theme_link, darkmode=darkmode))
     else:
-        if cookies['admin'] == 'true':
-            return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=True, get_class_name=get_class_name, get_href=get_href, darkmode=False, get_outline=get_outline))
-        else:
-            return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=False, get_class_name=get_class_name, get_href=get_href, darkmode=False, get_outline=get_outline))
+        return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=False, get_class_name=get_class_name, get_href=get_href, theme=cookies['theme'], get_outline=get_outline, get_theme_link=get_theme_link, darkmode=darkmode))
 
 @app.route('/get_admin')
 def admin():
@@ -96,17 +97,24 @@ def admin():
     resp.set_cookie('admin', 'true')
     return resp
 
-@app.route('/darkmode')
-def darkmode():
+@app.route('/theme/<string:theme>')
+def select_theme(theme):
     resp = make_response(redirect('/'))
-    resp.set_cookie('dark_mode', 'true')
+    resp.set_cookie('theme', theme)
     return resp
 
-@app.route('/lightmode')
-def lightmode():
-    resp = make_response(redirect('/'))
-    resp.set_cookie('dark_mode', 'false')
-    return resp
+@app.route('/themes')
+def themes():
+    cookies = dict(request.cookies)
+    if 'theme' in cookies:
+        pass
+    else:
+        cookies['theme'] = 'light.css'
+    if cookies['theme'] == 'dark.css' or cookies['theme'] == 'dark_red.css':
+        darkmode = True
+    else:
+        darkmode = False
+    return render_template('themes.html', theme=cookies['theme'], get_theme_link=get_theme_link, darkmode=darkmode, get_outline=get_outline)
 
 @app.route('/remove_admin')
 def remove_admin():
@@ -168,5 +176,6 @@ def reset():
     return redirect('/')
 
 if __name__ == '__main__':
+    termcolor.cprint('WARNING: This is the experimental branch and some features may not work as intended', 'red')
     threading.Thread(target=firework_serial_write).start()
     app.run(host='0.0.0.0', port=80)

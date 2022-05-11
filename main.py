@@ -1,8 +1,6 @@
 from flask import Flask, render_template, redirect, request, Response, make_response
-from werkzeug.utils import secure_filename
 import uuid
 import threading
-import termcolor
 import time
 import os
 from serial import Serial
@@ -176,6 +174,5 @@ def reset():
     return redirect('/')
 
 if __name__ == '__main__':
-    termcolor.cprint('WARNING: This is the experimental branch and some features may not work as intended', 'red')
     threading.Thread(target=firework_serial_write).start()
     app.run(host='0.0.0.0', port=80)

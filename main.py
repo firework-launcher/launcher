@@ -3,62 +3,18 @@ import uuid
 import threading
 import time
 import os
+import flask_socketio
 from serial import Serial
 app = Flask(__name__)
-col_num = {}
+socketio = flask_socketio.SocketIO(app)
 fireworks_launched = []
 queue = []
 did_reset = False
 if_reset = False
-def stream_template(template_name, **context):
-    app.update_template_context(context)
-    t = app.jinja_env.get_template(template_name)
-    rv = t.stream(context)
-    return rv
 
-ser = Serial('/dev/ttyACM0', 115200)
+# ser = Serial('/dev/ttyACM0', 115200)
 def get_theme_link(theme):
     return '/static/themes/' + theme
-def add_col(site_id):
-    global col_num
-    col_num[site_id] = col_num[site_id] + 1
-    return col_num[site_id]
-
-def col(site_id):
-    return col_num[site_id]
-
-def get_class_name(site_id):
-    if str(col_num[site_id]) in fireworks_launched:
-        return 'danger'
-    else:
-        return 'primary'
-
-def get_outline(darkmode):
-    if darkmode == True:
-        return '-outline'
-    else:
-        return ''
-
-def get_href(site_id):
-    if str(col_num[site_id]) in fireworks_launched:
-        return '#'
-    else:
-        return '/trigger_firework/{}'.format(col_num[site_id])
-
-    
-
-def ifnot_col_33(site_id):
-    if col_num[site_id] == 32:
-        return False
-    else:
-        return True
-
-def get_if_reset():
-    global if_reset
-    if if_reset == True:
-        return True
-    else:
-        return False
 
 @app.route('/')
 def home():
@@ -77,17 +33,10 @@ def home():
         darkmode = True
     else:
         darkmode = False
-    def g():
-        while True:
-            time.sleep(0.1)
-            global fireworks_launched
-            yield fireworks_launched
-    site_id = str(uuid.uuid4())
-    col_num[site_id] = 0
     if cookies['admin'] == 'true':
-        return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=True, get_class_name=get_class_name, get_href=get_href, theme=cookies['theme'], get_outline=get_outline, get_theme_link=get_theme_link, darkmode=darkmode))
+        return render_template('home.html', has_admin=True, theme=cookies['theme'], get_theme_link=get_theme_link, darkmode=darkmode)
     else:
-        return Response(stream_template('home.html', add_col=add_col, col=col, site_id=site_id, ifnot_col_33=ifnot_col_33, data=g(), did_reset=False, get_if_reset=get_if_reset, has_admin=False, get_class_name=get_class_name, get_href=get_href, theme=cookies['theme'], get_outline=get_outline, get_theme_link=get_theme_link, darkmode=darkmode))
+        return render_template('home.html', has_admin=False, theme=cookies['theme'], get_theme_link=get_theme_link, darkmode=darkmode)
 
 @app.route('/get_admin')
 def admin():
@@ -112,7 +61,7 @@ def themes():
         darkmode = True
     else:
         darkmode = False
-    return render_template('themes.html', theme=cookies['theme'], get_theme_link=get_theme_link, darkmode=darkmode, get_outline=get_outline)
+    return render_template('themes.html', theme=cookies['theme'], get_theme_link=get_theme_link, darkmode=darkmode)
 
 @app.route('/remove_admin')
 def remove_admin():
@@ -120,10 +69,10 @@ def remove_admin():
     resp.set_cookie('admin', 'false')
     return resp
 
-@app.before_request
-def rickastley():
-    if not request.remote_addr == '192.168.3.1':
-        return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
+# @app.before_request
+# def rickastley():
+#    if not request.remote_addr == '192.168.3.1':
+#        return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
 
 def firework_serial_write():
     global queue
@@ -133,21 +82,21 @@ def firework_serial_write():
         try:
             i = 0
             for pin in queue:
-                ser.write('/digital/{}/0\r\n'.format(pin).encode())
-                data = ser.read()
-                time.sleep(0.5)
-                data_left = ser.inWaiting()
-                data += ser.read(data_left)
-                print(data)
-                time.sleep(0.5)
-                ser.write('/digital/{}/1\r\n'.format(pin).encode())
-                data = ser.read()
-                time.sleep(0.5)
-                data_left = ser.inWaiting()
-                data += ser.read(data_left)
-                print(data)
-                del queue[i]
-                i = i + 1
+                #ser.write('/digital/{}/0\r\n'.format(pin).encode())
+                #data = ser.read()
+                #time.sleep(0.5)
+                #data_left = ser.inWaiting()
+                #data += ser.read(data_left)
+                #print(data)
+                #time.sleep(0.5)
+                #ser.write('/digital/{}/1\r\n'.format(pin).encode())
+                #data = ser.read()
+                #time.sleep(0.5)
+                #data_left = ser.inWaiting()
+                #data += ser.read(data_left)
+                #print(data)
+                #del queue[i]
+                #i = i + 1
                 print(queue)
         except:
             pass
@@ -175,4 +124,4 @@ def reset():
 
 if __name__ == '__main__':
     threading.Thread(target=firework_serial_write).start()
-    app.run(host='0.0.0.0', port=80)
+    socketio.run(app, host='0.0.0.0', port=80)

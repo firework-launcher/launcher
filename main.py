@@ -11,6 +11,9 @@ fireworks_launched = []
 queue = []
 did_reset = False
 if_reset = False
+amount_of_fireworks = 28
+amount_of_fireworks_admin = 32
+
 
 # ser = Serial('/dev/ttyACM0', 115200)
 def get_theme_link(theme):
@@ -18,25 +21,18 @@ def get_theme_link(theme):
 
 @app.route('/')
 def home():
-    global did_reset
     cookies = dict(request.cookies)
-    print(cookies)
-    if 'admin' in cookies:
-        pass
-    else:
-        cookies['admin'] = 'false'
+    theme = 'light'
     if 'theme' in cookies:
-        pass
-    else:
-        cookies['theme'] = 'light.css'
-    if cookies['theme'] == 'dark.css' or cookies['theme'] == 'dark_red.css':
-        darkmode = True
-    else:
-        darkmode = False
-    if cookies['admin'] == 'true':
-        return render_template('home.html', has_admin=True, theme=cookies['theme'], get_theme_link=get_theme_link, darkmode=darkmode)
-    else:
-        return render_template('home.html', has_admin=False, theme=cookies['theme'], get_theme_link=get_theme_link, darkmode=darkmode)
+        theme = cookies['theme']
+    rows = amount_of_fireworks
+    if 'admin' in cookies:
+        if cookies['admin'] == 'true':
+            rows = amount_of_fireworks_admin
+    fireworks_launched_str = []
+    for firework in fireworks_launched:
+        fireworks_launched_str.append(str(firework))
+    return render_template('home.html', theme=theme, rows=rows, fireworks_launched=':'.join(fireworks_launched_str))
 
 @app.route('/get_admin')
 def admin():
@@ -53,15 +49,10 @@ def select_theme(theme):
 @app.route('/themes')
 def themes():
     cookies = dict(request.cookies)
+    theme = 'light'
     if 'theme' in cookies:
-        pass
-    else:
-        cookies['theme'] = 'light.css'
-    if cookies['theme'] == 'dark.css' or cookies['theme'] == 'dark_red.css':
-        darkmode = True
-    else:
-        darkmode = False
-    return render_template('themes.html', theme=cookies['theme'], get_theme_link=get_theme_link, darkmode=darkmode)
+        theme = cookies['theme']
+    return render_template('themes.html', theme=theme)
 
 @app.route('/remove_admin')
 def remove_admin():
@@ -95,20 +86,21 @@ def firework_serial_write():
                 #data_left = ser.inWaiting()
                 #data += ser.read(data_left)
                 #print(data)
-                #del queue[i]
-                #i = i + 1
+                del queue[i]
+                i = i + 1
                 print(queue)
         except:
             pass
 
-@app.route('/trigger_firework/<string:firework>')
-def trigger_firework(firework):
+@socketio.on("launch_firework")
+def trigger_firework(data):
+    firework = data['firework']
     global fireworks_launched
     fireworks_launched.append(firework)
     pin = str(int(firework)+2)
     global queue
     queue.append(pin)
-    return redirect('/')
+    socketio.emit('firework_launch', {'firework': firework})
 
 @app.route('/reset')
 def reset():

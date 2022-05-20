@@ -1,16 +1,15 @@
+<!DOCTYPE html>
 <html>
+  <head>
+    <link href="/static/css/main.css" rel="stylesheet">
+  </head>
   <body>
-    <br/>
-    <div class="firework_buttons" id="buttons"></div>
-    <div class="d-grid gap-2 col-6 mx-auto">
-      <a class="button blue" href="/themes">Change theme</a>
-    </div>
-    <br/>
-    {% if has_admin %}
-      <div class="d-grid gap-2 col-6 mx-auto">
-        <a class="button blue" href="/remove_admin">Remove Admin</a>
-      </div>
-    {% endif %}
+    <div class="firework_buttons" id="firework_buttons"></div>
+    <script>
+      var theme = "{{ theme }}";
+      var rows = parseInt("{{ rows }}");
+      var fireworks_launched = "{{ fireworks_launched }}".split(":");
+    </script>
     <script src="/static/js/socketio.js"></script>
     <script src="/static/js/main.js"></script>
   </body>

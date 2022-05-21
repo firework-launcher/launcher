@@ -1,91 +1,29 @@
-{% extends 'base.html' %}
-{% block content %}
+<!DOCTYPE html>
 <html>
-  <style>
-    .html {
-      margin-left: auto;
-      margin-right: auto;
-      text-align: center;
-    }
-    .btn-outline-primary {
-      font-size: 75%;
-    }
-    .btn-outline-danger {
-      font-size: 75%;
-    }
-    .mx-auto {
-      max-width: 360px;
-    }
-    .btn-primary {
-      font-size: 75%;
-    }
-    .btn-danger {
-      font-size: 75%;
-    }
-  </style>
+  <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <link href="/static/css/main.css" rel="stylesheet">
+    <link href="{{ get_theme_link(theme) }}" rel="stylesheet">
+    <title>Firework Launcher</title>
+  </head>
   <body>
-    <br/>
-    <center>
-      <div class="container" style="text-align:center">
-        {% if has_admin %}
-          {% for x in range(8) %}
-            <div class="row mb-3">
-              <div class="col-4 themed-grid-col">
-                <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
-                <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a></div>
-              <div class="col-4 themed-grid-col">
-                <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
-                <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
-              </div>
-            </div>
-          {% endfor %}
-        {% else %}
-          {% for x in range(7) %}
-            <div class="row mb-3">
-              <div class="col-4 themed-grid-col">
-                <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
-                <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a></div>
-              <div class="col-4 themed-grid-col">
-                <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
-                <a class="btn btn{{ get_outline(darkmode) }}-{{ get_class_name(site_id) }}" id="{{ col(site_id) }}" href="{{ get_href(site_id) }}" role="button">#{{ add_col(site_id) }}</a>
-              </div>
-            </div>
-          {% endfor %}
-        {% endif %}
-      </div>
-    </center>
-    <div class="d-grid gap-2 col-6 mx-auto">
-      <a class="btn btn{{ get_outline(darkmode) }}-primary" href="/themes">Change theme</a>
-    </div>
-    <br/>
-    {% if has_admin %}
-      <div class="d-grid gap-2 col-6 mx-auto">
-        <a class="btn btn{{ get_outline(darkmode) }}-primary" href="/remove_admin">Remove Admin</a>
-      </div>
-    {% endif %}
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    <script type="text/javascript">
-      function changeClassRed(id) {
-        var doc = document.getElementById(id);
-        doc.className = "btn btn{{ get_outline(darkmode) }}-danger";
-        doc.href = "#";
-      }
-    </script>
-    {% for fireworks_launched in data: %}
-      {% for firework in fireworks_launched %}
-        <script>
-          changeClassRed("{{ firework }}")
-        </script>
-      {% endfor %}
-      {% if get_if_reset() %}
-        <script>
-          location.reload(true)
-        </script>
+    <ul class="navbar">
+      <li class="navbar-item-li"><p class="navbar-item navtitle">Firework Launcher</p></li>
+      <li class="navbar-item-li"><a class="navbar-item" href="/themes">Themes</a></li>
+      {% if admin %}
+        <li class="navbar-item-li"><a class="navbar-item" onclick="reset();">Reset</a></li>
       {% endif %}
+    </ul>
+    <div class="firework_buttons" id="firework_buttons"></div>
+    {% if admin %}
+      <div class="firework_buttons" id="firework_buttons_finale"></div>
+    {% endif %}
+    <script>
+      var theme = "{{ theme }}";
+      var rows = parseInt("{{ rows }}");
+      var fireworks_launched = "{{ fireworks_launched }}".split(":");
+    </script>
+    <script src="/static/js/socketio.js"></script>
+    <script src="/static/js/main.js"></script>
   </body>
 </html>
-{% endfor %}
-{% endblock %}

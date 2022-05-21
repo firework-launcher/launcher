@@ -1,15 +1,21 @@
-{% extends 'base.html' %}
-{% block content %}
-<p>Theme: {{ theme }}</p>
-<div class="d-grid gap-2 col-6 mx-auto">
-    <a class="btn btn{{ get_outline(darkmode) }}-primary" href="/theme/light.css">Light</a>
-</div>
-<br/>
-<div class="d-grid gap-2 col-6 mx-auto">
-    <a class="btn btn{{ get_outline(darkmode) }}-primary" href="/theme/dark.css">Dark</a>
-</div>
-<br/>
-<div class="d-grid gap-2 col-6 mx-auto">
-    <a class="btn btn{{ get_outline(darkmode) }}-primary" href="/theme/dark_red.css">Red dark</a>
-</div>
-{% endblock %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, user-scalable=no">
+        <link href="/static/css/main.css" rel="stylesheet">
+        <link href="{{ get_theme_link(theme) }}" rel="stylesheet">
+        <title>Firework Launcher - Themes
+        </title>
+    </head>
+    <body>
+        <ul class="navbar">
+            <li class="navbar-item-li"><a class="navbar-item navtitle" href="/">Firework Launcher</a></li>
+            <li class="navbar-item-li"><a class="navbar-item" href="/themes">Themes</a></li>
+        </ul>
+        <div class="themebuttons">
+            <p class="current_theme">Current Theme: {{ theme }}</p>
+            <a class="themebutton" href="/theme/light">Light</a>
+            <a class="themebutton" href="/theme/dark">Dark</a>
+        </div>
+    </body>
+</html>

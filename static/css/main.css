@@ -1,0 +1,98 @@
+body {
+    margin: 0;
+}
+
+p {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+h1 {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+h2 {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+h3 {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+h4 {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+h5 {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.firework_buttons {
+    text-align: center;
+}
+
+.firework_button {
+    border: none;
+    color: white;
+    padding: 15px 27px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    background-color: #177bed;
+    border-radius: 5px;
+    margin: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.navbar {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #fc5050;
+}
+
+.navbar-item {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-family: Arial, Helvetica, sans-serif;
+
+}
+
+.navtitle {
+    background-color: #fc2020;
+    margin: 0;
+}
+
+.navbar-item-li {
+    float: left;
+}
+
+.navbar-item :hover {
+    background-color: #ce1e1e;
+}
+
+.current_theme {
+    margin: 0;
+    padding: 10px;
+}
+
+.themebutton {
+    border: none;
+    color: white;
+    padding: 15px 27px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    background-color: #177bed;
+    border-radius: 5px;
+    margin: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.themebuttons {
+    text-align: center;
+}

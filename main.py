@@ -12,9 +12,12 @@ queue = []
 did_reset = False
 amount_of_fireworks = 28
 amount_of_fireworks_admin = 32
+devmode = False
+if os.path.exists('devmode'):
+    devmode = True
 
-
-ser = Serial('/dev/ttyACM0', 115200)
+if not devmode:
+    ser = Serial('/dev/ttyACM0', 115200)
 def get_theme_link(theme):
     file = None
     if theme == 'light':
@@ -79,19 +82,20 @@ def firework_serial_write():
         try:
             i = 0
             for pin in queue:
-                ser.write('/digital/{}/0\r\n'.format(pin).encode())
-                data = ser.read()
-                time.sleep(0.5)
-                data_left = ser.inWaiting()
-                data += ser.read(data_left)
-                print(data)
-                time.sleep(0.5)
-                ser.write('/digital/{}/1\r\n'.format(pin).encode())
-                data = ser.read()
-                time.sleep(0.5)
-                data_left = ser.inWaiting()
-                data += ser.read(data_left)
-                print(data)
+                if not devmode:
+                    ser.write('/digital/{}/0\r\n'.format(pin).encode())
+                    data = ser.read()
+                    time.sleep(0.5)
+                    data_left = ser.inWaiting()
+                    data += ser.read(data_left)
+                    print(data)
+                    time.sleep(0.5)
+                    ser.write('/digital/{}/1\r\n'.format(pin).encode())
+                    data = ser.read()
+                    time.sleep(0.5)
+                    data_left = ser.inWaiting()
+                    data += ser.read(data_left)
+                    print(data)
                 del queue[i]
                 i = i + 1
                 print(queue)

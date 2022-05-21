@@ -64,6 +64,25 @@ function add_btns(rows) {
     }
 }
 
+function add_legend() {
+    legend_div = document.getElementById("legend");
+    fp_length = Object.keys(firework_profiles).length;
+    for (let i = 1; i < fp_length+1; i++) {
+        key = i.toString();
+        color = firework_profiles[key]["color"];
+        pname = firework_profiles[key]["name"];
+        text = document.createElement("p");
+        text_class = document.createAttribute("class");
+        text_style = document.createAttribute("style");
+        text.innerText = pname;
+        text_class.value = "legend-txt";
+        text_style.value = "color: "+color+";";
+        text.setAttributeNode(text_class);
+        text.setAttributeNode(text_style);
+        legend_div.appendChild(text);
+    }
+}
+
 function trigger_firework(fb_id) {
     socket.emit("launch_firework", {"firework": fb_id});
 }
@@ -175,6 +194,8 @@ function change_profile(btn_id) {
 }
 
 add_btns(rows);
+
+add_legend();
 
 for (let index = 0; index < fireworks_launched.length; ++index) {
     set_btn_red(fireworks_launched[index]);

@@ -16,6 +16,12 @@ socket.on('firework_launch', (data) => {
     fireworks_launched.push(data['firework']);
 });
 
+socket.on('reset', () => {
+    for (let index = 0; index < fireworks_launched.length; ++index) {
+        set_btn_blue(fireworks_launched[index]);
+    }
+});
+
 function add_btns(rows) {
     for (let i = 1; i < rows+1; i++) {
         element = document.getElementById("firework_buttons");
@@ -46,7 +52,12 @@ function set_btn_red(btn_id) {
         button.removeAttribute("onclick");
         button.setAttributeNode(button_color);
     }
-}   
+}
+
+function reset() {
+    socket.emit("exec_reset");
+}
+
 function set_btn_blue(btn_id) {
     button = document.getElementById("fb_" + btn_id);
     if (button != null) {

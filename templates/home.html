@@ -1,10 +1,21 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no">
     <link href="/static/css/main.css" rel="stylesheet">
   </head>
   <body>
+    <ul class="navbar">
+      <li class="navbar-item-li"><p class="navbar-item navtitle">Firework Launcher</p></li>
+      <li class="navbar-item-li"><a class="navbar-item" href="/themes">Themes</a></li>
+      {% if admin %}
+        <li class="navbar-item-li"><a class="navbar-item" onclick="reset();">Reset</a></li>
+      {% endif %}
+    </ul>
     <div class="firework_buttons" id="firework_buttons"></div>
+    {% if admin %}
+      <div class="firework_buttons" id="firework_buttons_finale"></div>
+    {% endif %}
     <script>
       var theme = "{{ theme }}";
       var rows = parseInt("{{ rows }}");

@@ -10,7 +10,6 @@ socketio = flask_socketio.SocketIO(app)
 fireworks_launched = []
 queue = []
 did_reset = False
-if_reset = False
 amount_of_fireworks = 28
 amount_of_fireworks_admin = 32
 
@@ -26,13 +25,15 @@ def home():
     if 'theme' in cookies:
         theme = cookies['theme']
     rows = amount_of_fireworks
+    admin = False
     if 'admin' in cookies:
         if cookies['admin'] == 'true':
             rows = amount_of_fireworks_admin
+            admin = True
     fireworks_launched_str = []
     for firework in fireworks_launched:
         fireworks_launched_str.append(str(firework))
-    return render_template('home.html', theme=theme, rows=rows, fireworks_launched=':'.join(fireworks_launched_str))
+    return render_template('home.html', theme=theme, rows=rows, fireworks_launched=':'.join(fireworks_launched_str), admin=admin)
 
 @app.route('/get_admin')
 def admin():
@@ -102,17 +103,14 @@ def trigger_firework(data):
     queue.append(pin)
     socketio.emit('firework_launch', {'firework': firework})
 
-@app.route('/reset')
+@socketio.on('exec_reset')
 def reset():
     global queue
     global fireworks_launched
     global if_reset
     fireworks_launched = []
     queue = []
-    if_reset = True
-    time.sleep(1)
-    if_reset = False
-    return redirect('/')
+    socketio.emit('reset')
 
 if __name__ == '__main__':
     threading.Thread(target=firework_serial_write).start()

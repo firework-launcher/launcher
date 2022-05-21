@@ -2,10 +2,14 @@ body {
     margin: 0;
 }
 
+.firework_buttons {
+    text-align: center;
+}
+
 .firework_button {
     border: none;
     color: white;
-    padding: 15px 32px;
+    padding: 15px 27px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -14,4 +18,35 @@ body {
     border-radius: 5px;
     margin: 10px;
     font-family: Arial, Helvetica, sans-serif;
+}
+
+.navbar {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #fc5050;
+}
+
+.navbar-item {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-family: Arial, Helvetica, sans-serif;
+
+}
+
+.navtitle {
+    background-color: #fc2020;
+    margin: 0;
+}
+
+.navbar-item-li {
+    float: left;
+}
+
+.navbar-item :hover {
+    background-color: #ce1e1e;
 }

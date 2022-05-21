@@ -2,6 +2,30 @@ body {
     margin: 0;
 }
 
+p {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+h1 {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+h2 {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+h3 {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+h4 {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+h5 {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
 .firework_buttons {
     text-align: center;
 }
@@ -49,4 +73,9 @@ body {
 
 .navbar-item :hover {
     background-color: #ce1e1e;
+}
+
+.current_theme {
+    margin: 0;
+    padding: 10px;
 }

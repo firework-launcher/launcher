@@ -48,7 +48,11 @@ function set_btn_red(btn_id) {
     button = document.getElementById("fb_" + btn_id);
     if (button != null) {
         button_color = document.createAttribute("style");
-        button_color.value = "background-color: red;";
+        if (theme == "light") {
+            button_color.value = "background-color: #d8423a;";
+        } else {
+            button_color.value = "border: 2px solid #d8423a; color: #d8423a; background-color: rgba(0, 0, 0, 0);";
+        }
         button.removeAttribute("onclick");
         button.setAttributeNode(button_color);
     }

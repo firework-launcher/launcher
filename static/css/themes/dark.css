@@ -1,0 +1,39 @@
+body {
+    background-color: #303030;
+}
+
+p {
+    color: white;
+}
+
+h1 {
+    color: white;
+}
+
+h2 {
+    color: white;
+}
+
+h3 {
+    color: white;
+}
+
+h4 {
+    color: white;
+}
+
+h5 {
+    color: white;
+}
+
+.firework_button {
+    background-color: rgba(0, 0, 0, 0);
+    color: #177bed;
+    border: 2px solid #177bed;
+}
+
+.themebutton {
+    background-color: rgba(0, 0, 0, 0);
+    color: #177bed;
+    border: 2px solid #177bed;
+}

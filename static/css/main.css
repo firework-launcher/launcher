@@ -79,3 +79,20 @@ h5 {
     margin: 0;
     padding: 10px;
 }
+
+.themebutton {
+    border: none;
+    color: white;
+    padding: 15px 27px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    background-color: #177bed;
+    border-radius: 5px;
+    margin: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.themebuttons {
+    text-align: center;
+}

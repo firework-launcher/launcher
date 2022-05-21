@@ -16,7 +16,12 @@ amount_of_fireworks_admin = 32
 
 # ser = Serial('/dev/ttyACM0', 115200)
 def get_theme_link(theme):
-    return '/static/themes/' + theme
+    file = None
+    if theme == 'light':
+        file = 'light.css'
+    if theme == 'dark':
+        file = 'dark.css'
+    return '/static/css/themes/' + file
 
 @app.route('/')
 def home():
@@ -33,7 +38,7 @@ def home():
     fireworks_launched_str = []
     for firework in fireworks_launched:
         fireworks_launched_str.append(str(firework))
-    return render_template('home.html', theme=theme, rows=rows, fireworks_launched=':'.join(fireworks_launched_str), admin=admin)
+    return render_template('home.html', theme=theme, rows=rows, fireworks_launched=':'.join(fireworks_launched_str), admin=admin, get_theme_link=get_theme_link)
 
 @app.route('/get_admin')
 def admin():
@@ -53,7 +58,7 @@ def themes():
     theme = 'light'
     if 'theme' in cookies:
         theme = cookies['theme']
-    return render_template('themes.html', theme=theme)
+    return render_template('themes.html', theme=theme, get_theme_link=get_theme_link)
 
 @app.route('/remove_admin')
 def remove_admin():

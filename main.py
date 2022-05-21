@@ -26,7 +26,7 @@ def get_theme_link(theme):
 @app.route('/')
 def home():
     cookies = dict(request.cookies)
-    theme = 'light'
+    theme = 'dark'
     if 'theme' in cookies:
         theme = cookies['theme']
     rows = amount_of_fireworks
@@ -55,7 +55,7 @@ def select_theme(theme):
 @app.route('/themes')
 def themes():
     cookies = dict(request.cookies)
-    theme = 'light'
+    theme = 'dark'
     if 'theme' in cookies:
         theme = cookies['theme']
     return render_template('themes.html', theme=theme, get_theme_link=get_theme_link)

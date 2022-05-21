@@ -42,6 +42,15 @@ h5 {
     border-radius: 5px;
     margin: 10px;
     font-family: Arial, Helvetica, sans-serif;
+    transition: opacity 0.5s;
+}
+
+.remove {
+    opacity: 0;
+}
+
+.add {
+    opacity: 0;
 }
 
 .navbar {

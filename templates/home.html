@@ -12,16 +12,19 @@
       <li class="navbar-item-li"><a class="navbar-item" href="/themes">Themes</a></li>
       {% if admin %}
         <li class="navbar-item-li"><a class="navbar-item" onclick="reset();">Reset</a></li>
+        <li class="navbar-item-li"><a class="navbar-item" onclick="dev(rows);" id="devbutton">Dev</a></li>
       {% endif %}
     </ul>
     <div class="firework_buttons" id="firework_buttons"></div>
-    {% if admin %}
-      <div class="firework_buttons" id="firework_buttons_finale"></div>
-    {% endif %}
+    <div class="legend" id="legend">
+      <h2>Legend</h2>
+    </div>
     <script>
       var theme = "{{ theme }}";
       var rows = parseInt("{{ rows }}");
       var fireworks_launched = "{{ fireworks_launched }}".split(":");
+      var admin = "{{ admin }}";
+      var firework_profiles = JSON.parse('{{ firework_profiles | safe }}');
     </script>
     <script src="/static/js/socketio.js"></script>
     <script src="/static/js/main.js"></script>

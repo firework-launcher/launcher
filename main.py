@@ -4,14 +4,16 @@ import threading
 import time
 import os
 import flask_socketio
+import json
 from serial import Serial
 app = Flask(__name__)
 socketio = flask_socketio.SocketIO(app)
 fireworks_launched = []
 queue = []
-did_reset = False
-amount_of_fireworks = 28
-amount_of_fireworks_admin = 32
+amount_of_fireworks = 32
+f = open('firework_profiles.json')
+firework_profiling = json.loads(f.read())
+f.close()
 devmode = False
 if os.path.exists('devmode'):
     devmode = True
@@ -36,12 +38,11 @@ def home():
     admin = False
     if 'admin' in cookies:
         if cookies['admin'] == 'true':
-            rows = amount_of_fireworks_admin
             admin = True
     fireworks_launched_str = []
     for firework in fireworks_launched:
         fireworks_launched_str.append(str(firework))
-    return render_template('home.html', theme=theme, rows=rows, fireworks_launched=':'.join(fireworks_launched_str), admin=admin, get_theme_link=get_theme_link)
+    return render_template('home.html', theme=theme, rows=rows, fireworks_launched=':'.join(fireworks_launched_str), admin=admin, get_theme_link=get_theme_link, firework_profiles=json.dumps(firework_profiling))
 
 @app.route('/get_admin')
 def admin():
@@ -54,6 +55,15 @@ def select_theme(theme):
     resp = make_response(redirect('/'))
     resp.set_cookie('theme', theme)
     return resp
+
+@socketio.on('save_fp')
+def save_fp(firework_profiles):
+    os.remove('firework_profiles.json')
+    f = open('firework_profiles.json', 'x')
+    f.write(json.dumps(firework_profiles))
+    f.close()
+    global firework_profiling
+    firework_profiling = firework_profiles
 
 @app.route('/themes')
 def themes():

@@ -43,6 +43,7 @@ def shutdown_server():
 @app.route('/')
 def home():
     cookies = dict(request.cookies)
+    print('test')
     theme = 'dark'
     if 'theme' in cookies:
         theme = cookies['theme']

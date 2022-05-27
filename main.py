@@ -4,13 +4,18 @@ import threading
 import time
 import os
 import flask_socketio
+import subprocess
+import sys
+import requests
 import json
 from serial import Serial
 app = Flask(__name__)
 socketio = flask_socketio.SocketIO(app)
 fireworks_launched = []
 queue = []
+run_serial_write = True
 amount_of_fireworks = 32
+ready_for_restart = False
 f = open('firework_profiles.json')
 firework_profiling = json.loads(f.read())
 f.close()
@@ -27,6 +32,13 @@ def get_theme_link(theme):
     if theme == 'dark':
         file = 'dark.css'
     return '/static/css/themes/' + file
+
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+    requests.get('http://localhost/')
 
 @app.route('/')
 def home():
@@ -55,6 +67,16 @@ def select_theme(theme):
     resp = make_response(redirect('/'))
     resp.set_cookie('theme', theme)
     return resp
+
+@socketio.on('sync')
+def sync():
+    socketio.emit('syncing_to_git')
+    global run_serial_write
+    run_serial_write = False
+    while not ready_for_restart:
+        pass
+    subprocess.Popen([sys.executable, 'update.py'])
+    shutdown_server()
 
 @socketio.on('save_fp')
 def save_fp(firework_profiles):
@@ -87,8 +109,10 @@ def rickastley():
 def firework_serial_write():
     global queue
     global queue_reset_inprogress
+    global run_serial_write
+    global ready_for_restart
     print('Serial Proccessing Thread Starting...')
-    while True:
+    while run_serial_write:
         try:
             i = 0
             for pin in queue:
@@ -111,6 +135,8 @@ def firework_serial_write():
                 print(queue)
         except:
             pass
+    ready_for_restart = True
+    print('Serial Processing Thread Exiting...')
 
 @socketio.on("launch_firework")
 def trigger_firework(data):
@@ -131,6 +157,9 @@ def reset():
     queue = []
     socketio.emit('reset')
 
-if __name__ == '__main__':
-    threading.Thread(target=firework_serial_write).start()
+threading.Thread(target=firework_serial_write).start()
+try:
     socketio.run(app, host='0.0.0.0', port=80)
+except RuntimeError as e:
+    if str(e) == 'Shutdown':
+        sys.exit(0)

@@ -117,7 +117,7 @@ def trigger_firework(data):
     firework = data['firework']
     global fireworks_launched
     fireworks_launched.append(firework)
-    pin = str(int(firework)+2)
+    pin = str(int(firework)+1)
     global queue
     queue.append(pin)
     socketio.emit('firework_launch', {'firework': firework})

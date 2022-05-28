@@ -103,7 +103,7 @@ def remove_admin():
 
 @app.before_request
 def rickastley():
-    if not request.remote_addr.startswith('192.168.3.1'):
+    if not request.remote_addr.startswith('192.168.'):
         return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
 
 def firework_serial_write():

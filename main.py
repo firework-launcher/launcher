@@ -33,13 +33,6 @@ def get_theme_link(theme):
         file = 'dark.css'
     return '/static/css/themes/' + file
 
-def shutdown_server():
-    func = request.environ.get('werkzeug.server.shutdown')
-    if func is None:
-        raise RuntimeError('Not running with the Werkzeug Server')
-    func()
-    requests.get('http://localhost/')
-
 @app.route('/')
 def home():
     cookies = dict(request.cookies)
@@ -70,13 +63,14 @@ def select_theme(theme):
 
 @socketio.on('sync')
 def sync():
-    socketio.emit('syncing_to_git')
-    global run_serial_write
-    run_serial_write = False
-    while not ready_for_restart:
-        pass
-    subprocess.Popen([sys.executable, 'update.py'])
-    shutdown_server()
+    if not devmode:
+        socketio.emit('syncing_to_git')
+        global run_serial_write
+        run_serial_write = False
+        while not ready_for_restart:
+            pass
+        subprocess.Popen([sys.executable, 'update.py'])
+        os.system('fuser -k 80/tcp')
 
 @socketio.on('save_fp')
 def save_fp(firework_profiles):

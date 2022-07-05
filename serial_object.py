@@ -4,6 +4,7 @@ import time
 class Serial:
     def __init__(self, filename=None, bitrate=None, dummy_obj=False):
         self.dummy_obj = dummy_obj
+        self.filename = filename
         if self.dummy_obj:
             self.ser = None
         else:
@@ -13,6 +14,7 @@ class Serial:
         if self.dummy_obj:
             return 'This is a dummy response from this command: {}'.format(cmd)
         else:
+            print('Sending info, Command: {}, Serial Device: {}'.format(cmd, filename))
             ser.write(cmd.encode())
             data = ser.read()
             time.sleep(0.5)

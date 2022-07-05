@@ -95,7 +95,7 @@ def check_for_serial_devices(current_list):
         if tty.startswith('ttyACM') and not '/dev/{}'.format(tty) in current_list:
             print('/dev/{}'.format(tty))
             device_list.append('/dev/{}'.format(tty))
-    return device_list+current_list
+    return device_list
 
 def firework_serial_write():
     global queue
@@ -108,10 +108,11 @@ def firework_serial_write():
     serial_list = []
     while run_serial_write:
         if not devmode:
-            device_list = check_for_serial_devices(device_list)
+            new_device_list = check_for_serial_devices(device_list)
             for device in device_list:
                 serial_list.append({'obj': Serial(device, 115200), 'channels': 32, 'range': [amount_of_fireworks, amount_of_fireworks+32]})
                 amount_of_fireworks += 32
+            device_list = device_list + new_device_list
 
         try:
             i = 0

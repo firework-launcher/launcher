@@ -89,13 +89,23 @@ def rickastley():
     if not request.remote_addr.startswith('192.168.'):
         return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
 
+def check_for_serial_devices(current_list):
+    ttys = os.listdir('/sys/class/tty')
+    device_list = []
+    for tty in ttys:
+        if tty.startswith('ttyACM') and not '/dev/{}'.format(tty) in current_list:
+            device_list.append('/dev/{}'.format(tty))
+    return device_list
+
 def firework_serial_write():
     global queue
     global queue_reset_inprogress
     global run_serial_write
     global ready_for_restart
     print('Serial Proccessing Thread Starting...')
+    device_list = []
     while run_serial_write:
+        device_list = check_for_serial_devices(device_list)
         try:
             i = 0
             for pin in queue:

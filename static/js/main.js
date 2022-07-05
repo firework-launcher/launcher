@@ -1,14 +1,5 @@
 const socket = io();
 
-socket.on("connect", () => {
-    console.log("Connected");
-    if (update_modal_active == true) {
-        update_modal_active = false;
-        modal = document.getElementById("update_modal");
-        modal.style.display = "none";
-    }
-});
-
 socket.on("disconnect", () => {
     console.log("Lost Connection");
     for (let index = 0; index < fireworks_launched.length; ++index) {
@@ -197,16 +188,6 @@ function change_profile(btn_id) {
     removeItem(firework_profiles[old_profile_id]["fireworks"], btn_id)
     firework_profiles[profile_id]["fireworks"].push(btn_id)
 }
-
-function sync() {
-    socket.emit("sync");
-}
-
-socket.on("syncing_to_git", () => {
-    update_modal_active = true;
-    modal = document.getElementById("update_modal");
-    modal.style.display = "block";
-});
 
 add_btns(rows);
 

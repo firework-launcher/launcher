@@ -88,12 +88,10 @@ def rickastley():
         return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
 
 def check_for_serial_devices(current_list):
-    print(current_list)
     ttys = os.listdir('/sys/class/tty')
     device_list = []
     for tty in ttys:
         if tty.startswith('ttyACM') and not '/dev/{}'.format(tty) in current_list:
-            print('/dev/{}'.format(tty))
             device_list.append('/dev/{}'.format(tty))
     return device_list
 

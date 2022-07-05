@@ -13,14 +13,8 @@
       {% if admin %}
         <li class="navbar-item-li"><a class="navbar-item" onclick="reset();">Reset</a></li>
         <li class="navbar-item-li"><a class="navbar-item" onclick="dev(rows);" id="devbutton">Dev</a></li>
-        <li class="navbar-item-li"><a class="navbar-item" onclick="sync();">Update</a></li>
       {% endif %}
     </ul>
-    <div id="update_modal" class="modal">
-      <div class="modal-content">
-        <p>Server is Updating, this page will become responsive again once the server is back up</p>
-      </div>
-    </div>
 
     <div class="firework_buttons" id="firework_buttons"></div>
     <div class="legend" id="legend">
@@ -32,7 +26,6 @@
       var fireworks_launched = "{{ fireworks_launched }}".split(":");
       var admin = "{{ admin }}";
       var firework_profiles = JSON.parse('{{ firework_profiles | safe }}');
-      var update_modal_active = false;
     </script>
     <script src="/static/js/socketio.js"></script>
     <script src="/static/js/main.js"></script>

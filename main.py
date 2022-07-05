@@ -61,17 +61,6 @@ def select_theme(theme):
     resp.set_cookie('theme', theme)
     return resp
 
-@socketio.on('sync')
-def sync():
-    if not devmode:
-        socketio.emit('syncing_to_git')
-        global run_serial_write
-        run_serial_write = False
-        while not ready_for_restart:
-            pass
-        subprocess.Popen([sys.executable, 'update.py'])
-        os.system('fuser -k 80/tcp')
-
 @socketio.on('save_fp')
 def save_fp(firework_profiles):
     os.remove('firework_profiles.json')

@@ -109,7 +109,7 @@ def firework_serial_write():
     while run_serial_write:
         if not devmode:
             new_device_list = check_for_serial_devices(device_list)
-            for device in device_list:
+            for device in new_device_list:
                 serial_list.append({'obj': Serial(device, 115200), 'channels': 32, 'range': [amount_of_fireworks, amount_of_fireworks+32]})
                 amount_of_fireworks += 32
             device_list = device_list + new_device_list

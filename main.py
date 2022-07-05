@@ -116,6 +116,7 @@ def firework_serial_write():
             i = 0
             for pin in queue:
                 firework = int(pin)-1
+                print(str(firework) + ' launched')
                 if not devmode:
                     ser = None
                     for device in serial_list:

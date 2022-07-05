@@ -7,14 +7,14 @@ import flask_socketio
 import subprocess
 import sys
 import requests
+from serial_object import Serial
 import json
-from serial import Serial
 app = Flask(__name__)
 socketio = flask_socketio.SocketIO(app)
 fireworks_launched = []
 queue = []
 run_serial_write = True
-amount_of_fireworks = 32
+amount_of_fireworks = 0
 ready_for_restart = False
 f = open('firework_profiles.json')
 firework_profiling = json.loads(f.read())
@@ -23,8 +23,6 @@ devmode = False
 if os.path.exists('devmode'):
     devmode = True
 
-if not devmode:
-    ser = Serial('/dev/ttyACM0', 115200)
 def get_theme_link(theme):
     file = None
     if theme == 'light':
@@ -102,27 +100,29 @@ def firework_serial_write():
     global queue_reset_inprogress
     global run_serial_write
     global ready_for_restart
+    global amount_of_fireworks
     print('Serial Proccessing Thread Starting...')
     device_list = []
+    serial_list = []
     while run_serial_write:
-        device_list = check_for_serial_devices(device_list)
+        if not devmode:
+            device_list = check_for_serial_devices(device_list)
+            for device in device_list:
+                serial_list.append({'obj': Serial(device, 115200), 'channels': 32, 'range': [amount_of_fireworks, amount_of_fireworks+32]})
+                amount_of_fireworks += 32
+
         try:
             i = 0
             for pin in queue:
+                firework = int(pin)-1
                 if not devmode:
-                    ser.write('/digital/{}/0\r\n'.format(pin).encode())
-                    data = ser.read()
+                    ser = None
+                    for device in serial_list:
+                        if device['range'][0] <= firework and device['range'][1] >= firework:
+                            ser = device['obj']
+                    print(ser.command('/digital/{}/0\r\n'.format(pin)))
                     time.sleep(0.5)
-                    data_left = ser.inWaiting()
-                    data += ser.read(data_left)
-                    print(data)
-                    time.sleep(0.5)
-                    ser.write('/digital/{}/1\r\n'.format(pin).encode())
-                    data = ser.read()
-                    time.sleep(0.5)
-                    data_left = ser.inWaiting()
-                    data += ser.read(data_left)
-                    print(data)
+                    print(ser.command('/digital/{}/1\r\n'.format(pin)))
                 del queue[i]
                 i = i + 1
                 print(queue)

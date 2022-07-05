@@ -93,6 +93,7 @@ def check_for_serial_devices(current_list):
     device_list = []
     for tty in ttys:
         if tty.startswith('ttyACM') and not '/dev/{}'.format(tty) in current_list:
+            print('/dev/{}'.format(tty))
             device_list.append('/dev/{}'.format(tty))
     return device_list+current_list
 

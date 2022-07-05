@@ -88,6 +88,7 @@ def rickastley():
         return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
 
 def check_for_serial_devices(current_list):
+    print(current_list)
     ttys = os.listdir('/sys/class/tty')
     device_list = []
     for tty in ttys:

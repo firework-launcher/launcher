@@ -8,6 +8,7 @@ class Serial:
             self.ser = None
         else:
             self.ser = Ser(filename, bitrate)
+            print('New serial device: {}'.format(filename))
 
     def command(self, cmd):
         if self.dummy_obj:

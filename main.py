@@ -94,7 +94,7 @@ def check_for_serial_devices(current_list):
     for tty in ttys:
         if tty.startswith('ttyACM') and not '/dev/{}'.format(tty) in current_list:
             device_list.append('/dev/{}'.format(tty))
-    return device_list
+    return device_list+current_list
 
 def firework_serial_write():
     global queue

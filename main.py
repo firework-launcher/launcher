@@ -19,12 +19,16 @@ ready_for_restart = False
 f = open('firework_profiles.json')
 firework_profiling = json.loads(f.read())
 f.close()
+port = '/dev/ttyACM0'
+if len(sys.argv) == 2:
+    port = sys.argv[1]
 devmode = False
 if os.path.exists('devmode'):
     devmode = True
 
 if not devmode:
-    ser = Serial('/dev/ttyACM0', 115200)
+    ser = Serial(port, 115200)
+
 def get_theme_link(theme):
     file = None
     if theme == 'light':
@@ -86,7 +90,7 @@ def remove_admin():
 
 @app.before_request
 def rickastley():
-    if not request.remote_addr.startswith('192.168.'):
+    if not request.remote_addr.startswith('192.168.') and not request.remote_addr.startswith('172.16.'):
         return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
 
 def firework_serial_write():
@@ -118,6 +122,7 @@ def firework_serial_write():
                 print(queue)
         except:
             pass
+        time.sleep(0.01)
     ready_for_restart = True
     print('Serial Processing Thread Exiting...')
 

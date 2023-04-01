@@ -10,6 +10,7 @@ import requests
 import json
 from serial import Serial
 import argparse
+import logging
 
 app = Flask(__name__)
 socketio = flask_socketio.SocketIO(app)
@@ -109,27 +110,36 @@ def firework_serial_write():
     global queue_reset_inprogress
     global run_serial_write
     global ready_for_restart
-    print('Serial Proccessing Thread Starting...')
+    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.DEBUG)
+    logging.info('Serial Proccessing Thread Starting...')
     while run_serial_write:
         try:
             i = 0
             for pin in queue:
-                ser.write('/digital/{}/0\r\n'.format(pin).encode())
+                serial_msg = '/digital/{}/0\r\n'.format(pin)
+                ser.write(serial_msg.encode())
+                logging.debug('Sent serial message: {} to launcher {}'.format(serial_msg.replace('\r\n', ''), args.serial_port))
+
                 data = ser.read()
                 time.sleep(0.5)
                 data_left = ser.inWaiting()
                 data += ser.read(data_left)
-                print(data)
+                logging.debug('Recieved serial response: {}'.format(data))
                 time.sleep(0.5)
-                ser.write('/digital/{}/1\r\n'.format(pin).encode())
+
+                serial_msg = '/digital/{}/1\r\n'.format(pin)
+                ser.write(serial_msg.encode())
+                logging.debug('Sent serial message: {} to launcher {}'.format(serial_msg.replace('\r\n', ''), args.serial_port))
+
                 data = ser.read()
                 time.sleep(0.5)
                 data_left = ser.inWaiting()
                 data += ser.read(data_left)
-                print(data)
+                logging.debug('Recieved serial response: {}'.format(data))
+                
                 del queue[i]
                 i = i + 1
-                print(queue)
+                logging.info('Queue update: {}'.format(queue))
         except:
             pass
         time.sleep(0.01)

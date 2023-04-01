@@ -8,8 +8,9 @@ import subprocess
 import sys
 import requests
 import json
-
 from serial import Serial
+import argparse
+
 app = Flask(__name__)
 socketio = flask_socketio.SocketIO(app)
 fireworks_launched = []
@@ -20,11 +21,24 @@ ready_for_restart = False
 f = open('firework_profiles.json')
 firework_profiling = json.loads(f.read())
 f.close()
-port = '/dev/ttyACM0'
-if len(sys.argv) == 2:
-    port = sys.argv[1]
 
-ser = Serial(port, 115200)
+parser = argparse.ArgumentParser()
+parser.add_argument('--host', type=str, help='Host address to host the website with', required=False)
+parser.add_argument('--port', type=int, help='Port to bind to for the website', required=False)
+parser.add_argument('serial_port', type=str, help='Serial port to send commands to')
+
+args = parser.parse_args()
+
+if args.serial_port == None:
+    args.serial_port = '/dev/ttyACM0'
+
+if args.host == None:
+    args.host = '0.0.0.0'
+
+if args.port == None:
+    args.port = 80
+
+ser = Serial(args.serial_port, 115200)
 
 def get_theme_link(theme):
     file = None
@@ -143,7 +157,7 @@ def reset():
 
 threading.Thread(target=firework_serial_write).start()
 try:
-    socketio.run(app, host='0.0.0.0', port=80)
+    socketio.run(app, host=args.host, port=args.port)
 except RuntimeError as e:
     if str(e) == 'Shutdown':
         sys.exit(0)

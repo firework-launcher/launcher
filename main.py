@@ -8,6 +8,7 @@ import subprocess
 import sys
 import requests
 import json
+
 from serial import Serial
 app = Flask(__name__)
 socketio = flask_socketio.SocketIO(app)
@@ -22,12 +23,8 @@ f.close()
 port = '/dev/ttyACM0'
 if len(sys.argv) == 2:
     port = sys.argv[1]
-devmode = False
-if os.path.exists('devmode'):
-    devmode = True
 
-if not devmode:
-    ser = Serial(port, 115200)
+ser = Serial(port, 115200)
 
 def get_theme_link(theme):
     file = None
@@ -103,20 +100,19 @@ def firework_serial_write():
         try:
             i = 0
             for pin in queue:
-                if not devmode:
-                    ser.write('/digital/{}/0\r\n'.format(pin).encode())
-                    data = ser.read()
-                    time.sleep(0.5)
-                    data_left = ser.inWaiting()
-                    data += ser.read(data_left)
-                    print(data)
-                    time.sleep(0.5)
-                    ser.write('/digital/{}/1\r\n'.format(pin).encode())
-                    data = ser.read()
-                    time.sleep(0.5)
-                    data_left = ser.inWaiting()
-                    data += ser.read(data_left)
-                    print(data)
+                ser.write('/digital/{}/0\r\n'.format(pin).encode())
+                data = ser.read()
+                time.sleep(0.5)
+                data_left = ser.inWaiting()
+                data += ser.read(data_left)
+                print(data)
+                time.sleep(0.5)
+                ser.write('/digital/{}/1\r\n'.format(pin).encode())
+                data = ser.read()
+                time.sleep(0.5)
+                data_left = ser.inWaiting()
+                data += ser.read(data_left)
+                print(data)
                 del queue[i]
                 i = i + 1
                 print(queue)

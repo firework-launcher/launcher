@@ -14,9 +14,14 @@
       </ul>
       <form method="POST" class="themebuttons">
         <h1>Add Launcher</h1>
+        <label for="serialip">Serial or IP Launcher: </label>
+        <select name="serialip" id="serialip">
+          <option value="serial">Serial</option>
+          <option value="ip">IP</option>
+        </select>
         <p>Launcher Name</p>
         <input name="launcher_name" type="text">
-        <p>Serial Port</p>
+        <p>Serial Port/IP</p>
         <input name="serial_port" type="text">
         <br/>
         <button type="submit" class="themebutton">Add</button>

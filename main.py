@@ -157,15 +157,23 @@ def trigger_firework(data):
     queue.append((launcher, pin))
     socketio.emit('firework_launch', {'firework': firework, 'launcher': launcher})
 
-@socketio.on('exec_reset')
-def reset(data):
+def reset_launcher(launcher):
     global queue
     global fireworks_launched
     global if_reset
-    launcher = data['launcher']
     fireworks_launched[launcher] = []
     queue = []
-    socketio.emit('reset', {'launcher': launcher})
+
+@socketio.on('exec_reset')
+def reset(data):
+    reset_launcher(data['launcher'])
+    socketio.emit('reset', data)
+
+@socketio.on('reset_all')
+def reset_all():
+    for launcher in fireworks_launched:
+        reset_launcher(launcher)
+    socketio.emit('reset_all')
 
 threading.Thread(target=firework_serial_write).start()
 try:

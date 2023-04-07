@@ -13,10 +13,24 @@ socket.on('firework_launch', (data) => {
     console.log("New firework launched. Launcher: " + data['launcher'] + " Firework: " + data['firework'])
 });
 
-socket.on('reset', (data) => {
-    launcher = data['launcher']
+function reset_launcher(launcher) {
     for (let index = 0; index < fireworks_launched[launcher].length; ++index) {
         set_btn_blue(launcher, fireworks_launched[launcher][index]);
+    }
+}
+
+function reset_all() {
+    socket.emit('reset_all');
+}
+
+socket.on('reset', (data) => {
+    launcher = data['launcher']
+    reset_launcher(launcher)
+});
+
+socket.on('reset_all', () => {
+    for (var launcher in fireworks_launched) {
+        reset_launcher(launcher);
     }
 });
 
@@ -113,7 +127,7 @@ function set_btn_blue(launcher, btn_id) {
         fadeIn(button);
         button.removeAttribute("onclick");
         button_js_onclick = document.createAttribute("onclick");
-        button_js_onclick.value = "trigger_firework(" + btn_id + ");";
+        button_js_onclick.value = "trigger_firework(" + btn_id + ", '" + launcher + "');";
         button.setAttributeNode(button_js_onclick);
     }
 }

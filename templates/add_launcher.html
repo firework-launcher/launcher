@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <link href="/static/css/main.css" rel="stylesheet">
+    <link href="{{ get_theme_link(theme) }}" rel="stylesheet">
+    <title>Firework Launcher - Add launcher</title>
+  </head>
+  <body>
+    <ul class="navbar">
+        <li class="navbar-item-li"><a class="navbar-item navtitle" href="/">Firework Launcher</a></li>
+        <li class="navbar-item-li"><a class="navbar-item" href="/themes">Themes</a></li>
+        <li class="navbar-item-li"><a class="navbar-item" href="/add_launcher">Add launcher</a></li>
+      </ul>
+      <form method="POST" class="themebuttons">
+        <h1>Add Launcher</h1>
+        <p>Launcher Name</p>
+        <input name="launcher_name" type="text">
+        <p>Serial Port</p>
+        <input name="serial_port" type="text">
+        <br/>
+        <button type="submit" class="themebutton">Add</button>
+      </form>
+  </body>
+</html>

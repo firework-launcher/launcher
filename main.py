@@ -85,6 +85,9 @@ def add_launcher():
         form = dict(request.form)
         serial.add_launcher(form['launcher_name'], form['serial_port'])
         fireworks_launched[form['serial_port']] = []
+        if not form['serial_port'] in firework_profiling:
+            firework_profiling[form['serial_port']] = {'1': {'color': '#177bed', 'fireworks': [7, 8, 9, 10, 11, 13, 16, 17, 12, 2, 3, 6, 15, 4, 14, 5, 1], 'name': 'One Shot'}, '2': {'color': '#5df482', 'fireworks': [28, 27, 26, 25, 24], 'name': 'Two Shot'}, '3': {'color': '#f4ff5e', 'fireworks': [23, 22, 21, 20, 19, 18], 'name': 'Three Shot'}, '4': {'color': '#ff2667', 'fireworks': [32, 31, 30, 29], 'name': 'Finale'}}
+            save_fp(firework_profiling)
         return redirect('/')
     else:
         return render_template('add_launcher.html', get_theme_link=get_theme_link, theme=theme)
@@ -99,7 +102,7 @@ def select_theme(theme):
 def save_fp(firework_profiles):
     os.remove('firework_profiles.json')
     f = open('firework_profiles.json', 'x')
-    f.write(json.dumps(firework_profiles))
+    f.write(json.dumps(firework_profiles, indent=4))
     f.close()
     global firework_profiling
     firework_profiling = firework_profiles

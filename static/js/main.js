@@ -34,11 +34,11 @@ socket.on('reset_all', () => {
     }
 });
 
-function get_profile_id(btn_id) {
+function get_profile_id(launcher, btn_id) {
     profile = null;
-    for (var key in firework_profiles) {
-        if (firework_profiles.hasOwnProperty(key)) {
-            if (firework_profiles[key]["fireworks"].indexOf(btn_id) !== -1) {
+    for (var key in firework_profiles[launcher]) {
+        if (firework_profiles[launcher].hasOwnProperty(key)) {
+            if (firework_profiles[launcher][key]["fireworks"].indexOf(btn_id) !== -1) {
                 profile = key
             }
         }
@@ -48,8 +48,8 @@ function get_profile_id(btn_id) {
 
 function add_btns(rows, launcher) {
     for (let i = 1; i < rows+1; i++) {
-        profile_id = get_profile_id(i);
-        profile = firework_profiles[profile_id]
+        profile_id = get_profile_id(launcher, i);
+        profile = firework_profiles[launcher][profile_id]
         element = document.getElementById("firework_buttons_"+launcher);
         button = document.createElement("a");
         button_class = document.createAttribute("class");
@@ -78,11 +78,11 @@ function add_btns(rows, launcher) {
 
 function add_legend() {
     legend_div = document.getElementById("legend");
-    fp_length = Object.keys(firework_profiles).length;
+    fp_length = Object.keys(firework_profiles[launchers[0]]).length;;
     for (let i = 1; i < fp_length+1; i++) {
         key = i.toString();
-        color = firework_profiles[key]["color"];
-        pname = firework_profiles[key]["name"];
+        color = firework_profiles[launchers[0]][key]["color"];
+        pname = firework_profiles[launchers[0]][key]["name"];
         text = document.createElement("p");
         text_class = document.createAttribute("class");
         text_style = document.createAttribute("style");
@@ -132,39 +132,45 @@ function set_btn_blue(launcher, btn_id) {
     }
 }
 
-function dev(rows) {
+function dev() {
     devbutton = document.getElementById("devbutton")
     devbutton.innerText = "Save";
     devbutton.removeAttribute("onclick");
     devbutton_js_onclick = document.createAttribute("onclick");
-    devbutton_js_onclick.value = "save_fp(rows);";
+    devbutton_js_onclick.value = "save_fp();";
     devbutton.setAttributeNode(devbutton_js_onclick);
-    for (let i = 1; i < rows+1; i++) {
-        button = document.getElementById("fb_" + i);
-        if (button != null) {
-            button.removeAttribute("onclick");
-            button_js_onclick = document.createAttribute("onclick");
-            button_js_onclick.value = "change_profile(" + i + ");";
-            button.setAttributeNode(button_js_onclick);
+    for (let index = 0; index < launchers.length; ++index) {
+        for (let i = 1; i < 33; i++) {
+            button = document.getElementById("fb_" + launchers[index] + "_" + i);
+            if (button != null) {
+                button.removeAttribute("onclick");
+                button_js_onclick = document.createAttribute("onclick");
+                button_js_onclick.value = "change_profile('" + launchers[index] + "', " + i + ");";
+                button.setAttributeNode(button_js_onclick);
+            }
         }
     }
 }
 
-function save_fp(rows) {
+function save_fp() {
     socket.emit("save_fp", firework_profiles);
     devbutton = document.getElementById("devbutton")
     devbutton.innerText = "Dev";
     devbutton.removeAttribute("onclick");
     devbutton_js_onclick = document.createAttribute("onclick");
-    devbutton_js_onclick.value = "dev(rows);";
+    devbutton_js_onclick.value = "dev();";
     devbutton.setAttributeNode(devbutton_js_onclick);
-    for (let i = 1; i < rows+1; i++) {
-        button = document.getElementById("fb_" + i);
-        if (button != null) {
-            button.removeAttribute("onclick");
-            button_js_onclick = document.createAttribute("onclick");
-            button_js_onclick.value = "trigger_firework(" + i + ");";
-            button.setAttributeNode(button_js_onclick);
+    for (var launcher in launchers) {
+        for (let i = 1; i < 33; i++) {
+            button = document.getElementById("fb_" + launchers[launcher] + "_" + i);
+            if (button != null) {
+                button.removeAttribute("onclick");
+                button_js_onclick = document.createAttribute("onclick");
+                button_js_onclick.value = "trigger_firework(" + i + ", '" + launchers[launcher] + "');";
+                button.setAttributeNode(button_js_onclick);
+            } else {
+                console.warn("Tried to change non-existant button")
+            }
         }
     }
 }
@@ -179,16 +185,16 @@ function removeItem(array, item) {
     }
 }
 
-function change_profile(btn_id) {
-    button = document.getElementById("fb_" + btn_id);
+function change_profile(launcher, btn_id) {
+    button = document.getElementById("fb_" + launcher + "_" + btn_id);
     old_profile_id = parseInt(button.getAttribute("profile"));
-    fp_length = Object.keys(firework_profiles).length;
+    fp_length = Object.keys(firework_profiles[launcher]).length;;
     if (old_profile_id+1 > fp_length) {
         profile_id = 1;
     } else {
         profile_id = old_profile_id + 1;
     }
-    new_profile = firework_profiles[profile_id];
+    new_profile = firework_profiles[launcher][profile_id];
     button.removeAttribute("style");
     button.removeAttribute("profile");
     button_style = document.createAttribute("style");
@@ -201,8 +207,8 @@ function change_profile(btn_id) {
     button_fp.value = profile_id;
     button.setAttributeNode(button_style);
     button.setAttributeNode(button_fp);
-    removeItem(firework_profiles[old_profile_id]["fireworks"], btn_id)
-    firework_profiles[profile_id]["fireworks"].push(btn_id)
+    removeItem(firework_profiles[launcher][old_profile_id]["fireworks"], btn_id)
+    firework_profiles[launcher][profile_id]["fireworks"].push(btn_id)
 }
 
 for (let index = 0; index < launchers.length; ++index) {

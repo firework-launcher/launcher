@@ -11,21 +11,27 @@
       <li class="navbar-item-li"><p class="navbar-item navtitle">Firework Launcher</p></li>
       <li class="navbar-item-li"><a class="navbar-item" href="/themes">Themes</a></li>
       {% if admin %}
-        <li class="navbar-item-li"><a class="navbar-item" onclick="reset();">Reset</a></li>
         <li class="navbar-item-li"><a class="navbar-item" onclick="dev(rows);" id="devbutton">Dev</a></li>
+        <li class="navbar-item-li"><a class="navbar-item" href="/add_launcher">Add launcher</a></li>
       {% endif %}
     </ul>
-
-    <div class="firework_buttons" id="firework_buttons"></div>
+    {% for launcher in launchers %}
+      <h2 style="text-align: center;">{{ launcher }} ({{ launchers[launcher] }})
+      {% if admin %}
+      <span><a class="resetbutton" onclick="reset('{{ launchers[launcher] }}');">Reset</a></span>
+      {% endif %}
+      </h2>
+      <div class="firework_buttons" id="firework_buttons_{{ launchers[launcher] }}"></div>
+    {% endfor %}
     <div class="legend" id="legend">
       <h2>Legend</h2>
     </div>
     <script>
       var theme = "{{ theme }}";
-      var rows = parseInt("{{ rows }}");
-      var fireworks_launched = "{{ fireworks_launched }}".split(":");
+      var fireworks_launched = JSON.parse('{{ fireworks_launched | safe }}');;
       var admin = "{{ admin }}";
       var firework_profiles = JSON.parse('{{ firework_profiles | safe }}');
+      var launchers = "{{ launchers_parsed }}".split(":")
     </script>
     <script src="/static/js/socketio.js"></script>
     <script src="/static/js/main.js"></script>

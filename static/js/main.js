@@ -8,13 +8,15 @@ socket.on("disconnect", () => {
 })
 
 socket.on('firework_launch', (data) => {
-    set_btn_red(data['firework']);
-    fireworks_launched.push(data['firework']);
+    set_btn_red(data['launcher'], data['firework']);
+    fireworks_launched[data['launcher']].push(data['firework']);
+    console.log("New firework launched. Launcher: " + data['launcher'] + " Firework: " + data['firework'])
 });
 
-socket.on('reset', () => {
-    for (let index = 0; index < fireworks_launched.length; ++index) {
-        set_btn_blue(fireworks_launched[index]);
+socket.on('reset', (data) => {
+    launcher = data['launcher']
+    for (let index = 0; index < fireworks_launched[launcher].length; ++index) {
+        set_btn_blue(launcher, fireworks_launched[launcher][index]);
     }
 });
 
@@ -30,11 +32,11 @@ function get_profile_id(btn_id) {
     return profile;
 }
 
-function add_btns(rows) {
+function add_btns(rows, launcher) {
     for (let i = 1; i < rows+1; i++) {
         profile_id = get_profile_id(i);
         profile = firework_profiles[profile_id]
-        element = document.getElementById("firework_buttons");
+        element = document.getElementById("firework_buttons_"+launcher);
         button = document.createElement("a");
         button_class = document.createAttribute("class");
         button_fp = document.createAttribute("profile");
@@ -42,8 +44,8 @@ function add_btns(rows) {
         button_id = document.createAttribute("id");
         button_style = document.createAttribute("style");
         button_class.value = "firework_button";
-        button_js_onclick.value = "trigger_firework(" + i + ");";
-        button_id.value = "fb_"+i;
+        button_js_onclick.value = "trigger_firework(" + i + ", \"" + launcher + "\");";
+        button_id.value = "fb_" + launcher + "_" + i;
         button_fp.value = profile_id;
         button.innerText = "#"+i;
         if (theme == "light") {
@@ -79,8 +81,8 @@ function add_legend() {
     }
 }
 
-function trigger_firework(fb_id) {
-    socket.emit("launch_firework", {"firework": fb_id});
+function trigger_firework(fb_id, launcher) {
+    socket.emit("launch_firework", {"firework": fb_id, "launcher": launcher});
 }
 
 function fadeOut(element) {
@@ -92,8 +94,8 @@ function fadeIn(element) {
 }
 
 
-function set_btn_red(btn_id) {
-    button = document.getElementById("fb_" + btn_id);
+function set_btn_red(launcher, btn_id) {
+    button = document.getElementById("fb_" + launcher + "_" + btn_id);
     if (button != null) {
         button_color = document.createAttribute("style");
         fadeOut(button);
@@ -101,12 +103,12 @@ function set_btn_red(btn_id) {
     }
 }
 
-function reset() {
-    socket.emit("exec_reset");
+function reset(launcher) {
+    socket.emit("exec_reset", {"launcher": launcher});
 }
 
-function set_btn_blue(btn_id) {
-    button = document.getElementById("fb_" + btn_id);
+function set_btn_blue(launcher, btn_id) {
+    button = document.getElementById("fb_" + launcher + "_" + btn_id);
     if (button != null) {
         fadeIn(button);
         button.removeAttribute("onclick");
@@ -189,10 +191,14 @@ function change_profile(btn_id) {
     firework_profiles[profile_id]["fireworks"].push(btn_id)
 }
 
-add_btns(rows);
+for (let index = 0; index < launchers.length; ++index) {
+    add_btns(32, launchers[index]);
+}
 
 add_legend();
 
-for (let index = 0; index < fireworks_launched.length; ++index) {
-    set_btn_red(fireworks_launched[index]);
-}
+Object.entries(fireworks_launched).forEach(([launcher,launched]) => {
+    for (let index = 0; index < launched.length; ++index) {
+        set_btn_red(launcher, index);
+    }
+})

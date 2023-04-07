@@ -18,6 +18,12 @@ fireworks_launched = {}
 queue = []
 run_serial_write = True
 ready_for_restart = False
+
+if not os.path.exists('firework_profiles.json'):
+    f = open('firework_profiles.json', 'x')
+    f.write('{}')
+    f.close()
+
 f = open('firework_profiles.json')
 firework_profiling = json.loads(f.read())
 f.close()

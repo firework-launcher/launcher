@@ -8,9 +8,11 @@ socket.on("disconnect", () => {
 })
 
 socket.on('firework_launch', (data) => {
-    set_btn_red(data['launcher'], data['firework']);
-    fireworks_launched[data['launcher']].push(data['firework']);
-    console.log("New firework launched. Launcher: " + data['launcher'] + " Firework: " + data['firework'])
+    if (fireworks_launched[data['launcher']] != undefined) {
+        set_btn_red(data['launcher'], data['firework']);
+        fireworks_launched[data['launcher']].push(data['firework']);
+        console.log("New firework launched. Launcher: " + data['launcher'] + " Firework: " + data['firework'])
+    }
 });
 
 function reset_launcher(launcher) {

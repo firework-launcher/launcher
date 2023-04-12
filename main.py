@@ -14,8 +14,8 @@ import logging
 
 app = Flask(__name__)
 socketio = flask_socketio.SocketIO(app)
-fireworks_launched = {}
-queue = []
+fireworks_launched = {'LFA': []}
+queue = {}
 run_serial_write = True
 ready_for_restart = False
 
@@ -75,6 +75,37 @@ def home():
         launchers_parsed=':'.join(serial_ports)
     )
 
+def get_lfa_firework_launched():
+    lfa_list = []
+    for x in range(32):
+        launched = False
+        for launcher in fireworks_launched:
+            if x+1 in fireworks_launched[launcher]:
+                launched = True
+        if launched:
+            lfa_list.append(x+1)
+    return {'LFA': lfa_list}
+
+@app.route('/lfa')
+def lfa():
+    cookies = dict(request.cookies)
+    theme = 'dark'
+    if 'theme' in cookies:
+        theme = cookies['theme']
+    admin = False
+    if 'admin' in cookies:
+        if cookies['admin'] == 'true':
+            admin = True
+    return render_template('home.html', 
+        theme=theme,
+        fireworks_launched=json.dumps(get_lfa_firework_launched()),
+        admin=admin,
+        get_theme_link=get_theme_link,
+        firework_profiles='{"LFA": {"1": {"color": "#fc2339", "fireworks": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32], "name": "LFA"}}}',
+        launchers={'Launch For All': 'LFA'},
+        launchers_parsed='LFA'
+    )
+
 @app.route('/get_admin')
 def admin():
     resp = make_response(redirect('/'))
@@ -97,6 +128,7 @@ def add_launcher():
         if not form['serial_port'] in firework_profiling:
             firework_profiling[form['serial_port']] = {'1': {'color': '#177bed', 'fireworks': [7, 8, 9, 10, 11, 13, 16, 17, 12, 2, 3, 6, 15, 4, 14, 5, 1], 'name': 'One Shot'}, '2': {'color': '#5df482', 'fireworks': [28, 27, 26, 25, 24], 'name': 'Two Shot'}, '3': {'color': '#f4ff5e', 'fireworks': [23, 22, 21, 20, 19, 18], 'name': 'Three Shot'}, '4': {'color': '#ff2667', 'fireworks': [32, 31, 30, 29], 'name': 'Finale'}}
             save_fp(firework_profiling)
+        threading.Thread(target=firework_serial_write, args=[form['serial_port']]).start()
         return redirect('/')
     else:
         return render_template('add_launcher.html', get_theme_link=get_theme_link, theme=theme)
@@ -135,25 +167,27 @@ def rickastley():
     if not request.remote_addr.startswith('192.168.') and not request.remote_addr.startswith('172.16.'):
         return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
 
-def firework_serial_write():
+def firework_serial_write(launcher):
     global queue
     global queue_reset_inprogress
     global run_serial_write
     global ready_for_restart
-    logging.info('Serial Proccessing Thread Starting...')
+    queue[launcher] = []
+    logging.info('Serial Proccessing Thread Starting for launcher {}...'.format(launcher))
+    queue_for_thread = []
     while run_serial_write:
         try:
             i = 0
-            for launcher, pin in queue:
+            for pin in queue[launcher]:
                 serial.write_to_launcher(launcher, '/digital/{}/0\r\n'.format(pin))
                 serial.write_to_launcher(launcher, '/digital/{}/1\r\n'.format(pin))
-                del queue[i]
+                del queue[launcher][i]
                 i = i + 1
-                logging.info('Queue update: {}'.format(queue))
+                logging.info('{} Queue update: {}'.format(launcher, queue))
         except Exception as e:
-            logging.error('Recieved error from queue: {}: {}'.format(type(e).__name__, str(e)))
-            queue = []
-            logging.debug('Due to the previous error, queue was completely cleared')
+            logging.error('Recieved error from queue {}: {}: {}'.format(launcher, type(e).__name__, str(e)))
+            queue[launcher] = []
+            logging.debug('Due to the previous error, launcher\'s queue was completely cleared')
         time.sleep(0.01)
     ready_for_restart = True
     print('Serial Processing Thread Exiting...')
@@ -162,24 +196,36 @@ def firework_serial_write():
 def trigger_firework(data):
     firework = data['firework']
     launcher = data['launcher']
-    global fireworks_launched
-    fireworks_launched[launcher].append(firework)
-    pin = str(int(firework)+1)
-    global queue
-    queue.append((launcher, pin))
+    if launcher == 'LFA':
+        for launcher_ in serial.launcher_serial_ports:
+            trigger_firework({'launcher': serial.launcher_serial_ports[launcher_], 'firework': firework})
+    else:
+        global fireworks_launched
+        fireworks_launched[launcher].append(firework)
+        pin = str(int(firework)+1)
+        global queue
+        queue[launcher].append(pin)
     socketio.emit('firework_launch', {'firework': firework, 'launcher': launcher})
+
+def reset_queue():
+    for launcher in queue:
+        queue[launcher] = []
 
 def reset_launcher(launcher):
     global queue
     global fireworks_launched
     global if_reset
+
     fireworks_launched[launcher] = []
-    queue = []
+    reset_queue()
 
 @socketio.on('exec_reset')
 def reset(data):
-    reset_launcher(data['launcher'])
-    socketio.emit('reset', data)
+    if data['launcher'] == 'LFA':
+        reset_all()
+    else:
+        reset_launcher(data['launcher'])
+        socketio.emit('reset', data)
 
 @socketio.on('reset_all')
 def reset_all():
@@ -187,7 +233,6 @@ def reset_all():
         reset_launcher(launcher)
     socketio.emit('reset_all')
 
-threading.Thread(target=firework_serial_write).start()
 try:
     socketio.run(app, host=args.host, port=args.port)
 except RuntimeError as e:

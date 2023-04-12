@@ -7,4 +7,4 @@ I do not have any guides on building one yourself, and I don't sell them. You ca
 
 ## Images
 ![Launcher Image 1](/launcher_images/1.jpg "Launcher Image 1")
-![Launcher Image 2](/launcher_images/2.jpg"Launcher Image 2")
+![Launcher Image 2](/launcher_images/2.jpg "Launcher Image 2")

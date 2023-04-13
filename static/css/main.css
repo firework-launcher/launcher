@@ -82,19 +82,61 @@ h5 {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-@media screen and (max-width: 480px) {
-    .navbar-item {
-        font-size: 13px;
-    }
+.hamburger-menu {
+    display: none;
+    color: white;
+    text-align: right;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .navtitle {
     background-color: #fc2020;
     margin: 0;
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#hamburgerExpandMenu {
+    display: none;
+    background-color: #202020;
+}
+
+.navbar-item-expanded {
+    display: block;
+    color: white;
+    padding: 10px 16px;
+    text-decoration: none;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+@media screen and (max-width: 640px) {
+    .navbar-item {
+        display: none;
+    }
+    .hamburger-menu {
+        display: block;
+    }
+    .navtitle {
+        padding: 18px 16px;
+    }
+}
+
+.hamburger-menu-svg {
+    filter: invert(99%) sepia(0%) saturate(7468%) hue-rotate(280deg) brightness(114%) contrast(97%);
 }
 
 .navbar-item-li {
     float: left;
+}
+
+.navbar-item-hamburger {
+    float: right
 }
 
 .navbar-item :hover {

@@ -8,17 +8,26 @@
   </head>
   <body>
     <ul class="navbar">
-      {% if not admin %}
-        <li class="navbar-item-li"><p class="navbar-item navtitle">Firework Launcher</p></li>
-      {% endif %}
-        <li class="navbar-item-li"><a class="navbar-item" href="/themes">Themes</a></li>
+      <li class="navbar-item-li"><a class="navtitle" href="/">Firework Launcher</a></li>
+      <li class="navbar-item-li"><a class="navbar-item" href="/themes">Themes</a></li>
       {% if admin %}
         <li class="navbar-item-li"><a class="navbar-item" onclick="dev();" id="devbutton">Dev</a></li>
         <li class="navbar-item-li"><a class="navbar-item" onclick="reset_all()" id="devbutton">Reset all</a></li>
         <li class="navbar-item-li"><a class="navbar-item" href="/add_launcher">Add launcher</a></li>
         <li class="navbar-item-li"><a class="navbar-item" href="/lfa">LFA</a></li>
       {% endif %}
+      <li class="navbar-item-hamburger"><a class="hamburger-menu" onclick="expand_hamburger()"><img src="/static/svgs/bars.svg" width="20" class="hamburger-menu-svg" alt="Hamburger Menu"/></a></li>
     </ul>
+    <div id="hamburgerExpandMenu">
+      <a class="navbar-item-expanded" href="/themes">Themes</a>
+      {% if admin %}
+        <a class="navbar-item-expanded" onclick="dev();" id="devbutton">Dev</a>
+        <a class="navbar-item-expanded" onclick="reset_all()" id="devbutton">Reset all</a>
+        <a class="navbar-item-expanded" href="/add_launcher">Add launcher</a>
+        <a class="navbar-item-expanded" href="/lfa">LFA</a>
+      {% endif %}
+    </div>
+    
     {% for launcher in launchers %}
       <h2 style="text-align: center;">{{ launcher }} ({{ launchers[launcher] }})
       {% if admin %}

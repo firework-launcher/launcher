@@ -121,6 +121,7 @@ function fadeIn(element) {
 
 function set_btn_red(launcher, btn_id) {
     button = document.getElementById("fb_" + launcher + "_" + btn_id);
+    console.log([button, "fb_" + launcher + "_" + btn_id])
     if (button != null) {
         button_color = document.createAttribute("style");
         fadeOut(button);
@@ -230,6 +231,6 @@ add_legend();
 
 Object.entries(fireworks_launched).forEach(([launcher,launched]) => {
     for (let index = 0; index < launched.length; ++index) {
-        set_btn_red(launcher, index);
+        set_btn_red(launcher, launched[index]);
     }
 })

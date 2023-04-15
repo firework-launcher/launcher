@@ -8,7 +8,7 @@ import subprocess
 import sys
 import requests
 import json
-import serial_mgmt
+import launcher_mgmt
 import argparse
 import logging
 
@@ -42,7 +42,7 @@ if args.host == None:
 if args.port == None:
     args.port = 80
 
-serial = serial_mgmt.LauncherIOMGMT(logging)
+launcher_io = launcher_mgmt.LauncherIOMGMT(logging)
 
 def get_theme_link(theme):
     file = None
@@ -63,15 +63,15 @@ def home():
         if cookies['admin'] == 'true':
             admin = True
     serial_ports = []
-    for launcher in serial.launcher_serial_ports:
-        serial_ports.append(serial.launcher_serial_ports[launcher])
+    for launcher in launcher_io.launcher_serial_ports:
+        serial_ports.append(launcher_io.launcher_serial_ports[launcher])
     return render_template('home.html', 
         theme=theme,
         fireworks_launched=json.dumps(fireworks_launched),
         admin=admin,
         get_theme_link=get_theme_link,
         firework_profiles=json.dumps(firework_profiling),
-        launchers=serial.launcher_serial_ports,
+        launchers=launcher_io.launcher_serial_ports,
         launchers_parsed=':'.join(serial_ports)
     )
 
@@ -121,9 +121,9 @@ def add_launcher():
     if request.method == 'POST':
         form = dict(request.form)
         if request.form['serialip'] == 'serial':
-            serial.add_launcher_serial(form['launcher_name'], form['serial_port'])
+            launcher_io.add_launcher_serial(form['launcher_name'], form['serial_port'])
         else:
-            serial.add_launcher_ip(form['launcher_name'], form['serial_port'])
+            launcher_io.add_launcher_ip(form['launcher_name'], form['serial_port'])
         fireworks_launched[form['serial_port']] = []
         if not form['serial_port'] in firework_profiling:
             firework_profiling[form['serial_port']] = {'1': {'color': '#177bed', 'fireworks': [7, 8, 9, 10, 11, 13, 16, 17, 12, 2, 3, 6, 15, 4, 14, 5, 1], 'name': 'One Shot'}, '2': {'color': '#5df482', 'fireworks': [28, 27, 26, 25, 24], 'name': 'Two Shot'}, '3': {'color': '#f4ff5e', 'fireworks': [23, 22, 21, 20, 19, 18], 'name': 'Three Shot'}, '4': {'color': '#ff2667', 'fireworks': [32, 31, 30, 29], 'name': 'Finale'}}
@@ -179,8 +179,8 @@ def firework_serial_write(launcher):
         try:
             i = 0
             for pin in queue[launcher]:
-                serial.write_to_launcher(launcher, '/digital/{}/0\r\n'.format(pin))
-                serial.write_to_launcher(launcher, '/digital/{}/1\r\n'.format(pin))
+                launcher_io.write_to_launcher(launcher, '/digital/{}/0\r\n'.format(pin))
+                launcher_io.write_to_launcher(launcher, '/digital/{}/1\r\n'.format(pin))
                 del queue[launcher][i]
                 i = i + 1
                 logging.info('{} Queue update: {}'.format(launcher, queue))
@@ -197,8 +197,8 @@ def trigger_firework(data):
     firework = data['firework']
     launcher = data['launcher']
     if launcher == 'LFA':
-        for launcher_ in serial.launcher_serial_ports:
-            trigger_firework({'launcher': serial.launcher_serial_ports[launcher_], 'firework': firework})
+        for launcher_ in launcher_io.launcher_serial_ports:
+            trigger_firework({'launcher': launcher_io.launcher_serial_ports[launcher_], 'firework': firework})
     else:
         global fireworks_launched
         fireworks_launched[launcher].append(firework)

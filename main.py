@@ -63,21 +63,27 @@ def home():
         if cookies['admin'] == 'true':
             admin = True
     serial_ports = []
-    for launcher in launcher_io.launcher_serial_ports:
-        serial_ports.append(launcher_io.launcher_serial_ports[launcher])
+    old_ports = launcher_io.get_ports()
+    for launcher in old_ports:
+        serial_ports.append(old_ports[launcher])
+    launcher_counts = {}
+    for launcher in launcher_io.launchers:
+        launcher_counts[launcher_io.launchers[launcher]['port']] = launcher_io.launchers[launcher]['count']
     return render_template('home.html', 
         theme=theme,
         fireworks_launched=json.dumps(fireworks_launched),
         admin=admin,
         get_theme_link=get_theme_link,
         firework_profiles=json.dumps(firework_profiling),
-        launchers=launcher_io.launcher_serial_ports,
-        launchers_parsed=':'.join(serial_ports)
+        launchers=launcher_io.get_ports(),
+        launchers_parsed=':'.join(serial_ports),
+        launcher_counts=json.dumps(launcher_counts)
     )
 
-def get_lfa_firework_launched():
+def get_lfa_firework_launched(firework_count):
     lfa_list = []
-    for x in range(32):
+
+    for x in range(firework_count):
         launched = False
         for launcher in fireworks_launched:
             if x+1 in fireworks_launched[launcher]:
@@ -96,13 +102,18 @@ def lfa():
     if 'admin' in cookies:
         if cookies['admin'] == 'true':
             admin = True
+    firework_count = 0
+    for launcher in launcher_io.launchers:
+        if launcher_io.launchers[launcher]['count'] > firework_count:
+            firework_count = launcher_io.launchers[launcher]['count']
     return render_template('home.html', 
         theme=theme,
-        fireworks_launched=json.dumps(get_lfa_firework_launched()),
+        fireworks_launched=json.dumps(get_lfa_firework_launched(firework_count)),
         admin=admin,
         get_theme_link=get_theme_link,
-        firework_profiles='{"LFA": {"1": {"color": "#fc2339", "fireworks": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32], "name": "LFA"}}}',
+        firework_profiles=json.dumps({'LFA': {'1': {'color': '#fc2339', 'fireworks': list(range(1, firework_count+1)), 'name': 'LFA'}}}),
         launchers={'Launch For All': 'LFA'},
+        launcher_counts=json.dumps({'LFA': firework_count}),
         launchers_parsed='LFA'
     )
 
@@ -121,12 +132,12 @@ def add_launcher():
     if request.method == 'POST':
         form = dict(request.form)
         if request.form['serialip'] == 'serial':
-            launcher_io.add_launcher_serial(form['launcher_name'], form['serial_port'])
+            launcher_io.add_launcher_serial(form['launcher_name'], form['serial_port'], int(form['count']))
         else:
-            launcher_io.add_launcher_ip(form['launcher_name'], form['serial_port'])
+            launcher_io.add_launcher_ip(form['launcher_name'], form['serial_port'], int(form['count']))
         fireworks_launched[form['serial_port']] = []
         if not form['serial_port'] in firework_profiling:
-            firework_profiling[form['serial_port']] = {'1': {'color': '#177bed', 'fireworks': [7, 8, 9, 10, 11, 13, 16, 17, 12, 2, 3, 6, 15, 4, 14, 5, 1], 'name': 'One Shot'}, '2': {'color': '#5df482', 'fireworks': [28, 27, 26, 25, 24], 'name': 'Two Shot'}, '3': {'color': '#f4ff5e', 'fireworks': [23, 22, 21, 20, 19, 18], 'name': 'Three Shot'}, '4': {'color': '#ff2667', 'fireworks': [32, 31, 30, 29], 'name': 'Finale'}}
+            firework_profiling[form['serial_port']] = {'1': {'color': '#177bed', 'fireworks': list(range(1, int(form['count'])+1)), 'name': 'One Shot'}, '2': {'color': '#5df482', 'fireworks': [], 'name': 'Two Shot'}, '3': {'color': '#f4ff5e', 'fireworks': [], 'name': 'Three Shot'}, '4': {'color': '#ff2667', 'fireworks': [], 'name': 'Finale'}}
             save_fp(firework_profiling)
         threading.Thread(target=firework_serial_write, args=[form['serial_port']]).start()
         return redirect('/')
@@ -179,8 +190,8 @@ def firework_serial_write(launcher):
         try:
             i = 0
             for pin in queue[launcher]:
-                launcher_io.write_to_launcher(launcher, '/digital/{}/0\r\n'.format(pin))
-                launcher_io.write_to_launcher(launcher, '/digital/{}/1\r\n'.format(pin))
+                launcher_io.write_to_launcher(launcher, '/digital/{}/0\r\n'.format(pin), int(pin)-1)
+                launcher_io.write_to_launcher(launcher, '/digital/{}/1\r\n'.format(pin), int(pin)-1)
                 del queue[launcher][i]
                 i = i + 1
                 logging.info('{} Queue update: {}'.format(launcher, queue))
@@ -195,10 +206,11 @@ def firework_serial_write(launcher):
 @socketio.on("launch_firework")
 def trigger_firework(data):
     firework = data['firework']
+    ports = launcher_io.get_ports()
     launcher = data['launcher']
     if launcher == 'LFA':
-        for launcher_ in launcher_io.launcher_serial_ports:
-            trigger_firework({'launcher': launcher_io.launcher_serial_ports[launcher_], 'firework': firework})
+        for launcher_ in ports:
+            trigger_firework({'launcher': ports[launcher_], 'firework': firework})
     else:
         global fireworks_launched
         fireworks_launched[launcher].append(firework)

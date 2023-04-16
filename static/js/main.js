@@ -224,7 +224,7 @@ function change_profile(launcher, btn_id) {
 }
 
 for (let index = 0; index < launchers.length; ++index) {
-    add_btns(32, launchers[index]);
+    add_btns(launcher_counts[launchers[index]], launchers[index]);
 }
 
 add_legend();

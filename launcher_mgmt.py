@@ -17,7 +17,7 @@ class LauncherIOMGMT:
     def add_launcher_ip(self, launcher_name, launcher_ip, launcher_count):
         self.launchers[launcher_name] = {
             'obj': socket.socket(socket.AF_INET, socket.SOCK_STREAM),
-            'port': launcher_serial_port,
+            'port': launcher_ip,
             'type': 'ip',
             'count': launcher_count
         }

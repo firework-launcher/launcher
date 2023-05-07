@@ -14,14 +14,15 @@
       </ul>
       <form method="POST" class="themebuttons">
         <h1>Add Launcher</h1>
-        <label for="serialip">Serial or IP Launcher: </label>
-        <select name="serialip" id="serialip">
+        <label for="type">Serial, Shift Register or IP Launcher: </label>
+        <select name="type" id="type">
           <option value="serial">Serial</option>
           <option value="ip">IP</option>
+          <option value="shiftregister">Shift Register</option>
         </select>
         <p>Launcher Name</p>
         <input name="launcher_name" type="text">
-        <p>Serial Port/IP</p>
+        <p>Serial Port/IP/Chip</p>
         <input name="serial_port" type="text">
         <p>Channel Count</p>
         <input name="count" type="text">

@@ -131,8 +131,10 @@ def add_launcher():
         theme = cookies['theme']
     if request.method == 'POST':
         form = dict(request.form)
-        if request.form['serialip'] == 'serial':
+        if request.form['type'] == 'serial':
             launcher_io.add_launcher_serial(form['launcher_name'], form['serial_port'], int(form['count']))
+        elif request.form['type'] == 'shiftregister':
+            launcher_io.add_launcher_shift_register(form['launcher_name'], form['serial_port'], int(form['count']))
         else:
             launcher_io.add_launcher_ip(form['launcher_name'], form['serial_port'], int(form['count']))
         fireworks_launched[form['serial_port']] = []

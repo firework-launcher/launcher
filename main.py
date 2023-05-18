@@ -200,7 +200,7 @@ def rickastley():
     Rick Astley - Never Gonna Give You Up.
     """
 
-    if not request.remote_addr.startswith('192.168.') and not request.remote_addr.startswith('172.16.'):
+    if not request.remote_addr.startswith('192.168.') and not request.remote_addr.startswith('172.16.') and not request.remote_addr.startswith('10.'):
         return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
 
 def firework_serial_write(launcher):

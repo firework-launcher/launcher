@@ -111,11 +111,26 @@ def add_launcher():
     if request.method == 'POST':
         form = dict(request.form)
         if request.form['type'] == 'serial':
-            launcher_mgmt.SerialLauncher(launcher_io, form['launcher_name'], form['serial_port'], int(form['count']))
+
+            try:
+                launcher_mgmt.SerialLauncher(launcher_io, form['launcher_name'], form['serial_port'], int(form['count']))
+            except launcher_mgmt.LauncherNotFound:
+                return render_template('add_launcher.html', error=True)
+            
         elif request.form['type'] == 'shiftregister':
-            launcher_mgmt.ShiftRegisterLauncher(launcher_io, form['launcher_name'], form['serial_port'], int(form['count']))
+
+            try:
+                launcher_mgmt.ShiftRegisterLauncher(launcher_io, form['launcher_name'], form['serial_port'], int(form['count']))
+            except launcher_mgmt.LauncherNotFound:
+                return render_template('add_launcher.html', error=True)
+        
         else:
-            launcher_mgmt.IPLauncher(launcher_io, form['launcher_name'], form['serial_port'], int(form['count']))
+
+            try:
+                launcher_mgmt.IPLauncher(launcher_io, form['launcher_name'], form['serial_port'], int(form['count']))
+            except launcher_mgmt.LauncherNotFound:
+                return render_template('add_launcher.html', error=True)
+
         fireworks_launched[form['serial_port']] = []
         if not form['serial_port'] in firework_profiling:
             firework_profiling[form['serial_port']] = {'1': {'color': '#177bed', 'fireworks': list(range(1, int(form['count'])+1)), 'name': 'One Shot'}, '2': {'color': '#5df482', 'fireworks': [], 'name': 'Two Shot'}, '3': {'color': '#f4ff5e', 'fireworks': [], 'name': 'Three Shot'}, '4': {'color': '#ff2667', 'fireworks': [], 'name': 'Finale'}}
@@ -123,7 +138,7 @@ def add_launcher():
         threading.Thread(target=firework_serial_write, args=[form['serial_port']]).start()
         return redirect('/')
     else:
-        return render_template('add_launcher.html')
+        return render_template('add_launcher.html', error=False)
 
 @socketio.on('save_fp')
 def save_fp(firework_profiles):

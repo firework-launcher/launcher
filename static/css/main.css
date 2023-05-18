@@ -162,6 +162,11 @@ h5 {
     padding: 10px;
 }
 
+.error {
+    color: red;
+    text-align: center;
+}
+
 .themebutton {
     padding: 15px 27px;
     text-align: center;

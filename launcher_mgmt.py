@@ -3,6 +3,8 @@ import socket
 import time
 import shift_register_mgmt
 
+class LauncherNotFound(Exception):
+    pass
 
 class LauncherIOMGMT:
     def __init__(self, logging):
@@ -28,13 +30,17 @@ class SerialLauncher:
     def __init__(self, launcher_io, name, port, count):
         self.launcher_io = launcher_io
 
-        self.obj = Serial(port, 115200)
+        try:
+            self.obj = Serial(port, 115200)
+        except:
+            raise LauncherNotFound()
         self.name = name
         self.port = port
         self.type = 'serial'
         self.count = count
 
         self.launcher_io.add_launcher(self)
+        return True
     
     def write_to_launcher(self, msg):
         self.obj.write(msg.encode())
@@ -53,7 +59,10 @@ class ShiftRegisterLauncher:
     def __init__(self, launcher_io, name, chip, count):
         self.launcher_io = launcher_io
 
-        self.obj = shift_register_mgmt.ShiftRegisterMGMT(chip, count)
+        try:
+            self.obj = shift_register_mgmt.ShiftRegisterMGMT(chip, count)
+        except:
+            raise LauncherNotFound()
         self.name = name
         self.port = chip
         self.type = 'shiftregister'
@@ -79,8 +88,10 @@ class IPLauncher:
         self.port = ip
         self.type = 'ip'
         self.count = count
-
-        self.obj.connect((ip, 2364))
+        try:
+            self.obj.connect((ip, 2364))
+        except:
+            raise LauncherNotFound()
         self.launcher_io.add_launcher(self)
     
     def write_to_launcher(self, msg):

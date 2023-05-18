@@ -11,6 +11,8 @@ class ShiftRegisterMGMT:
     def __init__(self, chip, shift_size):
         self.shift_size = shift_size
         self.chip = chip
+        if not os.path.exists(self.chip):
+            raise FileNotFoundError()
         self.write_to_gpio([[OE_PIN, 1]])
         self.write_to_gpio([[CLR_PIN, 1]])
 

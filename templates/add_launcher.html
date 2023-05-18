@@ -10,6 +10,9 @@
         <li class="navbar-item-li"><a class="navbar-item navtitle" href="/">Firework Launcher</a></li>
         <li class="navbar-item-li"><a class="navbar-item" href="/add_launcher">Add launcher</a></li>
       </ul>
+      {% if error %}
+        <p class="error">Launcher does not exist</p>
+      {% endif %}
       <form method="POST" class="themebuttons">
         <h1>Add Launcher</h1>
         <label for="type">Serial, Shift Register or IP Launcher: </label>

@@ -64,11 +64,7 @@ function add_btns(rows, launcher) {
         button_id.value = "fb_" + launcher + "_" + i;
         button_fp.value = profile_id;
         button.innerText = "#"+i;
-        if (theme == "light") {
-            button_style.value = "background-color: "+profile["color"]+";";
-        } else {
-            button_style.value = "color: "+profile["color"]+"; border-color: "+profile["color"]+";";
-        }
+        button_style.value = "color: "+profile["color"]+"; border-color: "+profile["color"]+";";
         button.setAttributeNode(button_class);
         button.setAttributeNode(button_js_onclick);
         button.setAttributeNode(button_id);
@@ -211,11 +207,7 @@ function change_profile(launcher, btn_id) {
     button.removeAttribute("profile");
     button_style = document.createAttribute("style");
     button_fp = document.createAttribute("profile");
-    if (theme == "light") {
-        button_style.value = "background-color: "+new_profile["color"]+";";
-    } else {
-        button_style.value = "color: "+new_profile["color"]+"; border-color: "+new_profile["color"]+";";
-    }
+    button_style.value = "color: "+new_profile["color"]+"; border-color: "+new_profile["color"]+";";
     button_fp.value = profile_id;
     button.setAttributeNode(button_style);
     button.setAttributeNode(button_fp);

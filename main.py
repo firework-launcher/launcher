@@ -44,20 +44,9 @@ if args.port == None:
 
 launcher_io = launcher_mgmt.LauncherIOMGMT(logging)
 
-def get_theme_link(theme):
-    file = None
-    if theme == 'light':
-        file = 'light.css'
-    if theme == 'dark':
-        file = 'dark.css'
-    return '/static/css/themes/' + file
-
 @app.route('/')
 def home():
     cookies = dict(request.cookies)
-    theme = 'dark'
-    if 'theme' in cookies:
-        theme = cookies['theme']
     admin = False
     if 'admin' in cookies:
         if cookies['admin'] == 'true':
@@ -70,10 +59,8 @@ def home():
     for launcher in launcher_io.launchers:
         launcher_counts[launcher] = launcher_io.launchers[launcher].count
     return render_template('home.html', 
-        theme=theme,
         fireworks_launched=json.dumps(fireworks_launched),
         admin=admin,
-        get_theme_link=get_theme_link,
         firework_profiles=json.dumps(firework_profiling),
         launchers=launcher_io.get_ports(),
         launchers_parsed=':'.join(serial_ports),
@@ -95,9 +82,6 @@ def get_lfa_firework_launched(firework_count):
 @app.route('/lfa')
 def lfa():
     cookies = dict(request.cookies)
-    theme = 'dark'
-    if 'theme' in cookies:
-        theme = cookies['theme']
     admin = False
     if 'admin' in cookies:
         if cookies['admin'] == 'true':
@@ -107,10 +91,8 @@ def lfa():
         if launcher_io.launchers[launcher].count > firework_count:
             firework_count = launcher_io.launchers[launcher].count
     return render_template('home.html', 
-        theme=theme,
         fireworks_launched=json.dumps(get_lfa_firework_launched(firework_count)),
         admin=admin,
-        get_theme_link=get_theme_link,
         firework_profiles=json.dumps({'LFA': {'1': {'color': '#fc2339', 'fireworks': list(range(1, firework_count+1)), 'name': 'LFA'}}}),
         launchers={'Launch For All': 'LFA'},
         launcher_counts=json.dumps({'LFA': firework_count}),
@@ -126,9 +108,6 @@ def admin():
 @app.route('/add_launcher', methods=['GET', 'POST'])
 def add_launcher():
     cookies = dict(request.cookies)
-    theme = 'dark'
-    if 'theme' in cookies:
-        theme = cookies['theme']
     if request.method == 'POST':
         form = dict(request.form)
         if request.form['type'] == 'serial':
@@ -144,13 +123,7 @@ def add_launcher():
         threading.Thread(target=firework_serial_write, args=[form['serial_port']]).start()
         return redirect('/')
     else:
-        return render_template('add_launcher.html', get_theme_link=get_theme_link, theme=theme)
-
-@app.route('/theme/<string:theme>')
-def select_theme(theme):
-    resp = make_response(redirect('/'))
-    resp.set_cookie('theme', theme)
-    return resp
+        return render_template('add_launcher.html')
 
 @socketio.on('save_fp')
 def save_fp(firework_profiles):
@@ -160,14 +133,6 @@ def save_fp(firework_profiles):
     f.close()
     global firework_profiling
     firework_profiling = firework_profiles
-
-@app.route('/themes')
-def themes():
-    cookies = dict(request.cookies)
-    theme = 'dark'
-    if 'theme' in cookies:
-        theme = cookies['theme']
-    return render_template('themes.html', theme=theme, get_theme_link=get_theme_link)
 
 @app.route('/remove_admin')
 def remove_admin():

@@ -3,13 +3,11 @@
   <head>
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <link href="/static/css/main.css" rel="stylesheet">
-    <link href="{{ get_theme_link(theme) }}" rel="stylesheet">
     <title>Firework Launcher</title>
   </head>
   <body>
     <ul class="navbar">
       <li class="navbar-item-li"><a class="navtitle" href="/">Firework Launcher</a></li>
-      <li class="navbar-item-li"><a class="navbar-item" href="/themes">Themes</a></li>
       {% if admin %}
         <li class="navbar-item-li"><a class="navbar-item" onclick="dev();" id="devbutton">Dev</a></li>
         <li class="navbar-item-li"><a class="navbar-item" onclick="reset_all()" id="devbutton">Reset all</a></li>
@@ -19,7 +17,6 @@
       <li class="navbar-item-hamburger"><a class="hamburger-menu" onclick="expand_hamburger()"><img src="/static/svgs/bars.svg" width="20" class="hamburger-menu-svg" alt="Hamburger Menu"/></a></li>
     </ul>
     <div id="hamburgerExpandMenu">
-      <a class="navbar-item-expanded" href="/themes">Themes</a>
       {% if admin %}
         <a class="navbar-item-expanded" onclick="dev();" id="devbutton">Dev</a>
         <a class="navbar-item-expanded" onclick="reset_all()" id="devbutton">Reset all</a>
@@ -40,7 +37,6 @@
       <h2>Legend</h2>
     </div>
     <script>
-      var theme = "{{ theme }}";
       var fireworks_launched = JSON.parse('{{ fireworks_launched | safe }}');;
       var admin = "{{ admin }}";
       var firework_profiles = JSON.parse('{{ firework_profiles | safe }}');

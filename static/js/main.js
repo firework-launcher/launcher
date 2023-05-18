@@ -152,7 +152,7 @@ function dev() {
     devbutton_js_onclick.value = "save_fp();";
     devbutton.setAttributeNode(devbutton_js_onclick);
     for (let index = 0; index < launchers.length; ++index) {
-        for (let i = 1; i < 33; i++) {
+        for (let i = 1; i < launcher_counts[launcher]+1; i++) {
             button = document.getElementById("fb_" + launchers[index] + "_" + i);
             if (button != null) {
                 button.removeAttribute("onclick");

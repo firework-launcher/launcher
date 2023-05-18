@@ -68,7 +68,7 @@ def home():
         serial_ports.append(old_ports[launcher])
     launcher_counts = {}
     for launcher in launcher_io.launchers:
-        launcher_counts[launcher_io.launchers[launcher]['port']] = launcher_io.launchers[launcher]['count']
+        launcher_counts[launcher] = launcher_io.launchers[launcher].count
     return render_template('home.html', 
         theme=theme,
         fireworks_launched=json.dumps(fireworks_launched),
@@ -104,8 +104,8 @@ def lfa():
             admin = True
     firework_count = 0
     for launcher in launcher_io.launchers:
-        if launcher_io.launchers[launcher]['count'] > firework_count:
-            firework_count = launcher_io.launchers[launcher]['count']
+        if launcher_io.launchers[launcher].count > firework_count:
+            firework_count = launcher_io.launchers[launcher].count
     return render_template('home.html', 
         theme=theme,
         fireworks_launched=json.dumps(get_lfa_firework_launched(firework_count)),
@@ -132,11 +132,11 @@ def add_launcher():
     if request.method == 'POST':
         form = dict(request.form)
         if request.form['type'] == 'serial':
-            launcher_io.add_launcher_serial(form['launcher_name'], form['serial_port'], int(form['count']))
+            launcher_mgmt.SerialLauncher(launcher_io, form['launcher_name'], form['serial_port'], int(form['count']))
         elif request.form['type'] == 'shiftregister':
-            launcher_io.add_launcher_shift_register(form['launcher_name'], form['serial_port'], int(form['count']))
+            launcher_mgmt.ShiftRegisterLauncher(launcher_io, form['launcher_name'], form['serial_port'], int(form['count']))
         else:
-            launcher_io.add_launcher_ip(form['launcher_name'], form['serial_port'], int(form['count']))
+            launcher_mgmt.IPLauncher(launcher_io, form['launcher_name'], form['serial_port'], int(form['count']))
         fireworks_launched[form['serial_port']] = []
         if not form['serial_port'] in firework_profiling:
             firework_profiling[form['serial_port']] = {'1': {'color': '#177bed', 'fireworks': list(range(1, int(form['count'])+1)), 'name': 'One Shot'}, '2': {'color': '#5df482', 'fireworks': [], 'name': 'Two Shot'}, '3': {'color': '#f4ff5e', 'fireworks': [], 'name': 'Three Shot'}, '4': {'color': '#ff2667', 'fireworks': [], 'name': 'Finale'}}

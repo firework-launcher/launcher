@@ -46,6 +46,11 @@ launcher_io = launcher_mgmt.LauncherIOMGMT(logging)
 
 @app.route('/')
 def home():
+    """
+    Path / for the webserver. It creates lists to pass on to the client,
+    and renders the template home.html.
+    """
+
     cookies = dict(request.cookies)
     admin = False
     if 'admin' in cookies:
@@ -68,6 +73,11 @@ def home():
     )
 
 def get_lfa_firework_launched(firework_count):
+    """
+    Used by the /lfa path to get information about which fireworks have
+    been launched.
+    """
+
     lfa_list = []
 
     for x in range(firework_count):
@@ -81,6 +91,12 @@ def get_lfa_firework_launched(firework_count):
 
 @app.route('/lfa')
 def lfa():
+    """
+    Renders the home template, but changes variables are being used.
+    When you launch a firework on this page, it will launch that
+    same firework on all the launchers.
+    """
+
     cookies = dict(request.cookies)
     admin = False
     if 'admin' in cookies:
@@ -101,12 +117,26 @@ def lfa():
 
 @app.route('/get_admin')
 def admin():
+    """
+    Path used to set the admin cookie, so you have control over
+    adding launchers and resetting fireworks that have been
+    launched. I will probably change this in the future as it
+    is insecure.
+    """
+
     resp = make_response(redirect('/'))
     resp.set_cookie('admin', 'true')
     return resp
 
 @app.route('/add_launcher', methods=['GET', 'POST'])
 def add_launcher():
+    """
+    Path for adding new launchers. There is a form on the
+    add_launcher.html template that is used to connect
+    to launchers. It makes a new object for each launcher
+    that is used for communicating to that launcher.
+    """
+
     cookies = dict(request.cookies)
     if request.method == 'POST':
         form = dict(request.form)
@@ -142,6 +172,11 @@ def add_launcher():
 
 @socketio.on('save_fp')
 def save_fp(firework_profiles):
+    """
+    Writes to the firework_profiles.json file new data
+    from the client.
+    """
+
     os.remove('firework_profiles.json')
     f = open('firework_profiles.json', 'x')
     f.write(json.dumps(firework_profiles, indent=4))
@@ -151,16 +186,29 @@ def save_fp(firework_profiles):
 
 @app.route('/remove_admin')
 def remove_admin():
+    """
+    For debugging, it just sets the admin cookie to false.
+    """
     resp = make_response(redirect('/'))
     resp.set_cookie('admin', 'false')
     return resp
 
 @app.before_request
 def rickastley():
+    """
+    Redirects anyone who is not in a private network to
+    Rick Astley - Never Gonna Give You Up.
+    """
+
     if not request.remote_addr.startswith('192.168.') and not request.remote_addr.startswith('172.16.'):
         return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
 
 def firework_serial_write(launcher):
+    """
+    This is the queue thread. There is a seperate queue for
+    each launcher. This way, the LFA page can work well.
+    """
+
     global queue
     global queue_reset_inprogress
     global run_serial_write
@@ -187,6 +235,12 @@ def firework_serial_write(launcher):
 
 @socketio.on("launch_firework")
 def trigger_firework(data):
+    """
+    This is ran when a firework is launched using SocketIO
+    from /static/js/main.js. It adds to a dictionary that
+    the queue thread reads.
+    """
+
     firework = data['firework']
     ports = launcher_io.get_ports()
     launcher = data['launcher']
@@ -202,10 +256,17 @@ def trigger_firework(data):
     socketio.emit('firework_launch', {'firework': firework, 'launcher': launcher})
 
 def reset_queue():
+    """
+    This fully clears the queue.
+    """
     for launcher in queue:
         queue[launcher] = []
 
 def reset_launcher(launcher):
+    """
+    This resets a launcher.
+    """
+
     global queue
     global fireworks_launched
     global if_reset
@@ -215,6 +276,11 @@ def reset_launcher(launcher):
 
 @socketio.on('exec_reset')
 def reset(data):
+    """
+    Function called when a launcher is reset from
+    SocketIO.
+    """
+
     if data['launcher'] == 'LFA':
         reset_all()
     else:
@@ -223,6 +289,10 @@ def reset(data):
 
 @socketio.on('reset_all')
 def reset_all():
+    """
+    Resets all launchers.
+    """
+    
     for launcher in fireworks_launched:
         reset_launcher(launcher)
     socketio.emit('reset_all')

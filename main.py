@@ -177,8 +177,7 @@ def save_fp(firework_profiles):
     from the client.
     """
 
-    os.remove('firework_profiles.json')
-    f = open('firework_profiles.json', 'x')
+    f = open('firework_profiles.json', 'w')
     f.write(json.dumps(firework_profiles, indent=4))
     f.close()
     global firework_profiling

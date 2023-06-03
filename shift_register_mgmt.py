@@ -14,7 +14,7 @@ class ShiftRegisterMGMT:
         if not os.path.exists(self.chip):
             raise FileNotFoundError()
         self.write_to_gpio([[OE_PIN, 1]])
-        self.write_to_gpio([[CLR_PIN, 1]])
+        self.set_output([])
 
     def write_to_gpio(self, list_of_values):
         cmd = 'gpioset {} '.format(self.chip)

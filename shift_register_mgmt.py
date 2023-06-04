@@ -9,6 +9,10 @@ RCLK_PIN = 96
 
 class ShiftRegisterMGMT:
     def __init__(self, chip, shift_size):
+        """
+        Sets pins that need to be set.
+        """
+
         self.shift_size = shift_size
         self.chip = chip
         if not os.path.exists(self.chip):
@@ -17,6 +21,13 @@ class ShiftRegisterMGMT:
         self.set_output([])
 
     def write_to_gpio(self, list_of_values):
+        """
+        Sets pins to high or low. It accepts multiple operations
+        since gpioset can handle it. This way it is faster since
+        gpioset is written in C and I won't have to run a seperate
+        command each time.
+        """
+
         cmd = 'gpioset {} '.format(self.chip)
         final_command = ''
         x = 0
@@ -29,6 +40,10 @@ class ShiftRegisterMGMT:
         os.system(final_command)
 
     def load_shift(self, shift):
+        """
+        Send binary value to shift register.
+        """
+        
         ser_status = None
         write_operations = []
         for seg in shift:
@@ -45,6 +60,15 @@ class ShiftRegisterMGMT:
         self.write_to_gpio([[OE_PIN, 1]])
 
     def load_shift_pattern(self, shifts, delays, set_oe):
+        """
+        Similar to load shift, this accepts multiple shifts and
+        delays to make a pattern. The set_oe parameter is there
+        for if the pattern is supposed to loop. I think it will
+        mostly be True, meaning that it will not loop. The only
+        reason this would be False is if I would make a pattern
+        for just the LEDs on the board.
+        """
+
         current_delay = 0
         for shift in shifts:
             ser_status = None
@@ -65,6 +89,13 @@ class ShiftRegisterMGMT:
             self.write_to_gpio([[OE_PIN, 1]])
 
     def set_output_pattern(self, pattern, set_oe=True):
+        """
+        Accepts a dictionary containing steps for a pattern
+        with the fireworks that need to be launched, and the
+        delays. The set_oe parameter is explained in the
+        load_shift_pattern() function.
+        """
+
         shifts = []
         delays = []
         for stage in pattern:
@@ -81,6 +112,11 @@ class ShiftRegisterMGMT:
         self.clear()
 
     def set_output(self, pins):
+        """
+        Given a list of fireworks to launch, and runs the
+        load_shift() function for them.
+        """
+
         current_shift_split = []
         for x in range(self.shift_size):
             current_shift_split.append('0')
@@ -91,4 +127,8 @@ class ShiftRegisterMGMT:
         self.clear()
     
     def clear(self):
+        """
+        Clears the shift register.
+        """
+
         self.write_to_gpio([[CLR_PIN, 0], [CLR_PIN, 1]])

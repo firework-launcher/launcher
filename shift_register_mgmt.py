@@ -116,13 +116,13 @@ class ShiftRegisterMGMT:
         Given a list of fireworks to launch, and runs the
         load_shift() function for them.
         """
-
+        
         current_shift_split = []
         for x in range(self.shift_size):
             current_shift_split.append('0')
         for pin in pins:
             current_shift_split[(self.shift_size-1)-(pin-1)] = '1'
-            current_shift = ''.join(current_shift_split)
+        current_shift = ''.join(current_shift_split)
         self.load_shift(current_shift)
         self.clear()
     

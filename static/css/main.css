@@ -204,3 +204,36 @@ h5 {
     border: 2px solid #177bed;
 }
 
+.pattern_delete_confirm {
+    padding: 15px 27px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5px;
+    margin: 10px;
+    font-family: var(--font);
+    transition: opacity 0.5s;
+    background-color: rgba(0, 0, 0, 0);
+    color: #ff2667;
+    border: 2px solid #ff2667;
+}
+
+.yellow-fb {
+    padding: 15px 27px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5px;
+    margin: 10px;
+    font-family: var(--font);
+    transition: opacity 0.5s;
+    background-color: rgba(0, 0, 0, 0);
+    color: #cde03c;
+    border: 2px solid #cde03c;
+}
+
+.patternlist {
+    text-align: center;
+}

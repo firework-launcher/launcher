@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, user-scalable=no">
+        <link href="/static/css/main.css" rel="stylesheet">
+        <title>Firework Launcher - Patterns</title>
+    </head>
+    <body>
+        <ul class="navbar">
+            <li class="navbar-item-li"><a class="navbar-item navtitle" href="/">Firework Launcher</a></li>
+            <li class="navbar-item-li"><a class="navbar-item" href="/add_launcher">Add launcher</a></li>
+            <li class="navbar-item-li"><a class="navbar-item" href="/add_launcher">Patterns</a></li>
+        </ul>
+        <div class="patternlist">
+            {% for pattern in patterns %}
+                <div id="pattern_{{ pattern }}">
+                    <h1>{{ pattern }} 
+                        <button class="firework_button" id="run_{{ pattern }}" onclick="run_pattern('{{ pattern }}')">Run</button>
+                        <button class="firework_button" id="delete_{{ pattern }}" onclick="delete_pattern('{{ pattern }}')">Delete</button>
+                    </h1><br/>
+                </div>
+            {% endfor %}
+            <a class="firework_button" href="/patterns/add">Add Pattern</a>
+        </div>
+        <script src="/static/js/socketio.js"></script>
+        <script src="/static/js/patterns.js"></script>
+    </body>
+</html>

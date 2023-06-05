@@ -24,8 +24,17 @@ if not os.path.exists('firework_profiles.json'):
     f.write('{}')
     f.close()
 
+if not os.path.exists('patterns.json'):
+    f = open('patterns.json', 'x')
+    f.write('{}')
+    f.close()
+
 f = open('firework_profiles.json')
 firework_profiling = json.loads(f.read())
+f.close()
+
+f = open('patterns.json')
+patterns = json.loads(f.read())
 f.close()
 
 parser = argparse.ArgumentParser()
@@ -170,6 +179,39 @@ def add_launcher():
     else:
         return render_template('add_launcher.html', error=False)
 
+@app.route('/patterns')
+def patterns_():
+    """
+    Path that shows the page for viewing and managing
+    patterns
+    """
+
+    return render_template('patterns.html', patterns=patterns)
+
+@app.route('/patterns/add', methods=['GET', 'POST'])
+def add_pattern():
+    """
+    Path for the pattern builder.
+    """
+
+    if request.method == 'POST':
+        pattern_name = request.form['pattern_name']
+        pattern_data = json.loads(request.form['pattern_data'])
+        patterns[pattern_name] = pattern_data
+        f = open('patterns.json', 'w')
+        f.write(json.dumps(patterns, indent=4))
+        f.close()
+        return redirect('/patterns')
+
+    launcher_counts = {}
+    launchers = {}
+    for launcher in launcher_io.launchers:
+        if launcher_io.launchers[launcher].type == 'shiftregister':
+            launchers[launcher] = launcher_io.launchers[launcher].name
+            launcher_counts[launcher] = launcher_io.launchers[launcher].count
+
+    return render_template('add_pattern.html', launcher_counts=json.dumps(launcher_counts), launchers=launchers)
+
 @socketio.on('save_fp')
 def save_fp(firework_profiles):
     """
@@ -182,6 +224,44 @@ def save_fp(firework_profiles):
     f.close()
     global firework_profiling
     firework_profiling = firework_profiles
+
+@socketio.on('run_pattern')
+def run_pattern(pattern):
+    """
+    Runs a pattern, this is called from SocketIO,
+    /static/js/patterns.js.
+    """
+    
+    if not pattern in patterns:
+        return None
+    socketio.emit('running_pattern', pattern)
+    launcher_port = patterns[pattern][0]
+    pattern_data = patterns[pattern][1]
+    shift = launcher_io.launchers[launcher_port].obj
+    pins_changed = []
+    for step in pattern_data:
+        pins_changed += pattern_data[step]['pins']
+    global fireworks_launched
+    for pin in pins_changed:
+        fireworks_launched[launcher_port].append(pin)
+        socketio.emit('firework_launch', {'firework': pin, 'launcher': launcher_port})
+
+    shift.set_output_pattern(pattern_data)
+    socketio.emit("finished_pattern", pattern)
+    
+@socketio.on('delete_pattern')
+def delete_pattern(pattern):
+    """
+    Deletes a pattern, called from the patterns
+    js file.
+    """
+
+    if not pattern in patterns:
+        return None
+    del patterns[pattern]
+    f = open('patterns.json', 'w')
+    f.write(json.dumps(patterns))
+    f.close()
 
 @app.route('/remove_admin')
 def remove_admin():

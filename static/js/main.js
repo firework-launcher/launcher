@@ -147,6 +147,12 @@ function dev() {
     devbutton_js_onclick = document.createAttribute("onclick");
     devbutton_js_onclick.value = "save_fp();";
     devbutton.setAttributeNode(devbutton_js_onclick);
+    devbutton = document.getElementById("devbutton_")
+    devbutton.innerText = "Save";
+    devbutton.removeAttribute("onclick");
+    devbutton_js_onclick = document.createAttribute("onclick");
+    devbutton_js_onclick.value = "save_fp();";
+    devbutton.setAttributeNode(devbutton_js_onclick);
     for (let index = 0; index < launchers.length; ++index) {
         for (let i = 1; i < launcher_counts[launchers[index]]+1; i++) {
             button = document.getElementById("fb_" + launchers[index] + "_" + i);
@@ -162,22 +168,26 @@ function dev() {
 
 function save_fp() {
     socket.emit("save_fp", firework_profiles);
-    devbutton = document.getElementById("devbutton")
+    devbutton = document.getElementById("devbutton");
     devbutton.innerText = "Dev";
     devbutton.removeAttribute("onclick");
     devbutton_js_onclick = document.createAttribute("onclick");
     devbutton_js_onclick.value = "dev();";
     devbutton.setAttributeNode(devbutton_js_onclick);
-    for (var launcher in launchers) {
-        for (let i = 1; i < launcher_counts[launcher]+1; i++) {
+    devbutton = document.getElementById("devbutton_");
+    devbutton.innerText = "Dev";
+    devbutton.removeAttribute("onclick");
+    devbutton_js_onclick = document.createAttribute("onclick");
+    devbutton_js_onclick.value = "dev();";
+    devbutton.setAttributeNode(devbutton_js_onclick);
+    for (let li = 0; li < launchers.length; li++) {
+        launcher = li
+        for (let i = 1; i < launcher_counts[launchers[launcher]]+1; i++) {
             button = document.getElementById("fb_" + launchers[launcher] + "_" + i);
             if (button != null) {
-                button.removeAttribute("onclick");
-                button_js_onclick = document.createAttribute("onclick");
-                button_js_onclick.value = "trigger_firework(" + i + ", '" + launchers[launcher] + "');";
-                button.setAttributeNode(button_js_onclick);
+                button.setAttribute("onclick", "trigger_firework(" + i + ", '" + launchers[launcher] + "');");
             } else {
-                console.warn("Tried to change non-existant button")
+                console.warn("Tried to change non-existant button, fb_" + launchers[launcher] + "_" + i)
             }
         }
     }

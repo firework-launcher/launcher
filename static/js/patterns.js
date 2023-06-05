@@ -26,3 +26,12 @@ function delete_pattern_confirm(pattern) {
     pattern_element = document.getElementById("pattern_" + pattern);
     pattern_element.remove();
 }
+
+function expand_hamburger () {
+    menu = document.getElementById("hamburgerExpandMenu");
+    if (menu.style.display == "block") {
+        menu.style.display = "none";
+    } else {
+        menu.style.display = "block";
+    }
+}

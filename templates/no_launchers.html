@@ -5,10 +5,24 @@
         <link href="/static/css/main.css" rel="stylesheet">
         <title>Firework Launcher - No launchers</title>
         <ul class="navbar">
-            <li class="navbar-item-li"><a class="navbar-item navtitle" href="/">Firework Launcher</a></li>
+            <li class="navbar-item-li"><a class="navtitle" href="/">Firework Launcher</a></li>
+            <li class="navbar-item-hamburger"><a class="hamburger-menu" onclick="expand_hamburger()"><img src="/static/svgs/bars.svg" width="20" class="hamburger-menu-svg" alt="Hamburger Menu"/></a></li>
         </ul>
+        <div id="hamburgerExpandMenu">
+            
+        </div>
     </head>
     <body>
         <h1 style="text-align: center;">There are no launchers added.</h1>
+        <script>
+            function expand_hamburger () {
+                menu = document.getElementById("hamburgerExpandMenu");
+                if (menu.style.display == "block") {
+                    menu.style.display = "none";
+                } else {
+                    menu.style.display = "block";
+                }
+            }
+        </script>
     </body>
 </html>

@@ -7,10 +7,15 @@
   </head>
   <body>
     <ul class="navbar">
-        <li class="navbar-item-li"><a class="navbar-item navtitle" href="/">Firework Launcher</a></li>
+        <li class="navbar-item-li"><a class="navtitle" href="/">Firework Launcher</a></li>
         <li class="navbar-item-li"><a class="navbar-item" href="/add_launcher">Add launcher</a></li>
         <li class="navbar-item-li"><a class="navbar-item" href="/add_launcher">Patterns</a></li>
+        <li class="navbar-item-hamburger"><a class="hamburger-menu" onclick="expand_hamburger()"><img src="/static/svgs/bars.svg" width="20" class="hamburger-menu-svg" alt="Hamburger Menu"/></a></li>
       </ul>
+      <div id="hamburgerExpandMenu">
+        <a class="navbar-item-expanded" href="/add_launcher">Add launcher</a>
+        <a class="navbar-item-expanded" href="/add_launcher">Patterns</a>
+      </div>
       {% if error %}
         <p class="error">Launcher does not exist</p>
       {% endif %}
@@ -31,5 +36,15 @@
         <br/>
         <button type="submit" class="themebutton">Add</button>
       </form>
+      <script>
+        function expand_hamburger () {
+            menu = document.getElementById("hamburgerExpandMenu");
+            if (menu.style.display == "block") {
+                menu.style.display = "none";
+            } else {
+                menu.style.display = "block";
+            }
+        }
+      </script>
   </body>
 </html>

@@ -7,10 +7,15 @@
     </head>
     <body>
         <ul class="navbar">
-            <li class="navbar-item-li"><a class="navbar-item navtitle" href="/">Firework Launcher</a></li>
+            <li class="navbar-item-li"><a class="navtitle" href="/">Firework Launcher</a></li>
             <li class="navbar-item-li"><a class="navbar-item" href="/add_launcher">Add launcher</a></li>
             <li class="navbar-item-li"><a class="navbar-item" href="/add_launcher">Patterns</a></li>
+            <li class="navbar-item-hamburger"><a class="hamburger-menu" onclick="expand_hamburger()"><img src="/static/svgs/bars.svg" width="20" class="hamburger-menu-svg" alt="Hamburger Menu"/></a></li>
         </ul>
+        <div id="hamburgerExpandMenu">
+            <a class="navbar-item-expanded" href="/add_launcher">Add launcher</a>
+            <a class="navbar-item-expanded" href="/add_launcher">Patterns</a>
+        </div>
         <div class="patternlist" id="form">
             <h3>Launcher: <select id="launcher_select">
                 {% for launcher in launchers %}
@@ -33,6 +38,14 @@
         </form>
         <script>
             launcher_counts = JSON.parse('{{ launcher_counts | safe }}');
+            function expand_hamburger () {
+                menu = document.getElementById("hamburgerExpandMenu");
+                if (menu.style.display == "block") {
+                    menu.style.display = "none";
+                } else {
+                    menu.style.display = "block";
+                }
+            }
         </script>
         <script src="/static/js/pattern_builder.js"></script>
     </body>

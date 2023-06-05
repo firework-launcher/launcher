@@ -83,7 +83,7 @@ class ShiftRegisterMGMT:
             write_operations.append([RCLK_PIN, 0])
             write_operations.append([OE_PIN, 0])
             self.write_to_gpio(write_operations)
-            time.sleep(delays[current_delay])
+            time.sleep(int(delays[current_delay]))
             current_delay += 1
         if set_oe:
             self.write_to_gpio([[OE_PIN, 1]])
@@ -116,7 +116,7 @@ class ShiftRegisterMGMT:
         Given a list of fireworks to launch, and runs the
         load_shift() function for them.
         """
-        
+
         current_shift_split = []
         for x in range(self.shift_size):
             current_shift_split.append('0')

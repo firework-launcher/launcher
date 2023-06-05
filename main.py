@@ -1,12 +1,9 @@
 from flask import Flask, render_template, redirect, request, Response, make_response
-import uuid
 import threading
 import time
 import os
 import flask_socketio
-import subprocess
 import sys
-import requests
 import json
 import launcher_mgmt
 import argparse
@@ -282,8 +279,10 @@ def rickastley():
     if not request.remote_addr.startswith('192.168.') and not request.remote_addr.startswith('172.16.') and not request.remote_addr.startswith('10.'):
         return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
     else:
-        if request.cookies['admin'] == 'true' and launcher_io.launchers == {} and not request.path == '/add_launcher' and not request.path.startswith('/static'):
+        if request.cookies['admin'] == 'true' and launcher_io.launchers == {} and not request.path == '/add_launcher' and not request.path.startswith('/static') and not request.path.endswith('admin'):
             return redirect('/add_launcher')
+        if request.cookies['admin'] == 'false' and launcher_io.launchers == {} and not request.path.startswith('/static') and not request.path.endswith('admin'):
+            return render_template('no_launchers.html')
 
 def firework_serial_write(launcher):
     """

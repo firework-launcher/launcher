@@ -64,7 +64,6 @@ class SerialLauncher:
         self.count = count
 
         self.launcher_io.add_launcher(self)
-        return True
     
     def write_to_launcher(self, msg):
         """

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, user-scalable=no">
+        <link href="/static/css/main.css" rel="stylesheet">
+        <title>Firework Launcher - Add Pattern</title>
+    </head>
+    <body>
+        <ul class="navbar">
+            <li class="navbar-item-li"><a class="navbar-item navtitle" href="/">Firework Launcher</a></li>
+            <li class="navbar-item-li"><a class="navbar-item" href="/add_launcher">Add launcher</a></li>
+            <li class="navbar-item-li"><a class="navbar-item" href="/add_launcher">Patterns</a></li>
+        </ul>
+        <div class="patternlist" id="form">
+            <h3>Launcher: <select id="launcher_select">
+                {% for launcher in launchers %}
+                <option value="{{ launcher }}">{{ launchers[launcher] }} ({{ launcher }})</option>
+                {% endfor %}
+            </select></h3>
+            <h3>Name: <input type="text" id="patternname"></h3>
+            <h1 id="step">Step 1</h1>
+            <input type="text" style="display: none;" name="pins" id="pins">
+            <div id="btns"></div>
+            <br/><br/>
+
+            <h3>Delay: <input id="delay" value="0" type="number"></h3>
+            <button class="firework_button" onclick="addStep();">Next Step</button><br/>
+            <button class="firework_button" onclick="submitPattern();">Done</button>
+        </div>
+        <form style="display: none" id="pattern_form" method="POST">
+            <input type="text" name="pattern_data" id="pattern_data">
+            <input type="text" name="pattern_name" id="pattern_name">
+        </form>
+        <script>
+            launcher_counts = JSON.parse('{{ launcher_counts | safe }}');
+        </script>
+        <script src="/static/js/pattern_builder.js"></script>
+    </body>
+</html>

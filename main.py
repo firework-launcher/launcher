@@ -188,6 +188,30 @@ def patterns_():
 
     return render_template('patterns.html', patterns=patterns)
 
+@app.route('/patterns/add', methods=['GET', 'POST'])
+def add_pattern():
+    """
+    Path for the pattern builder.
+    """
+
+    if request.method == 'POST':
+        pattern_name = request.form['pattern_name']
+        pattern_data = json.loads(request.form['pattern_data'])
+        patterns[pattern_name] = pattern_data
+        f = open('patterns.json', 'w')
+        f.write(json.dumps(patterns, indent=4))
+        f.close()
+        return redirect('/patterns')
+
+    launcher_counts = {}
+    launchers = {}
+    for launcher in launcher_io.launchers:
+        if launcher_io.launchers[launcher].type == 'shiftregister':
+            launchers[launcher] = launcher_io.launchers[launcher].name
+            launcher_counts[launcher] = launcher_io.launchers[launcher].count
+
+    return render_template('add_pattern.html', launcher_counts=json.dumps(launcher_counts), launchers=launchers)
+
 @socketio.on('save_fp')
 def save_fp(firework_profiles):
     """

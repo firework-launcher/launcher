@@ -32,17 +32,6 @@ class ShiftRegisterMGMT:
         final_command = ''
         x = 0
         for value in list_of_values:
-            if value[0] == 84:
-                pretty = 'CLK'
-            elif value[0] == 86:
-                pretty = 'OE'
-            elif value[0] == 85:
-                pretty = 'SER'
-            elif value[0] == 97:
-                pretty = 'CLR'
-            else:
-                pretty = 'RCLK'
-            print('Set {} to {}'.format(pretty, value[1]))
             if x == len(list_of_values)-1:
                 final_command += cmd + '{}={}'.format(value[0], value[1])
             else:

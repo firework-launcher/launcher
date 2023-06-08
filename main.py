@@ -14,7 +14,6 @@ socketio = flask_socketio.SocketIO(app)
 fireworks_launched = {'LFA': []}
 queue = {}
 run_serial_write = True
-ready_for_restart = False
 
 if not os.path.exists('firework_profiles.json'):
     f = open('firework_profiles.json', 'x')
@@ -295,7 +294,6 @@ def firework_serial_write(launcher):
     global queue
     global queue_reset_inprogress
     global run_serial_write
-    global ready_for_restart
     queue[launcher] = []
     logging.info('Serial Proccessing Thread Starting for launcher {}...'.format(launcher))
     queue_for_thread = []
@@ -313,8 +311,6 @@ def firework_serial_write(launcher):
             queue[launcher] = []
             logging.debug('Due to the previous error, launcher\'s queue was completely cleared')
         time.sleep(0.01)
-    ready_for_restart = True
-    print('Serial Processing Thread Exiting...')
 
 @socketio.on("launch_firework")
 def trigger_firework(data):
@@ -380,8 +376,5 @@ def reset_all():
         reset_launcher(launcher)
     socketio.emit('reset_all')
 
-try:
+if __name__ == '__main__':
     socketio.run(app, host=args.host, port=args.port)
-except RuntimeError as e:
-    if str(e) == 'Shutdown':
-        sys.exit(0)

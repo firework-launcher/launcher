@@ -365,4 +365,4 @@ def reset_all():
     socketio.emit('reset_all')
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=4566)
+    socketio.run(app, host='0.0.0.0', port=80)

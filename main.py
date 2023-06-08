@@ -275,7 +275,9 @@ def rickastley():
     Redirects anyone who is not in a private network to
     Rick Astley - Never Gonna Give You Up.
     """
-
+    request.cookies = dict(request.cookies)
+    if not 'admin' in request.cookies:
+        request.cookies['admin'] = 'false'
     if not request.remote_addr.startswith('192.168.') and not request.remote_addr.startswith('172.16.') and not request.remote_addr.startswith('10.'):
         return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
     else:

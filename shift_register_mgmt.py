@@ -17,8 +17,8 @@ class ShiftRegisterMGMT:
         self.chip = chip
         if not os.path.exists(self.chip):
             raise FileNotFoundError()
-        self.write_to_gpio([[OE_PIN, 1]])
-        self.set_output([])
+        self.clear()
+        self.write_to_gpio([[OE_PIN, 1], [SER_PIN, 0], [CLK_PIN, 0], [RCLK_PIN, 0]])
 
     def write_to_gpio(self, list_of_values):
         """
@@ -32,6 +32,17 @@ class ShiftRegisterMGMT:
         final_command = ''
         x = 0
         for value in list_of_values:
+            if value[0] == 84:
+                pretty = 'CLK'
+            elif value[0] == 86:
+                pretty = 'OE'
+            elif value[0] == 85:
+                pretty = 'SER'
+            elif value[0] == 97:
+                pretty = 'CLR'
+            else:
+                pretty = 'RCLK'
+            print('Set {} to {}'.format(pretty, value[1]))
             if x == len(list_of_values)-1:
                 final_command += cmd + '{}={}'.format(value[0], value[1])
             else:

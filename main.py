@@ -33,19 +33,7 @@ f = open('patterns.json')
 patterns = json.loads(f.read())
 f.close()
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--host', type=str, help='Host address to host the website with', required=False)
-parser.add_argument('--port', type=int, help='Port to bind to for the website', required=False)
-
-args = parser.parse_args()
-
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.DEBUG)
-
-if args.host == None:
-    args.host = '0.0.0.0'
-
-if args.port == None:
-    args.port = 80
 
 launcher_io = launcher_mgmt.LauncherIOMGMT(logging)
 
@@ -377,4 +365,4 @@ def reset_all():
     socketio.emit('reset_all')
 
 if __name__ == '__main__':
-    socketio.run(app, host=args.host, port=args.port)
+    socketio.run(app, host='127.0.0.1', port=4566)

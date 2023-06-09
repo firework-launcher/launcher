@@ -40,10 +40,6 @@ def home():
     """
 
     cookies = dict(request.cookies)
-    admin = False
-    if 'admin' in cookies:
-        if cookies['admin'] == 'true':
-            admin = True
     serial_ports = []
     old_ports = launcher_io.get_ports()
     for launcher in old_ports:
@@ -53,7 +49,6 @@ def home():
         launcher_counts[launcher] = launcher_io.launchers[launcher].count
     return render_template('home.html', 
         fireworks_launched=json.dumps(fireworks_launched),
-        admin=admin,
         firework_profiles=json.dumps(firework_profiling),
         launchers=launcher_io.get_ports(),
         launchers_parsed=':'.join(serial_ports),
@@ -86,35 +81,17 @@ def lfa():
     """
 
     cookies = dict(request.cookies)
-    admin = False
-    if 'admin' in cookies:
-        if cookies['admin'] == 'true':
-            admin = True
     firework_count = 0
     for launcher in launcher_io.launchers:
         if launcher_io.launchers[launcher].count > firework_count:
             firework_count = launcher_io.launchers[launcher].count
     return render_template('home.html', 
         fireworks_launched=json.dumps(get_lfa_firework_launched(firework_count)),
-        admin=admin,
         firework_profiles=json.dumps({'LFA': {'1': {'color': '#fc2339', 'fireworks': list(range(1, firework_count+1)), 'name': 'LFA'}}}),
         launchers={'Launch For All': 'LFA'},
         launcher_counts=json.dumps({'LFA': firework_count}),
         launchers_parsed='LFA'
     )
-
-@app.route('/get_admin')
-def admin():
-    """
-    Path used to set the admin cookie, so you have control over
-    adding launchers and resetting fireworks that have been
-    launched. I will probably change this in the future as it
-    is insecure.
-    """
-
-    resp = make_response(redirect('/'))
-    resp.set_cookie('admin', 'true')
-    return resp
 
 @app.route('/add_launcher', methods=['GET', 'POST'])
 def add_launcher():
@@ -242,31 +219,17 @@ def delete_pattern(pattern):
     f.write(json.dumps(patterns))
     f.close()
 
-@app.route('/remove_admin')
-def remove_admin():
-    """
-    For debugging, it just sets the admin cookie to false.
-    """
-    resp = make_response(redirect('/'))
-    resp.set_cookie('admin', 'false')
-    return resp
-
 @app.before_request
 def rickastley():
     """
     Redirects anyone who is not in a private network to
     Rick Astley - Never Gonna Give You Up.
     """
-    request.cookies = dict(request.cookies)
-    if not 'admin' in request.cookies:
-        request.cookies['admin'] = 'false'
     if not request.remote_addr.startswith('192.168.') and not request.remote_addr.startswith('172.16.') and not request.remote_addr.startswith('10.'):
         return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
     else:
-        if request.cookies['admin'] == 'true' and launcher_io.launchers == {} and not request.path == '/add_launcher' and not request.path.startswith('/static') and not request.path.endswith('admin'):
+        if launcher_io.launchers == {} and not request.path == '/add_launcher' and not request.path.startswith('/static'):
             return redirect('/add_launcher')
-        if request.cookies['admin'] == 'false' and launcher_io.launchers == {} and not request.path.startswith('/static') and not request.path.endswith('admin'):
-            return render_template('no_launchers.html')
 
 def firework_serial_write(launcher):
     """

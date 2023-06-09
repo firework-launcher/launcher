@@ -15,23 +15,19 @@ fireworks_launched = {'LFA': []}
 queue = {}
 run_serial_write = True
 
-if not os.path.exists('firework_profiles.json'):
-    f = open('firework_profiles.json', 'x')
-    f.write('{}')
+def load_file(file):
+    if not os.path.exists(file):
+        f = open(file, 'x')
+        f.write('{}')
+        f.close()
+    f = open(file)
+    data = json.loads(f.read())
     f.close()
+    return data
 
-if not os.path.exists('patterns.json'):
-    f = open('patterns.json', 'x')
-    f.write('{}')
-    f.close()
-
-f = open('firework_profiles.json')
-firework_profiling = json.loads(f.read())
-f.close()
-
-f = open('patterns.json')
-patterns = json.loads(f.read())
-f.close()
+firework_profiling = load_file('firework_profiles.json')
+patterns = load_file('patterns.json')
+launchers_to_add = load_file('launchers.json')
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 
@@ -365,4 +361,19 @@ def reset_all():
     socketio.emit('reset_all')
 
 if __name__ == '__main__':
+    for launcher in launchers_to_add:
+        launcher_data = launchers_to_add[launcher]
+        if launcher_data['type'] == 'serial':
+            launcher_mgmt.SerialLauncher(launcher_io, launcher_data['name'], launcher, launcher_data['count'])
+        elif launcher_data['type'] == 'ip':
+            launcher_mgmt.IPLauncher(launcher_io, launcher_data['name'], launcher, launcher_data['count'])
+        elif launcher_data['type'] == 'shiftregister':
+            launcher_mgmt.ShiftRegisterLauncher(launcher_io, launcher_data['name'], launcher, launcher_data['count'])
+        
+        fireworks_launched[launcher] = []
+        if not launcher in firework_profiling:
+            firework_profiling[launcher] = {'1': {'color': '#177bed', 'fireworks': list(range(1, launcher_data['count']+1)), 'name': 'One Shot'}, '2': {'color': '#5df482', 'fireworks': [], 'name': 'Two Shot'}, '3': {'color': '#f4ff5e', 'fireworks': [], 'name': 'Three Shot'}, '4': {'color': '#ff2667', 'fireworks': [], 'name': 'Finale'}}
+        
+        threading.Thread(target=firework_serial_write, args=[launcher]).start()
+
     socketio.run(app, host='0.0.0.0', port=80)

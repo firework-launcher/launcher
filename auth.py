@@ -4,6 +4,11 @@ import uuid
 
 class Auth:
     def __init__(self):
+        """
+        Creates the tables users and tokens if they don't
+        exist.
+        """
+
         self.db = 'auth.sqlite'
         db = sqlite3.connect('auth.sqlite')
         cur = db.cursor()
@@ -14,6 +19,10 @@ class Auth:
         db.close()
     
     def create_user(self, username, passwd):
+        """
+        Hashes the password and adds it to the users table.
+        """
+
         salt = bcrypt.gensalt()
         hashed = bcrypt.hashpw(passwd.encode('utf-8'), salt).decode('utf-8')
 
@@ -26,6 +35,10 @@ class Auth:
         db.close()
     
     def delete_user(self, username):
+        """
+        Deletes the user for the users and tokens database.
+        """
+
         db = sqlite3.connect(self.db)
         cur = db.cursor()
         cur.execute('DELETE FROM users WHERE username=?', (username,))
@@ -35,6 +48,11 @@ class Auth:
         db.close()
     
     def login(self, username, passwd):
+        """
+        Checks to make sure the user exists and is the
+        correct password.
+        """
+
         db = sqlite3.connect(self.db)
         cur = db.cursor()
         cur.execute('SELECT * FROM users WHERE username=?', (username,))
@@ -47,6 +65,10 @@ class Auth:
         return bcrypt.checkpw(passwd.encode(), hashed.encode())
 
     def create_token(self, username, ip):
+        """
+        Creates a token that is stored in cookies.
+        """
+
         token = str(uuid.uuid4()).replace('-', '')
         db = sqlite3.connect(self.db)
         cur = db.cursor()
@@ -57,6 +79,11 @@ class Auth:
         return token
     
     def verify_token(self, ip, token):
+        """
+        It checks to make sure that the token given
+        matches with the IP.
+        """
+
         db = sqlite3.connect(self.db)
         cur = db.cursor()
         cur.execute('SELECT * FROM tokens WHERE ip=? AND token=?', (ip, token))

@@ -373,7 +373,7 @@ if __name__ == '__main__':
         fireworks_launched[launcher] = []
         if not launcher in firework_profiling:
             firework_profiling[launcher] = {'1': {'color': '#177bed', 'fireworks': list(range(1, launcher_data['count']+1)), 'name': 'One Shot'}, '2': {'color': '#5df482', 'fireworks': [], 'name': 'Two Shot'}, '3': {'color': '#f4ff5e', 'fireworks': [], 'name': 'Three Shot'}, '4': {'color': '#ff2667', 'fireworks': [], 'name': 'Finale'}}
-        
+            save_fp(firework_profiling)
         threading.Thread(target=firework_serial_write, args=[launcher]).start()
 
     socketio.run(app, host='0.0.0.0', port=80)

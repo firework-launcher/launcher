@@ -13,7 +13,6 @@ app = Flask(__name__)
 socketio = flask_socketio.SocketIO(app)
 fireworks_launched = {'LFA': []}
 queue = {}
-run_serial_write = True
 
 def load_file(file):
     if not os.path.exists(file):
@@ -276,12 +275,10 @@ def firework_serial_write(launcher):
     """
 
     global queue
-    global queue_reset_inprogress
-    global run_serial_write
     queue[launcher] = []
     logging.info('Serial Proccessing Thread Starting for launcher {}...'.format(launcher))
     queue_for_thread = []
-    while run_serial_write:
+    while True:
         try:
             i = 0
             for pin in queue[launcher]:

@@ -1,5 +1,3 @@
 /__pycache__
-/firework_profiles.json
-/patterns.json
-/launchers.json
+/config
 /auth.sqlite

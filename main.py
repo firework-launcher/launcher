@@ -17,14 +17,17 @@ auth = auth.Auth()
 queue = {}
 
 def load_file(file):
-    if not os.path.exists(file):
-        f = open(file, 'x')
+    if not os.path.exists('config/' + file):
+        f = open('config/' + file, 'x')
         f.write('{}')
         f.close()
-    f = open(file)
+    f = open('config/' + file)
     data = json.loads(f.read())
     f.close()
     return data
+
+if not os.path.exists('config'):
+    os.mkdir('config')
 
 firework_profiling = load_file('firework_profiles.json')
 patterns = load_file('patterns.json')
@@ -174,7 +177,7 @@ def add_pattern():
         pattern_name = request.form['pattern_name']
         pattern_data = json.loads(request.form['pattern_data'])
         patterns[pattern_name] = pattern_data
-        f = open('patterns.json', 'w')
+        f = open('config/patterns.json', 'w')
         f.write(json.dumps(patterns, indent=4))
         f.close()
         return redirect('/patterns')
@@ -195,7 +198,7 @@ def save_fp(firework_profiles):
     from the client.
     """
 
-    f = open('firework_profiles.json', 'w')
+    f = open('config/firework_profiles.json', 'w')
     f.write(json.dumps(firework_profiles, indent=4))
     f.close()
     global firework_profiling
@@ -235,7 +238,7 @@ def delete_pattern(pattern):
     if not pattern in patterns:
         return None
     del patterns[pattern]
-    f = open('patterns.json', 'w')
+    f = open('config/patterns.json', 'w')
     f.write(json.dumps(patterns))
     f.close()
 

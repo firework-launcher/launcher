@@ -8,10 +8,12 @@ import json
 import launcher_mgmt
 import argparse
 import logging
+import auth
 
 app = Flask(__name__)
 socketio = flask_socketio.SocketIO(app)
 fireworks_launched = {'LFA': []}
+auth = auth.Auth()
 queue = {}
 
 def load_file(file):
@@ -92,6 +94,24 @@ def lfa():
         launcher_counts=json.dumps({'LFA': firework_count}),
         launchers_parsed='LFA'
     )
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """
+    Path for logging in, in the beforerequest function,
+    it redirects anyone not logged in to this page.
+    """
+
+    if request.method == 'POST':
+        if auth.login(request.form['username'], request.form['passwd']):
+            token = auth.create_token(request.form['username'], request.remote_addr)
+            resp = redirect('/')
+            resp.set_cookie('token', token)
+            return resp
+        else:
+            return render_template('login.html')
+    else:
+        return render_template('login.html')
 
 @app.route('/add_launcher', methods=['GET', 'POST'])
 def add_launcher():
@@ -220,16 +240,25 @@ def delete_pattern(pattern):
     f.close()
 
 @app.before_request
-def rickastley():
+def beforerequest():
     """
     Redirects anyone who is not in a private network to
-    Rick Astley - Never Gonna Give You Up.
+    Rick Astley - Never Gonna Give You Up. This also
+    redirects anyone not logged in to the login page
+    if they are on a private network.
     """
     if not request.remote_addr.startswith('192.168.') and not request.remote_addr.startswith('172.16.') and not request.remote_addr.startswith('10.'):
         return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
     else:
-        if launcher_io.launchers == {} and not request.path == '/add_launcher' and not request.path.startswith('/static'):
-            return redirect('/add_launcher')
+        if not request.path.startswith('/static') and not request.path == '/login':
+            if 'token' in request.cookies:
+                if not auth.verify_token(request.remote_addr, request.cookies['token']):
+                    return redirect('/login')
+            else:
+                return redirect('/login')
+
+            if launcher_io.launchers == {} and not request.path == '/add_launcher':
+                return redirect('/add_launcher')
 
 def firework_serial_write(launcher):
     """

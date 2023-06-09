@@ -255,7 +255,7 @@ def beforerequest():
     else:
         if not request.path.startswith('/static') and not request.path == '/login':
             if 'token' in request.cookies:
-                if not auth.verify_token(request.remote_addr, request.cookies['token']):
+                if auth.verify_token(request.remote_addr, request.cookies['token']) == False:
                     return redirect('/login')
             else:
                 return redirect('/login')

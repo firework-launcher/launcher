@@ -80,7 +80,38 @@ class SerialLauncher:
         data = data.decode('utf-8')
         self.launcher_io.logging.debug('Recieved serial response: {}'.format(data.replace('\r\n', '')))
         time.sleep(0.5)
+    
+    def write_to_launcher_pattern(self, msg):
+        """
+        Writes to the launcher with no delay and not logging the response.
+        """
 
+        self.obj.write(msg.encode())
+        self.launcher_io.logging.debug('Sent serial message: {} to launcher {}'.format(msg.replace('\r\n', ''), self.port))
+
+        self.obj.read()
+        data_left = self.obj.inWaiting()
+        self.obj.read(data_left)
+    
+    def run_pattern(self, pattern_data):
+        """
+        Runs a pattern
+        """
+
+        for step in pattern_data:
+            command = ''
+            for pin in pattern_data[step]['pins']:
+                command += '/digital/{}/0\r\n'.format(pin)
+            self.write_to_launcher_pattern(command)
+
+            time.sleep(1)
+
+            command = ''
+            for pin in pattern_data[step]['pins']:
+                command += '/digital/{}/1\r\n'.format(pin)
+            self.write_to_launcher_pattern(command)
+
+            time.sleep(int(pattern_data[step]['delay']))
 
 class ShiftRegisterLauncher:
     def __init__(self, launcher_io, name, chip, count):
@@ -114,7 +145,13 @@ class ShiftRegisterLauncher:
         if value == 1:
             self.obj.set_output([pin])
             self.launcher_io.logging.debug('Triggered firework {} on shift register {}'.format(pin, self.port))
-
+    
+    def run_pattern(self, pattern_data):
+        """
+        Runs a pattern
+        """
+        
+        self.obj.set_output_pattern(pattern_data)
 
 class IPLauncher:
     def __init__(self, launcher_io, name, ip, count):
@@ -149,3 +186,33 @@ class IPLauncher:
         data = data.decode('utf-8')
         self.launcher_io.logging.debug('Recieved response: {}'.format(data.replace('\r\n', '')))
         time.sleep(1)
+    
+    def write_to_launcher_pattern(self, msg):
+        """
+        Writes to the launcher with no delay and not logging the response.
+        """
+
+        self.obj.send(msg.encode())
+        self.launcher_io.logging.debug('Sent message: {} to launcher {}'.format(msg.replace('\r\n', ''), self.port))
+
+        data = self.obj.recv(1048576)
+    
+    def run_pattern(self, pattern_data):
+        """
+        Runs a pattern
+        """
+
+        for step in pattern_data:
+            command = ''
+            for pin in pattern_data[step]['pins']:
+                command += '/digital/{}/0\r\n'.format(pin)
+            self.write_to_launcher_pattern(command)
+
+            time.sleep(1)
+
+            command = ''
+            for pin in pattern_data[step]['pins']:
+                command += '/digital/{}/1\r\n'.format(pin)
+            self.write_to_launcher_pattern(command)
+
+            time.sleep(int(pattern_data[step]['delay']))

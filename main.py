@@ -185,9 +185,8 @@ def add_pattern():
     launcher_counts = {}
     launchers = {}
     for launcher in launcher_io.launchers:
-        if launcher_io.launchers[launcher].type == 'shiftregister':
-            launchers[launcher] = launcher_io.launchers[launcher].name
-            launcher_counts[launcher] = launcher_io.launchers[launcher].count
+        launchers[launcher] = launcher_io.launchers[launcher].name
+        launcher_counts[launcher] = launcher_io.launchers[launcher].count
 
     return render_template('add_pattern.html', launcher_counts=json.dumps(launcher_counts), launchers=launchers)
 
@@ -216,7 +215,7 @@ def run_pattern(pattern):
     socketio.emit('running_pattern', pattern)
     launcher_port = patterns[pattern][0]
     pattern_data = patterns[pattern][1]
-    shift = launcher_io.launchers[launcher_port].obj
+    launcher = launcher_io.launchers[launcher_port]
     pins_changed = []
     for step in pattern_data:
         pins_changed += pattern_data[step]['pins']
@@ -225,7 +224,7 @@ def run_pattern(pattern):
         fireworks_launched[launcher_port].append(pin)
         socketio.emit('firework_launch', {'firework': pin, 'launcher': launcher_port})
 
-    shift.set_output_pattern(pattern_data)
+    launcher.run_pattern(pattern_data)
     socketio.emit("finished_pattern", pattern)
     
 @socketio.on('delete_pattern')

@@ -1,12 +1,13 @@
 btn_div = document.getElementById("btns");
 
 clicked_btns = [];
-pattern_data = ["", {}];
+pattern_data = {};
 
 current_step = 1
 
 document.getElementById("launcher_select").addEventListener("change", function() {
     reload_buttons();
+    clicked_btns = []
 });
 
 function reload_buttons() {
@@ -49,16 +50,17 @@ function addStep() {
         btn.setAttribute("onclick", "");
     }
     delay = document.getElementById("delay").value;
-    pattern_data[1]["Step " + (current_step-1)] = {
+    launcher = document.getElementById("launcher_select").value;
+    pattern_data["Step " + (current_step-1)] = {
         "pins": clicked_btns,
-        "delay": delay
+        "delay": delay,
+        "launcher": launcher
     };
 
     clicked_btns = [];
 }
 
 function submitPattern() {
-    pattern_data[0] = document.getElementById("launcher_select").value;
     pattern_data_input = document.getElementById("pattern_data");
     pattern_name = document.getElementById("patternname").value;
     pattern_name_field = document.getElementById("pattern_name");

@@ -42,7 +42,20 @@ class LauncherIOMGMT:
         for launcher in self.launchers:
             port_list[self.launchers[launcher].name] = launcher
         return port_list
+    
+    def run_pattern(self, pattern_data):
+        """
+        This runs a pattern. The pattern data variable is a dictionary. The keys
+        are the name of the step. The value is another dictionary. In this
+        dictionary, it has 3 keys: pins, delay, and launcher. The pins value is
+        an array, tells what pins need to go on at that step. The delay
+        is an integer, tells how long in seconds to wait after the pins are
+        pulsed. The launcher is the port of the launcher that it should pulse the
+        pins on.
+        """
 
+        for step in pattern_data:
+            self.launchers[pattern_data[step]['launcher']].run_step(pattern_data[step])
 
 class SerialLauncher:
     def __init__(self, launcher_io, name, port, count):
@@ -93,25 +106,24 @@ class SerialLauncher:
         data_left = self.obj.inWaiting()
         self.obj.read(data_left)
     
-    def run_pattern(self, pattern_data):
+    def run_step(self, step):
         """
-        Runs a pattern
+        Runs a step in a pattern
         """
 
-        for step in pattern_data:
-            command = ''
-            for pin in pattern_data[step]['pins']:
-                command += '/digital/{}/0\r\n'.format(pin)
-            self.write_to_launcher_pattern(command)
+        command = ''
+        for pin in step['pins']:
+            command += '/digital/{}/0\r\n'.format(pin)
+        self.write_to_launcher_pattern(command)
 
-            time.sleep(1)
+        time.sleep(1)
 
-            command = ''
-            for pin in pattern_data[step]['pins']:
-                command += '/digital/{}/1\r\n'.format(pin)
-            self.write_to_launcher_pattern(command)
+        command = ''
+        for pin in step['pins']:
+            command += '/digital/{}/1\r\n'.format(pin)
+        self.write_to_launcher_pattern(command)
 
-            time.sleep(int(pattern_data[step]['delay']))
+        time.sleep(int(step['delay']))
 
 class ShiftRegisterLauncher:
     def __init__(self, launcher_io, name, chip, count):
@@ -146,12 +158,12 @@ class ShiftRegisterLauncher:
             self.obj.set_output([pin])
             self.launcher_io.logging.debug('Triggered firework {} on shift register {}'.format(pin, self.port))
     
-    def run_pattern(self, pattern_data):
+    def run_step(self, step):
         """
-        Runs a pattern
+        Runs a step in a pattern
         """
         
-        self.obj.set_output_pattern(pattern_data)
+        self.obj.set_output_pattern({'Step': step})
 
 class IPLauncher:
     def __init__(self, launcher_io, name, ip, count):
@@ -197,22 +209,21 @@ class IPLauncher:
 
         data = self.obj.recv(1048576)
     
-    def run_pattern(self, pattern_data):
+    def run_step(self, step):
         """
-        Runs a pattern
+        Runs a step in a pattern
         """
 
-        for step in pattern_data:
-            command = ''
-            for pin in pattern_data[step]['pins']:
-                command += '/digital/{}/0\r\n'.format(pin)
-            self.write_to_launcher_pattern(command)
+        command = ''
+        for pin in step['pins']:
+            command += '/digital/{}/0\r\n'.format(pin)
+        self.write_to_launcher_pattern(command)
 
-            time.sleep(1)
+        time.sleep(1)
 
-            command = ''
-            for pin in pattern_data[step]['pins']:
-                command += '/digital/{}/1\r\n'.format(pin)
-            self.write_to_launcher_pattern(command)
+        command = ''
+        for pin in step['pins']:
+            command += '/digital/{}/1\r\n'.format(pin)
+        self.write_to_launcher_pattern(command)
 
-            time.sleep(int(pattern_data[step]['delay']))
+        time.sleep(int(step['delay']))

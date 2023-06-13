@@ -213,18 +213,16 @@ def run_pattern(pattern):
     if not pattern in patterns:
         return None
     socketio.emit('running_pattern', pattern)
-    launcher_port = patterns[pattern][0]
-    pattern_data = patterns[pattern][1]
-    launcher = launcher_io.launchers[launcher_port]
+    pattern_data = patterns[pattern]
     pins_changed = []
     for step in pattern_data:
-        pins_changed += pattern_data[step]['pins']
+        pins_changed.append([pattern_data[step]['launcher'], pattern_data[step]['pins']])
     global fireworks_launched
     for pin in pins_changed:
-        fireworks_launched[launcher_port].append(pin)
-        socketio.emit('firework_launch', {'firework': pin, 'launcher': launcher_port})
+        fireworks_launched[pin[0]].append(pin[1])
+        socketio.emit('firework_launch', {'firework': pin[1], 'launcher': pin[0]})
 
-    launcher.run_pattern(pattern_data)
+    launcher_io.run_pattern(pattern_data)
     socketio.emit("finished_pattern", pattern)
     
 @socketio.on('delete_pattern')

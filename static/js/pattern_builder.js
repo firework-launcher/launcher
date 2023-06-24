@@ -1,5 +1,6 @@
 btn_div = document.getElementById("btns");
 
+
 clicked_btns = [];
 pattern_data = {};
 
@@ -10,6 +11,17 @@ document.getElementById("launcher_select").addEventListener("change", function()
     clicked_btns = []
 });
 
+function find_fp(firework, launcher) {
+    fp = firework_profiles[launcher];
+    for (i = 0; i < Object.keys(fp).length; i++) {
+        profile_name = Object.keys(fp)[i];
+        profile_data = fp[profile_name];
+        if (profile_data["fireworks"].includes(firework)) {
+            return profile_data;
+        }
+    }
+}
+
 function reload_buttons() {
     launcher = document.getElementById("launcher_select").value;
     btn_div.innerHTML = "";
@@ -18,6 +30,8 @@ function reload_buttons() {
         button.setAttribute("id", "btn_" + i);
         button.setAttribute("onclick", "buttonClick(" + i + ")");
         button.setAttribute("class", "firework_button");
+        color = find_fp(i, launcher)["color"];
+        button.setAttribute("style", "color: " + color + "; border-color: " + color + ";");
         button.innerText = "#" + i;
         btn_div.appendChild(button);
     }
@@ -29,14 +43,38 @@ function fadeOut(element) {
 
 function buttonClick(btn) {
     if (clicked_btns.includes(btn)) {
+        launcher = document.getElementById("launcher_select").value;
         button = document.getElementById("btn_" + btn);
         button.setAttribute("class", "firework_button");
+        color = find_fp(btn, launcher)["color"];
+        button.setAttribute("style", "color: " + color + "; border-color: " + color + ";");
         index = clicked_btns.indexOf(btn);
         clicked_btns.splice(index, 1);
     } else {
         button = document.getElementById("btn_" + btn);
         button.setAttribute("class", "yellow-fb");
+        button.setAttribute("style", "");
         clicked_btns.push(btn);
+    }
+}
+
+function add_legend() {
+    legend_div = document.getElementById("legend");
+    launcher = document.getElementById("launcher_select").value;
+    fp_length = Object.keys(firework_profiles[launcher]).length;;
+    for (let i = 1; i < fp_length+1; i++) {
+        key = i.toString();
+        color = firework_profiles[launcher][key]["color"];
+        pname = firework_profiles[launcher][key]["name"];
+        text = document.createElement("p");
+        text_class = document.createAttribute("class");
+        text_style = document.createAttribute("style");
+        text.innerText = pname;
+        text_class.value = "legend-txt";
+        text_style.value = "color: "+color+";";
+        text.setAttributeNode(text_class);
+        text.setAttributeNode(text_style);
+        legend_div.appendChild(text);
     }
 }
 
@@ -71,3 +109,4 @@ function submitPattern() {
 }
 
 reload_buttons();
+add_legend();

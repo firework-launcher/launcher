@@ -25,7 +25,10 @@
             <h3>Name: <input type="text" id="patternname"></h3>
             <h1 id="step">Step 1</h1>
             <input type="text" style="display: none;" name="pins" id="pins">
-            <div id="btns"></div>
+            <div id="btns"></div><br/>
+            <div class="legend" id="legend">
+                <h2>Legend</h2>
+              </div>
             <br/><br/>
 
             <h3>Delay: <input id="delay" value="0" type="number"></h3>
@@ -38,6 +41,7 @@
         </form>
         <script>
             launcher_counts = JSON.parse('{{ launcher_counts | safe }}');
+            firework_profiles = JSON.parse('{{ firework_profiles | safe }}');
             function expand_hamburger () {
                 menu = document.getElementById("hamburgerExpandMenu");
                 if (menu.style.display == "block") {

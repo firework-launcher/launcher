@@ -188,7 +188,7 @@ def add_pattern():
         launchers[launcher] = launcher_io.launchers[launcher].name
         launcher_counts[launcher] = launcher_io.launchers[launcher].count
 
-    return render_template('add_pattern.html', launcher_counts=json.dumps(launcher_counts), launchers=launchers)
+    return render_template('add_pattern.html', launcher_counts=json.dumps(launcher_counts), launchers=launchers, firework_profiles=json.dumps(firework_profiling))
 
 @socketio.on('save_fp')
 def save_fp(firework_profiles):

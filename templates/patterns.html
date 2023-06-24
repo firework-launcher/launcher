@@ -9,12 +9,14 @@
         <ul class="navbar">
             <li class="navbar-item-li"><a class="navtitle" href="/">Firework Launcher</a></li>
             <li class="navbar-item-li"><a class="navbar-item" href="/add_launcher">Add launcher</a></li>
-            <li class="navbar-item-li"><a class="navbar-item" href="/add_launcher">Patterns</a></li>
+            <li class="navbar-item-li"><a class="navbar-item" href="/patterns">Patterns</a></li>
+            <li class="navbar-item-li"><a class="navbar-item" href="/notes">Notes</a></li>
             <li class="navbar-item-hamburger"><a class="hamburger-menu" onclick="expand_hamburger()"><img src="/static/svgs/bars.svg" width="20" class="hamburger-menu-svg" alt="Hamburger Menu"/></a></li>
         </ul>
         <div id="hamburgerExpandMenu">
             <a class="navbar-item-expanded" href="/add_launcher">Add launcher</a>
-            <a class="navbar-item-expanded" href="/add_launcher">Patterns</a>
+            <a class="navbar-item-expanded" href="/patterns">Patterns</a>
+            <a class="navbar-item-expanded" href="/notes">Notes</a>
         </div>
         <div class="patternlist">
             {% for pattern in patterns %}

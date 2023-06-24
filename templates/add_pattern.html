@@ -42,6 +42,7 @@
         <script>
             launcher_counts = JSON.parse('{{ launcher_counts | safe }}');
             firework_profiles = JSON.parse('{{ firework_profiles | safe }}');
+            notes = JSON.parse('{{ notes | safe }}');
             function expand_hamburger () {
                 menu = document.getElementById("hamburgerExpandMenu");
                 if (menu.style.display == "block") {

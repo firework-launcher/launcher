@@ -64,6 +64,11 @@ function add_btns(rows, launcher) {
         button_id.value = "fb_" + launcher + "_" + i;
         button_fp.value = profile_id;
         button.innerText = "#"+i;
+        if (notes[launcher] != null) {
+            if (notes[launcher][i.toString()] != null) {
+                button.innerHTML += "<br/>" + notes[launcher][i.toString()];
+            }
+        }
         button_style.value = "color: "+profile["color"]+"; border-color: "+profile["color"]+";";
         button.setAttributeNode(button_class);
         button.setAttributeNode(button_js_onclick);

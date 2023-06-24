@@ -33,6 +33,11 @@ function reload_buttons() {
         color = find_fp(i, launcher)["color"];
         button.setAttribute("style", "color: " + color + "; border-color: " + color + ";");
         button.innerText = "#" + i;
+        if (notes[launcher] != null) {
+            if (notes[launcher][i.toString()] != null) {
+                button.innerHTML += "<br/>" + notes[launcher][i.toString()];
+            }
+        }
         btn_div.appendChild(button);
     }
 }

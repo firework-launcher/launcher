@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, user-scalable=no">
+        <link href="/static/css/main.css" rel="stylesheet">
+        <title>Firework Launcher - Notes</title>
+    </head>
+    <body>
+        <ul class="navbar">
+            <li class="navbar-item-li"><a class="navtitle" href="/">Firework Launcher</a></li>
+            <li class="navbar-item-li"><a class="navbar-item" href="/add_launcher">Add launcher</a></li>
+            <li class="navbar-item-li"><a class="navbar-item" href="/add_launcher">Patterns</a></li>
+            <li class="navbar-item-hamburger"><a class="hamburger-menu" onclick="expand_hamburger()"><img src="/static/svgs/bars.svg" width="20" class="hamburger-menu-svg" alt="Hamburger Menu"/></a></li>
+        </ul>
+        <div id="hamburgerExpandMenu">
+            <a class="navbar-item-expanded" href="/add_launcher">Add launcher</a>
+            <a class="navbar-item-expanded" href="/add_launcher">Patterns</a>
+        </div>
+        <div class="patternlist">
+            {% for note in notes %}
+                <div id="note_{{ notes[note] }}">
+                    <h1>{{ note }} 
+                        <button class="firework_button" id="delete_{{ notes[note] }}" onclick="delete_note('{{ notes[note] }}')">Delete</button>
+                    </h1><br/>
+                </div>
+            {% endfor %}
+            <a class="firework_button" href="/notes/add">Add Pattern</a>
+        </div>
+        <script src="/static/js/socketio.js"></script>
+        <script src="/static/js/notes.js"></script>
+    </body>
+</html>

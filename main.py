@@ -32,6 +32,7 @@ if not os.path.exists('config'):
 firework_profiling = load_file('firework_profiles.json')
 patterns = load_file('patterns.json')
 launchers_to_add = load_file('launchers.json')
+notes = load_file('notes.json')
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 
@@ -57,7 +58,8 @@ def home():
         firework_profiles=json.dumps(firework_profiling),
         launchers=launcher_io.get_ports(),
         launchers_parsed=':'.join(serial_ports),
-        launcher_counts=json.dumps(launcher_counts)
+        launcher_counts=json.dumps(launcher_counts),
+        notes=json.dumps(notes)
     )
 
 def get_lfa_firework_launched(firework_count):
@@ -77,6 +79,45 @@ def get_lfa_firework_launched(firework_count):
             lfa_list.append(x+1)
     return {'LFA': lfa_list}
 
+def save_notes():
+    f = open('config/notes.json', 'w')
+    f.write(json.dumps(notes, indent=4))
+    f.close()
+
+@app.route('/notes/add', methods=['GET', 'POST'])
+def add_note():
+    """
+    Path for adding a note.
+    """
+
+    if request.method == 'POST':
+        firework = request.form['firework']
+        launcher = request.form['launcher']
+        if not launcher in notes:
+            notes[launcher] = {}
+        notes[launcher][str(firework)] = request.form['note']
+        save_notes()
+
+        return redirect('/')
+    launchers = {}
+    for launcher in launcher_io.launchers:
+        launchers[launcher] = launcher_io.launchers[launcher].name
+    launcher = list(launcher_io.launchers.keys())[0]
+    return render_template('add_note.html', launcher=launcher, firework=1, launchers=launchers, launcher_count_range=range(launcher_io.launchers[launcher].count))
+
+@app.route('/notes')
+def notes_():
+    """
+    This path is for managing notes placed on specific channels.
+    """
+
+    note_list = {}
+    for launcher in notes:
+        for firework in notes[launcher]:
+            launcher_name = launcher_io.launchers[launcher].name
+            note_list['{} ({}) | #{}'.format(launcher_name, launcher, firework)] = launcher + '_' +  firework
+    return render_template('notes.html', notes=note_list)
+
 @app.route('/lfa')
 def lfa():
     """
@@ -95,7 +136,8 @@ def lfa():
         firework_profiles=json.dumps({'LFA': {'1': {'color': '#fc2339', 'fireworks': list(range(1, firework_count+1)), 'name': 'LFA'}}}),
         launchers={'Launch For All': 'LFA'},
         launcher_counts=json.dumps({'LFA': firework_count}),
-        launchers_parsed='LFA'
+        launchers_parsed='LFA',
+        notes=json.dumps(notes)
     )
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -188,7 +230,7 @@ def add_pattern():
         launchers[launcher] = launcher_io.launchers[launcher].name
         launcher_counts[launcher] = launcher_io.launchers[launcher].count
 
-    return render_template('add_pattern.html', launcher_counts=json.dumps(launcher_counts), launchers=launchers, firework_profiles=json.dumps(firework_profiling))
+    return render_template('add_pattern.html', launcher_counts=json.dumps(launcher_counts), launchers=launchers, firework_profiles=json.dumps(firework_profiling), notes=json.dumps(notes))
 
 @socketio.on('save_fp')
 def save_fp(firework_profiles):
@@ -238,6 +280,24 @@ def delete_pattern(pattern):
     f = open('config/patterns.json', 'w')
     f.write(json.dumps(patterns))
     f.close()
+
+@socketio.on('delete_note')
+def delete_note(note):
+    """
+    Deletes a note, called from the notes
+    js file.
+    """
+
+    launcher = note.split('_')[0]
+    firework = note.split('_')[1]
+    if launcher in notes:
+        if firework in notes[launcher]:
+            exists = True
+    if not exists:
+        return None
+    
+    del notes[launcher][firework]
+    save_notes()
 
 @app.before_request
 def beforerequest():

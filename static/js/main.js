@@ -1,5 +1,7 @@
 const socket = io();
 
+managing_notes = false;
+
 socket.on("disconnect", () => {
     console.log("Lost Connection");
     for (let index = 0; index < fireworks_launched.length; ++index) {
@@ -228,6 +230,84 @@ function change_profile(launcher, btn_id) {
     button.setAttributeNode(button_fp);
     removeItem(firework_profiles[launcher][old_profile_id]["fireworks"], btn_id)
     firework_profiles[launcher][profile_id]["fireworks"].push(btn_id)
+}
+
+function set_note(firework, launcher) {
+    launcher_indicator = document.getElementById("launcher-indicator");
+    firework_indicator = document.getElementById("firework-indicator");
+    note = document.getElementById("note_content");
+    if (notes[launcher][firework] == null) {
+        note.value = "";
+    } else {
+        note.value = notes[launcher][firework];
+    }
+    modal_launcher = launcher;
+    modal_firework = firework;
+    launcher_indicator.innerText = "Launcher: " + launcher_names[launcher] + " (" + launcher + ")";
+    firework_indicator.innerText = "Firework: " + firework;
+    modal = document.getElementById("modal");
+    modal.style.display = "block";
+    content = document.getElementById("content");
+    content.style.pointerEvents = "none";
+    content.classList.add("blur");
+}
+
+function add_note() {
+    note = document.getElementById("note_content");
+    button = document.getElementById("fb_" + modal_launcher + "_" + modal_firework);
+    if (note.value == "") {
+        button.innerHTML = "#" + modal_firework;
+        socket.emit("delete_note", modal_launcher + "_" + modal_firework);
+    } else {
+        button.innerHTML = "#" + modal_firework + "<br/>" + note.value;
+        notes[modal_launcher][modal_firework] = note.value;
+        socket.emit("note_update", notes);
+    }
+    close_modal();
+}
+
+function close_modal() {
+    modal = document.getElementById("modal");
+    modal.style.display = "none";
+    content = document.getElementById("content");
+    content.classList.remove("blur");
+    content.style.pointerEvents = "auto"
+}
+
+function manage_notes() {
+    notes_button = document.getElementById("notesbutton");
+    notes_button_2 = document.getElementById("notesbutton_");
+    if (managing_notes) {
+        notes_button.innerText = "Notes";
+        notes_button_2.innerText = "Notes";
+        managing_notes = false;
+        for (let li = 0; li < launchers.length; li++) {
+            launcher = li
+            for (let i = 1; i < launcher_counts[launchers[launcher]]+1; i++) {
+                button = document.getElementById("fb_" + launchers[launcher] + "_" + i);
+                if (button != null) {
+                    button.setAttribute("onclick", "trigger_firework(" + i + ", '" + launchers[launcher] + "');");
+                } else {
+                    console.warn("Tried to change non-existant button, fb_" + launchers[launcher] + "_" + i)
+                }
+            }
+        }
+    } else {
+        notes_button.innerText = "Finish";
+        notes_button_2 = "Finish";
+        managing_notes = true;
+        for (let li = 0; li < launchers.length; li++) {
+            launcher = li
+            for (let i = 1; i < launcher_counts[launchers[launcher]]+1; i++) {
+                button = document.getElementById("fb_" + launchers[launcher] + "_" + i);
+                if (button != null) {
+                    button.setAttribute("onclick", "set_note(" + i + ", '" + launchers[launcher] + "');");
+                } else {
+                    console.warn("Tried to change non-existant button, fb_" + launchers[launcher] + "_" + i)
+                }
+            }
+        }
+    }
 }
 
 for (let index = 0; index < launchers.length; ++index) {

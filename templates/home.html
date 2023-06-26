@@ -10,7 +10,7 @@
       <li class="navbar-item-li"><a class="navtitle" href="/">Firework Launcher</a></li>
         <li class="navbar-item-li"><a class="navbar-item" onclick="dev();" id="devbutton">Dev</a></li>
         <li class="navbar-item-li"><a class="navbar-item" onclick="reset_all()" id="resetbutton">Reset all</a></li>
-        <li class="navbar-item-li"><a class="navbar-item" href="/notes">Notes</a></li>
+        <li class="navbar-item-li"><a class="navbar-item" onclick="manage_notes()" id="notesbutton">Notes</a></li>
         <li class="navbar-item-li"><a class="navbar-item" href="/add_launcher">Add launcher</a></li>
         <li class="navbar-item-li"><a class="navbar-item" href="/lfa">LFA</a></li>
         <li class="navbar-item-li"><a class="navbar-item" href="/patterns">Patterns</a></li>
@@ -18,25 +18,38 @@
     </ul>
     <div id="hamburgerExpandMenu">
         <a class="navbar-item-expanded" onclick="dev();" id="devbutton_">Dev</a>
-        <a class="navbar-item-expanded" onclick="reset_all()" id="devbutton">Reset all</a>
-        <a class="navbar-item-expanded" href="/notes">Notes</a>
+        <a class="navbar-item-expanded" onclick="reset_all()" id="resetbutton">Reset all</a>
+        <a class="navbar-item-expanded" onclick="manage_notes()" id="notesbutton_">Notes</a>
         <a class="navbar-item-expanded" href="/add_launcher">Add launcher</a>
         <a class="navbar-item-expanded" href="/lfa">LFA</a>
         <a class="navbar-item-expanded" href="/patterns">Patterns</a>
     </div>
-    
-    {% for launcher in launchers %}
-      <h2 style="text-align: center;">{{ launcher }} ({{ launchers[launcher] }})
-      <span><a class="resetbutton" onclick="reset('{{ launchers[launcher] }}');">Reset</a></span>
-      </h2>
-      <div class="firework_buttons" id="firework_buttons_{{ launchers[launcher] }}"></div>
-    {% endfor %}
-    <div class="legend" id="legend">
-      <h2>Legend</h2>
+    <div class="content" id="content">
+      {% for launcher in launchers %}
+        <h2 style="text-align: center;">{{ launcher }} ({{ launchers[launcher] }})
+        <span><a class="resetbutton" onclick="reset('{{ launchers[launcher] }}');">Reset</a></span>
+        </h2>
+        <div class="firework_buttons" id="firework_buttons_{{ launchers[launcher] }}"></div>
+      {% endfor %}
+      <div class="legend" id="legend">
+        <h2>Legend</h2>
+      </div>
+    </div>
+    <div class="modal" id="modal">
+      <div class="inner-modal">
+        <h3 style="margin-top: 0;" id="launcher-indicator"></h3>
+        <h3 id="firework-indicator"></h3>
+        <input placeholder="Note" class="note_box" type="text" id="note_content">
+        <div class="modal-button">
+          <button class="firework_button" onclick="add_note()">Add</button>
+          <button class="firework_button" onclick="close_modal()">Close</button>
+        </div>
+      </div>
     </div>
     <script>
       var fireworks_launched = JSON.parse('{{ fireworks_launched | safe }}');;
       var firework_profiles = JSON.parse('{{ firework_profiles | safe }}');
+      var launcher_names = JSON.parse('{{ launcher_names | safe }}');
       var launchers = "{{ launchers_parsed }}".split(":");
       var launcher_counts = JSON.parse('{{ launcher_counts | safe }}');
       var notes = JSON.parse('{{ notes | safe }}');

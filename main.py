@@ -53,12 +53,16 @@ def home():
     launcher_counts = {}
     for launcher in launcher_io.launchers:
         launcher_counts[launcher] = launcher_io.launchers[launcher].count
+    launcher_names = {}
+    for launcher in launcher_io.launchers:
+        launcher_names[launcher] = launcher_io.launchers[launcher].name
     return render_template('home.html', 
         fireworks_launched=json.dumps(fireworks_launched),
         firework_profiles=json.dumps(firework_profiling),
         launchers=launcher_io.get_ports(),
         launchers_parsed=':'.join(serial_ports),
         launcher_counts=json.dumps(launcher_counts),
+        launcher_names=json.dumps(launcher_names),
         notes=json.dumps(notes)
     )
 
@@ -84,39 +88,11 @@ def save_notes():
     f.write(json.dumps(notes, indent=4))
     f.close()
 
-@app.route('/notes/add', methods=['GET', 'POST'])
-def add_note():
-    """
-    Path for adding a note.
-    """
-
-    if request.method == 'POST':
-        firework = request.form['firework']
-        launcher = request.form['launcher']
-        if not launcher in notes:
-            notes[launcher] = {}
-        notes[launcher][str(firework)] = request.form['note']
-        save_notes()
-
-        return redirect('/')
-    launchers = {}
-    for launcher in launcher_io.launchers:
-        launchers[launcher] = launcher_io.launchers[launcher].name
-    launcher = list(launcher_io.launchers.keys())[0]
-    return render_template('add_note.html', launcher=launcher, firework=1, launchers=launchers, launcher_count_range=range(launcher_io.launchers[launcher].count))
-
-@app.route('/notes')
-def notes_():
-    """
-    This path is for managing notes placed on specific channels.
-    """
-
-    note_list = {}
-    for launcher in notes:
-        for firework in notes[launcher]:
-            launcher_name = launcher_io.launchers[launcher].name
-            note_list['{} ({}) | #{}'.format(launcher_name, launcher, firework)] = launcher + '_' +  firework
-    return render_template('notes.html', notes=note_list)
+@socketio.on("note_update")
+def note_update(note_data):
+    global notes
+    notes = note_data
+    save_notes()
 
 @app.route('/lfa')
 def lfa():
@@ -137,6 +113,7 @@ def lfa():
         launchers={'Launch For All': 'LFA'},
         launcher_counts=json.dumps({'LFA': firework_count}),
         launchers_parsed='LFA',
+        launcher_names=json.dumps({'LFA': 'Launch For All'}),
         notes=json.dumps(notes)
     )
 

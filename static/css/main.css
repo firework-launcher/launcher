@@ -237,3 +237,38 @@ h5 {
 .patternlist {
     text-align: center;
 }
+
+.modal {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #303030;
+    border: 3px black solid;
+    width: 50%;
+    height: 30%;
+}
+
+.blur {
+    opacity: 0.3;
+}
+
+.inner-modal {
+    position: relative;
+    height: 100%;
+    padding: 5px;
+    text-align: center;
+}
+
+.modal-button {
+    position: absolute;
+    bottom: 15px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}
+
+.note_box {
+    width: 30%;
+}

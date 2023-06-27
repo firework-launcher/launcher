@@ -294,7 +294,7 @@ function manage_notes() {
         }
     } else {
         notes_button.innerText = "Finish";
-        notes_button_2 = "Finish";
+        notes_button_2.innerText = "Finish";
         managing_notes = true;
         for (let li = 0; li < launchers.length; li++) {
             launcher = li

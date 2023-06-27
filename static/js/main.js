@@ -176,13 +176,13 @@ function dev() {
 function save_fp() {
     socket.emit("save_fp", firework_profiles);
     devbutton = document.getElementById("devbutton");
-    devbutton.innerText = "Dev";
+    devbutton.innerText = "Profiles";
     devbutton.removeAttribute("onclick");
     devbutton_js_onclick = document.createAttribute("onclick");
     devbutton_js_onclick.value = "dev();";
     devbutton.setAttributeNode(devbutton_js_onclick);
     devbutton = document.getElementById("devbutton_");
-    devbutton.innerText = "Dev";
+    devbutton.innerText = "Profiles";
     devbutton.removeAttribute("onclick");
     devbutton_js_onclick = document.createAttribute("onclick");
     devbutton_js_onclick.value = "dev();";
@@ -236,10 +236,14 @@ function set_note(firework, launcher) {
     launcher_indicator = document.getElementById("launcher-indicator");
     firework_indicator = document.getElementById("firework-indicator");
     note = document.getElementById("note_content");
-    if (notes[launcher][firework] == null) {
-        note.value = "";
+    if (notes[launcher] != null) {
+        if (notes[launcher][firework] == null) {
+            note.value = "";
+        } else {
+            note.value = notes[launcher][firework];
+        }
     } else {
-        note.value = notes[launcher][firework];
+        note.value = "";
     }
     modal_launcher = launcher;
     modal_firework = firework;
@@ -254,6 +258,9 @@ function set_note(firework, launcher) {
 
 function add_note() {
     note = document.getElementById("note_content");
+    if (notes[modal_launcher] == null) {
+        notes[modal_launcher] = {};
+    }
     button = document.getElementById("fb_" + modal_launcher + "_" + modal_firework);
     if (note.value == "") {
         button.innerHTML = "#" + modal_firework;

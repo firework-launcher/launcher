@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, Response, make_response
+from flask import Flask, render_template, redirect, request, Response, make_response, jsonify
 import threading
 import time
 import os
@@ -15,6 +15,7 @@ socketio = flask_socketio.SocketIO(app)
 fireworks_launched = {'LFA': []}
 auth = auth.Auth()
 queue = {}
+pattern_status = {}
 
 def load_file(file):
     if not os.path.exists('config/' + file):
@@ -177,6 +178,13 @@ def add_launcher():
     else:
         return render_template('add_launcher.html', error=False)
 
+@app.route('/pattern_status/<string:pattern>')
+def pattern_status_checker(pattern):
+    if pattern in pattern_status:
+        return jsonify({'running': pattern_status[pattern]})
+    else:
+        return jsonify({'running': False})
+
 @app.route('/patterns')
 def patterns_():
     """
@@ -224,13 +232,20 @@ def save_fp(firework_profiles):
 
 @socketio.on('run_pattern')
 def run_pattern(pattern):
-    socketio.emit('running_pattern', pattern)
-    socketio.start_background_task(run_pattern_threaded, pattern)
-
-def run_pattern_threaded(pattern):
     """
     Runs a pattern, this is called from SocketIO,
     /static/js/patterns.js.
+    """
+
+    socketio.emit('running_pattern', pattern)
+    pattern_status[pattern] = True
+    threading.Thread(target=run_pattern_threaded, args=[pattern]).start()
+
+def run_pattern_threaded(pattern):
+    """
+    Thread run_pattern() starts. This is a thread
+    because it has delays and interrupts the flask
+    app.
     """
 
     if not pattern in patterns:
@@ -242,9 +257,8 @@ def run_pattern_threaded(pattern):
     global fireworks_launched
     for pin in pins_changed:
         fireworks_launched[pin[0]].append(pin[1])
-        socketio.emit('firework_launch', {'firework': pin[1], 'launcher': pin[0]})
     launcher_io.run_pattern(pattern_data)
-    socketio.emit("finished_pattern", pattern)
+    pattern_status[pattern] = False
 
 @socketio.on('delete_pattern')
 def delete_pattern(pattern):

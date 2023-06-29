@@ -234,7 +234,7 @@ def run_pattern_threaded(pattern, request):
 
     if not pattern in patterns:
         return None
-    flask_socketio.emit('running_pattern', pattern, broadcast=True)
+    socketio.emit('running_pattern', pattern, to=request.sid)
     pattern_data = patterns[pattern]
     pins_changed = []
     for step in pattern_data:
@@ -242,9 +242,9 @@ def run_pattern_threaded(pattern, request):
     global fireworks_launched
     for pin in pins_changed:
         fireworks_launched[pin[0]].append(pin[1])
-        flask_socketio.emit('firework_launch', {'firework': pin[1], 'launcher': pin[0]}, broadcast=True,)
+        socketio.emit('firework_launch', {'firework': pin[1], 'launcher': pin[0]}, to=request.sid)
     launcher_io.run_pattern(pattern_data)
-    flask_socketio.emit("finished_pattern", pattern, broadcast=True)
+    socketio.emit("finished_pattern", pattern, to=request.sid)
 
 @socketio.on('delete_pattern')
 def delete_pattern(pattern):

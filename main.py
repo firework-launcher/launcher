@@ -224,6 +224,7 @@ def save_fp(firework_profiles):
 
 @socketio.on('run_pattern')
 def run_pattern(pattern):
+    socketio.emit('running_pattern', pattern)
     socketio.start_background_task(run_pattern_threaded, pattern)
 
 def run_pattern_threaded(pattern):
@@ -234,7 +235,6 @@ def run_pattern_threaded(pattern):
 
     if not pattern in patterns:
         return None
-    socketio.emit('running_pattern', pattern)
     pattern_data = patterns[pattern]
     pins_changed = []
     for step in pattern_data:

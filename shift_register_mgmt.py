@@ -83,6 +83,8 @@ class ShiftRegisterMGMT:
             write_operations.append([RCLK_PIN, 0])
             write_operations.append([OE_PIN, 0])
             self.write_to_gpio(write_operations)
+            time.sleep(1)
+            self.write_to_gpio([[OE_PIN, 1]])
             time.sleep(int(delays[current_delay]))
             current_delay += 1
         if set_oe:

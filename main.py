@@ -234,7 +234,7 @@ def run_pattern_threaded(pattern):
     if not pattern in patterns:
         return None
     with app.app_context():
-        socketio.emit('running_pattern', pattern)
+        socketio.send('running_pattern', pattern, broadcast=True)
     pattern_data = patterns[pattern]
     pins_changed = []
     for step in pattern_data:
@@ -243,10 +243,10 @@ def run_pattern_threaded(pattern):
     for pin in pins_changed:
         fireworks_launched[pin[0]].append(pin[1])
         with app.app_context():
-            socketio.emit('firework_launch', {'firework': pin[1], 'launcher': pin[0]})
+            socketio.send('firework_launch', {'firework': pin[1], 'launcher': pin[0]}, broadcast=True)
     launcher_io.run_pattern(pattern_data)
     with app.app_context():
-        socketio.emit("finished_pattern", pattern)
+        socketio.send("finished_pattern", pattern, broadcast=True)
     
 @socketio.on('delete_pattern')
 def delete_pattern(pattern):

@@ -224,11 +224,13 @@ def save_fp(firework_profiles):
 
 @socketio.on('run_pattern')
 def run_pattern(pattern):
+    threading.Thread(target=run_pattern_threaded, args=[pattern]).start()
+
+def run_pattern_threaded(pattern):
     """
     Runs a pattern, this is called from SocketIO,
     /static/js/patterns.js.
     """
-    
     if not pattern in patterns:
         return None
     socketio.emit('running_pattern', pattern)

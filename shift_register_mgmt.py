@@ -1,5 +1,4 @@
 import os
-import threading
 import time
 
 CLK_PIN = 84
@@ -111,7 +110,7 @@ class ShiftRegisterMGMT:
                 current_shift = ''.join(current_shift_split)
             shifts.append(current_shift)
             delays.append(pattern[stage]['delay'])
-        threading.Thread(target=self.load_shift_pattern(shifts, delays, set_oe)).start()
+        self.load_shift_pattern(shifts, delays, set_oe)
         self.clear()
 
     def set_output(self, pins):

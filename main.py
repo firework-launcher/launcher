@@ -224,9 +224,9 @@ def save_fp(firework_profiles):
 
 @socketio.on('run_pattern')
 def run_pattern(pattern):
-    threading.Thread(target=run_pattern_threaded, args=[pattern, request]).start()
+    socketio.start_background_task(target=run_pattern_threaded, args=[pattern])
 
-def run_pattern_threaded(pattern, request):
+def run_pattern_threaded(pattern):
     """
     Runs a pattern, this is called from SocketIO,
     /static/js/patterns.js.
@@ -234,7 +234,7 @@ def run_pattern_threaded(pattern, request):
 
     if not pattern in patterns:
         return None
-    socketio.emit('running_pattern', pattern, to=request.sid)
+    socketio.emit('running_pattern', pattern)
     pattern_data = patterns[pattern]
     pins_changed = []
     for step in pattern_data:
@@ -242,9 +242,9 @@ def run_pattern_threaded(pattern, request):
     global fireworks_launched
     for pin in pins_changed:
         fireworks_launched[pin[0]].append(pin[1])
-        socketio.emit('firework_launch', {'firework': pin[1], 'launcher': pin[0]}, to=request.sid)
+        socketio.emit('firework_launch', {'firework': pin[1], 'launcher': pin[0]})
     launcher_io.run_pattern(pattern_data)
-    socketio.emit("finished_pattern", pattern, to=request.sid)
+    socketio.emit("finished_pattern", pattern)
 
 @socketio.on('delete_pattern')
 def delete_pattern(pattern):

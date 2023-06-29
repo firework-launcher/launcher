@@ -110,7 +110,7 @@ class ShiftRegisterMGMT:
                 current_shift = ''.join(current_shift_split)
             shifts.append(current_shift)
             delays.append(pattern[stage]['delay'])
-        self.load_shift_pattern(shifts, delays, set_oe)
+        threading.Thread(target=self.load_shift_pattern(shifts, delays, set_oe)).start()
         self.clear()
 
     def set_output(self, pins):

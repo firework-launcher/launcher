@@ -224,29 +224,28 @@ def save_fp(firework_profiles):
 
 @socketio.on('run_pattern')
 def run_pattern(pattern):
-    threading.Thread(target=run_pattern_threaded, args=[pattern]).start()
+    threading.Thread(target=run_pattern_threaded, args=[pattern, request]).start()
 
-def run_pattern_threaded(pattern):
+def run_pattern_threaded(pattern, request):
     """
     Runs a pattern, this is called from SocketIO,
     /static/js/patterns.js.
     """
-    
-    with app.app_context():
-        if not pattern in patterns:
-            return None
-        flask_socketio.emit('running_pattern', pattern, broadcast=True)
-        pattern_data = patterns[pattern]
-        pins_changed = []
-        for step in pattern_data:
-            pins_changed.append([pattern_data[step]['launcher'], pattern_data[step]['pins']])
-        global fireworks_launched
-        for pin in pins_changed:
-            fireworks_launched[pin[0]].append(pin[1])
-            flask_socketio.emit('firework_launch', {'firework': pin[1], 'launcher': pin[0]}, broadcast=True,)
-        launcher_io.run_pattern(pattern_data)
-        flask_socketio.emit("finished_pattern", pattern, broadcast=True)
-    
+
+    if not pattern in patterns:
+        return None
+    flask_socketio.emit('running_pattern', pattern, broadcast=True)
+    pattern_data = patterns[pattern]
+    pins_changed = []
+    for step in pattern_data:
+        pins_changed.append([pattern_data[step]['launcher'], pattern_data[step]['pins']])
+    global fireworks_launched
+    for pin in pins_changed:
+        fireworks_launched[pin[0]].append(pin[1])
+        flask_socketio.emit('firework_launch', {'firework': pin[1], 'launcher': pin[0]}, broadcast=True,)
+    launcher_io.run_pattern(pattern_data)
+    flask_socketio.emit("finished_pattern", pattern, broadcast=True)
+
 @socketio.on('delete_pattern')
 def delete_pattern(pattern):
     """

@@ -256,7 +256,7 @@ def run_pattern_threaded(pattern):
         pins_changed.append([pattern_data[step]['launcher'], pattern_data[step]['pins']])
     global fireworks_launched
     for pin in pins_changed:
-        fireworks_launched[pin[0]].append(pin[1])
+        fireworks_launched[pin[0]] += pin[1]
     launcher_io.run_pattern(pattern_data)
     pattern_status[pattern] = False
 

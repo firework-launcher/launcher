@@ -10,6 +10,7 @@ class LauncherIOMGMT:
     def __init__(self, logging):
         self.logging = logging
         self.launchers = {}
+        self.running_pattern_data = {}
 
     def add_launcher(self, launcher):
         """
@@ -43,7 +44,7 @@ class LauncherIOMGMT:
             port_list[self.launchers[launcher].name] = launcher
         return port_list
     
-    def run_pattern(self, pattern_data):
+    def run_pattern(self, pattern_name, pattern_data):
         """
         This runs a pattern. The pattern data variable is a dictionary. The keys
         are the name of the step. The value is another dictionary. In this
@@ -54,7 +55,10 @@ class LauncherIOMGMT:
         pins on.
         """
 
+        self.running_pattern_data[pattern_name] = {}
         for step in pattern_data:
+            self.running_pattern_data[pattern_name]['step'] = step
+            self.running_pattern_data[pattern_name]['next_step_epoch_est'] = int(time.time())+int(pattern_data[step]['delay'])+1
             self.launchers[pattern_data[step]['launcher']].run_step(pattern_data[step])
 
 class SerialLauncher:

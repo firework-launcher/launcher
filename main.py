@@ -183,7 +183,10 @@ def add_launcher():
 @app.route('/pattern_status/<string:pattern>')
 def pattern_status_checker(pattern):
     if pattern in pattern_status:
-        return jsonify({'running': pattern_status[pattern]})
+        response = {'running': pattern_status[pattern]}
+        if response['running']:
+            response.update(launcher_io.running_pattern_data[pattern])
+        return jsonify(response)
     else:
         return jsonify({'running': False})
 
@@ -259,7 +262,7 @@ def run_pattern_threaded(pattern):
     global fireworks_launched
     for pin in pins_changed:
         fireworks_launched[pin[0]] += pin[1]
-    launcher_io.run_pattern(pattern_data)
+    launcher_io.run_pattern(pattern, pattern_data)
     pattern_status[pattern] = False
 
 @socketio.on('delete_pattern')

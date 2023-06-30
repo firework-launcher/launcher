@@ -10,7 +10,7 @@ function finish_pattern(pattern) {
 socket.on("running_pattern", (pattern) => {
     run = document.getElementById("run_" + pattern);
     run.innerText = "Running";
-    id = setInterval(async function () { await check_pattern(pattern) }, 1000); 
+    id = setInterval(async function () { await check_pattern(pattern) }, 500); 
     interval_ids[pattern] = id;
 });
 
@@ -46,6 +46,9 @@ async function check_pattern(pattern) {
     if (data["running"] == false) {
         finish_pattern(pattern);
         clearInterval(interval_ids[pattern]);
+    } else {
+        run = document.getElementById("run_" + pattern);
+        next_step_in = data["next_step_epoch_est"] - parseInt(Date.now()/1000);
+        run.innerText = "Running - " + data["step"] + " - Next step in " + next_step_in + " sec.";
     }
 }
-

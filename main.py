@@ -64,7 +64,8 @@ def home():
         launchers_parsed=':'.join(serial_ports),
         launcher_counts=json.dumps(launcher_counts),
         launcher_names=json.dumps(launcher_names),
-        notes=json.dumps(notes)
+        notes=json.dumps(notes),
+        patterns=json.dumps(patterns)
     )
 
 def get_lfa_firework_launched(firework_count):
@@ -115,7 +116,8 @@ def lfa():
         launcher_counts=json.dumps({'LFA': firework_count}),
         launchers_parsed='LFA',
         launcher_names=json.dumps({'LFA': 'Launch For All'}),
-        notes=json.dumps(notes)
+        notes=json.dumps(notes),
+        patterns=json.dumps(patterns)
     )
 
 @app.route('/login', methods=['GET', 'POST'])

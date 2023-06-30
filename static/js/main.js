@@ -9,12 +9,16 @@ socket.on("disconnect", () => {
     }
 })
 
-socket.on('firework_launch', (data) => {
-    if (fireworks_launched[data['launcher']] != undefined) {
-        set_btn_red(data['launcher'], data['firework']);
-        fireworks_launched[data['launcher']].push(data['firework']);
-        console.log("New firework launched. Launcher: " + data['launcher'] + " Firework: " + data['firework'])
+function firework_launch(launcher, firework) {
+    if (fireworks_launched[launcher] != undefined) {
+        set_btn_red(launcher, firework);
+        fireworks_launched[launcher].push(firework);
+        console.log("New firework launched. Launcher: " + launcher + " Firework: " + firework);
     }
+}
+
+socket.on('firework_launch', (data) => {
+    firework_launch(data['launcher'], data['firework']);
 });
 
 function reset_launcher(launcher) {
@@ -37,6 +41,16 @@ socket.on('reset_all', () => {
         reset_launcher(launcher);
     }
 });
+
+socket.on('running_pattern', (pattern) => {
+    steps = Object.keys(patterns[pattern]);
+    for (i = 0; i < steps.length; i++) {
+        pins = patterns[pattern][steps[i]]["pins"];
+        for (x = 0; x < pins.length; x++) {
+            firework_launch(patterns[pattern][steps[i]]["launcher"], pins[x]);
+        }
+    }
+})
 
 function get_profile_id(launcher, btn_id) {
     profile = null;

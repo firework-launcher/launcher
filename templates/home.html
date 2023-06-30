@@ -53,6 +53,7 @@
       var launchers = "{{ launchers_parsed }}".split(":");
       var launcher_counts = JSON.parse('{{ launcher_counts | safe }}');
       var notes = JSON.parse('{{ notes | safe }}');
+      var patterns = JSON.parse('{{ patterns | safe }}');
     </script>
     <script src="/static/js/socketio.js"></script>
     <script src="/static/js/main.js"></script>

@@ -61,7 +61,6 @@ class LauncherIOMGMT:
             try:
                 if self.running_pattern_data[pattern_name]['stop']:
                     break
-                raise Exception("Testing")
                 self.running_pattern_data[pattern_name]['step'] = step
                 self.running_pattern_data[pattern_name]['next_step_epoch_est'] = int(time.time())+int(pattern_data[step]['delay'])+1
                 self.launchers[pattern_data[step]['launcher']].run_step(pattern_data[step])

@@ -16,10 +16,13 @@
             <a class="navbar-item-expanded" href="/add_launcher">Add launcher</a>
             <a class="navbar-item-expanded" href="/patterns">Patterns</a>
         </div>
+        <div id="error" class="error_msg">
+            <p id="error_text"></p>
+        </div>
         <div class="patternlist">
             {% for pattern in patterns %}
                 <div id="pattern_{{ pattern }}">
-                    <h1>{{ pattern }} 
+                    <h1 id="h1pattern_{{ pattern }}">{{ pattern }} 
                         <button class="firework_button" id="run_{{ pattern }}" onclick="run_pattern('{{ pattern }}')">Run</button>
                         <button class="firework_button" id="delete_{{ pattern }}" onclick="delete_pattern('{{ pattern }}')">Delete</button>
                     </h1><br/>

@@ -1,6 +1,7 @@
 from serial import Serial
 import socket
 import time
+import traceback
 import shift_register_mgmt
 
 class LauncherNotFound(Exception):
@@ -55,11 +56,20 @@ class LauncherIOMGMT:
         pins on.
         """
 
-        self.running_pattern_data[pattern_name] = {}
+        self.running_pattern_data[pattern_name] = {'stop': False, 'error': False}
         for step in pattern_data:
-            self.running_pattern_data[pattern_name]['step'] = step
-            self.running_pattern_data[pattern_name]['next_step_epoch_est'] = int(time.time())+int(pattern_data[step]['delay'])+1
-            self.launchers[pattern_data[step]['launcher']].run_step(pattern_data[step])
+            try:
+                if self.running_pattern_data[pattern_name]['stop']:
+                    break
+                raise Exception("Testing")
+                self.running_pattern_data[pattern_name]['step'] = step
+                self.running_pattern_data[pattern_name]['next_step_epoch_est'] = int(time.time())+int(pattern_data[step]['delay'])+1
+                self.launchers[pattern_data[step]['launcher']].run_step(pattern_data[step])
+            except:
+                print(traceback.format_exc())
+                self.running_pattern_data[pattern_name]['error'] = True
+                self.running_pattern_data[pattern_name]['next_step_epoch_est'] = 0
+                break
 
 class SerialLauncher:
     def __init__(self, launcher_io, name, port, count):

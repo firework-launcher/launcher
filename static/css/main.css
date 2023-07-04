@@ -272,3 +272,15 @@ h5 {
 .note_box {
     width: 30%;
 }
+
+.error_msg {
+    display: none;
+    width: 100%;
+    background-color: #a8100d;
+    text-align: center;
+    padding: 8px;
+}
+
+#error_text {
+    margin: 0;
+}

@@ -183,9 +183,17 @@ def add_launcher():
 @app.route('/pattern_status/<string:pattern>')
 def pattern_status_checker(pattern):
     if pattern in pattern_status:
-        response = {'running': pattern_status[pattern]}
+        response = {'running': pattern_status[pattern], 'error': False}
         if response['running']:
             response.update(launcher_io.running_pattern_data[pattern])
+        if response['error']:
+            logging.error('Pattern "{}" failed to run'.format(pattern))
+            pattern_status[pattern] = False
+            return jsonify({'error': 'Pattern failed to run'})
+        else:
+            del response['error']
+        
+        response['next_step_in'] = launcher_io.running_pattern_data[pattern]['next_step_epoch_est'] - int(time.time())
         return jsonify(response)
     else:
         return jsonify({'running': False})
@@ -263,7 +271,8 @@ def run_pattern_threaded(pattern):
     for pin in pins_changed:
         fireworks_launched[pin[0]] += pin[1]
     launcher_io.run_pattern(pattern, pattern_data)
-    pattern_status[pattern] = False
+    if not launcher_io.running_pattern_data[pattern]['error']:
+        pattern_status[pattern] = False
 
 @socketio.on('delete_pattern')
 def delete_pattern(pattern):
@@ -296,6 +305,15 @@ def delete_note(note):
     
     del notes[launcher][firework]
     save_notes()
+
+@socketio.on('stop_pattern')
+def stop_pattern(pattern):
+    """
+    Stops a pattern
+    """
+
+    launcher_io.running_pattern_data[pattern]['stop'] = True
+    launcher_io.running_pattern_data[pattern]['running'] = False
 
 @app.before_request
 def beforerequest():

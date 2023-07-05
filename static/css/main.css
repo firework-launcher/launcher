@@ -129,7 +129,7 @@ h5 {
     font-family: var(--font);
 }
 
-@media screen and (max-width: 700px) {
+@media screen and (max-width: 720px) {
     .navbar-item {
         display: none;
     }
@@ -204,7 +204,7 @@ h5 {
     border: 2px solid #177bed;
 }
 
-.pattern_delete_confirm {
+.sequence_delete_confirm {
     padding: 15px 27px;
     text-align: center;
     text-decoration: none;
@@ -234,7 +234,7 @@ h5 {
     border: 2px solid #cde03c;
 }
 
-.patternlist {
+.sequencelist {
     text-align: center;
 }
 

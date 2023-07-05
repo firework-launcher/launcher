@@ -59,13 +59,13 @@ class ShiftRegisterMGMT:
         time.sleep(1)
         self.write_to_gpio([[OE_PIN, 1]])
 
-    def load_shift_pattern(self, shifts, delays, set_oe):
+    def load_shift_sequence(self, shifts, delays, set_oe):
         """
         Similar to load shift, this accepts multiple shifts and
-        delays to make a pattern. The set_oe parameter is there
-        for if the pattern is supposed to loop. I think it will
+        delays to make a sequence. The set_oe parameter is there
+        for if the sequence is supposed to loop. I think it will
         mostly be True, meaning that it will not loop. The only
-        reason this would be False is if I would make a pattern
+        reason this would be False is if I would make a sequence
         for just the LEDs on the board.
         """
 
@@ -90,18 +90,18 @@ class ShiftRegisterMGMT:
         if set_oe:
             self.write_to_gpio([[OE_PIN, 1]])
 
-    def set_output_pattern(self, pattern, set_oe=True):
+    def set_output_sequence(self, sequence, set_oe=True):
         """
-        Accepts a dictionary containing steps for a pattern
+        Accepts a dictionary containing steps for a sequence
         with the fireworks that need to be launched, and the
         delays. The set_oe parameter is explained in the
-        load_shift_pattern() function.
+        load_shift_sequence() function.
         """
 
         shifts = []
         delays = []
-        for stage in pattern:
-            pins = pattern[stage]['pins']
+        for stage in sequence:
+            pins = sequence[stage]['pins']
             current_shift_split = []
             for x in range(self.shift_size):
                 current_shift_split.append('0')
@@ -109,8 +109,8 @@ class ShiftRegisterMGMT:
                 current_shift_split[(self.shift_size-1)-(pin-1)] = '1'
                 current_shift = ''.join(current_shift_split)
             shifts.append(current_shift)
-            delays.append(pattern[stage]['delay'])
-        self.load_shift_pattern(shifts, delays, set_oe)
+            delays.append(sequence[stage]['delay'])
+        self.load_shift_sequence(shifts, delays, set_oe)
         self.clear()
 
     def set_output(self, pins):

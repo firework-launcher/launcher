@@ -11,7 +11,7 @@ class LauncherIOMGMT:
     def __init__(self, logging):
         self.logging = logging
         self.launchers = {}
-        self.running_pattern_data = {}
+        self.running_sequence_data = {}
 
     def add_launcher(self, launcher):
         """
@@ -45,9 +45,9 @@ class LauncherIOMGMT:
             port_list[self.launchers[launcher].name] = launcher
         return port_list
     
-    def run_pattern(self, pattern_name, pattern_data):
+    def run_sequence(self, sequence_name, sequence_data):
         """
-        This runs a pattern. The pattern data variable is a dictionary. The keys
+        This runs a sequence. The sequence data variable is a dictionary. The keys
         are the name of the step. The value is another dictionary. In this
         dictionary, it has 3 keys: pins, delay, and launcher. The pins value is
         an array, tells what pins need to go on at that step. The delay
@@ -56,18 +56,18 @@ class LauncherIOMGMT:
         pins on.
         """
 
-        self.running_pattern_data[pattern_name] = {'stop': False, 'error': False, 'next_step_epoch_est': 0}
-        for step in pattern_data:
+        self.running_sequence_data[sequence_name] = {'stop': False, 'error': False, 'next_step_epoch_est': 0}
+        for step in sequence_data:
             try:
-                if self.running_pattern_data[pattern_name]['stop']:
+                if self.running_sequence_data[sequence_name]['stop']:
                     break
-                self.running_pattern_data[pattern_name]['step'] = step
-                self.running_pattern_data[pattern_name]['next_step_epoch_est'] = int(time.time())+int(pattern_data[step]['delay'])+1
-                self.launchers[pattern_data[step]['launcher']].run_step(pattern_data[step])
+                self.running_sequence_data[sequence_name]['step'] = step
+                self.running_sequence_data[sequence_name]['next_step_epoch_est'] = int(time.time())+int(sequence_data[step]['delay'])+1
+                self.launchers[sequence_data[step]['launcher']].run_step(sequence_data[step])
             except:
                 print(traceback.format_exc())
-                self.running_pattern_data[pattern_name]['error'] = True
-                self.running_pattern_data[pattern_name]['next_step_epoch_est'] = 0
+                self.running_sequence_data[sequence_name]['error'] = True
+                self.running_sequence_data[sequence_name]['next_step_epoch_est'] = 0
                 break
 
 class SerialLauncher:
@@ -107,7 +107,7 @@ class SerialLauncher:
         self.launcher_io.logging.debug('Recieved serial response: {}'.format(data.replace('\r\n', '')))
         time.sleep(0.5)
     
-    def write_to_launcher_pattern(self, msg):
+    def write_to_launcher_sequence(self, msg):
         """
         Writes to the launcher with no delay and not logging the response.
         """
@@ -121,20 +121,20 @@ class SerialLauncher:
     
     def run_step(self, step):
         """
-        Runs a step in a pattern
+        Runs a step in a sequence
         """
 
         command = ''
         for pin in step['pins']:
             command += '/digital/{}/0\r\n'.format(pin)
-        self.write_to_launcher_pattern(command)
+        self.write_to_launcher_sequence(command)
 
         time.sleep(1)
 
         command = ''
         for pin in step['pins']:
             command += '/digital/{}/1\r\n'.format(pin)
-        self.write_to_launcher_pattern(command)
+        self.write_to_launcher_sequence(command)
 
         time.sleep(int(step['delay']))
 
@@ -173,10 +173,10 @@ class ShiftRegisterLauncher:
     
     def run_step(self, step):
         """
-        Runs a step in a pattern
+        Runs a step in a sequence
         """
         
-        self.obj.set_output_pattern({'Step': step})
+        self.obj.set_output_sequence({'Step': step})
 
 class IPLauncher:
     def __init__(self, launcher_io, name, ip, count):
@@ -212,7 +212,7 @@ class IPLauncher:
         self.launcher_io.logging.debug('Recieved response: {}'.format(data.replace('\r\n', '')))
         time.sleep(1)
     
-    def write_to_launcher_pattern(self, msg):
+    def write_to_launcher_sequence(self, msg):
         """
         Writes to the launcher with no delay and not logging the response.
         """
@@ -224,19 +224,19 @@ class IPLauncher:
     
     def run_step(self, step):
         """
-        Runs a step in a pattern
+        Runs a step in a sequence
         """
 
         command = ''
         for pin in step['pins']:
             command += '/digital/{}/0\r\n'.format(pin)
-        self.write_to_launcher_pattern(command)
+        self.write_to_launcher_sequence(command)
 
         time.sleep(1)
 
         command = ''
         for pin in step['pins']:
             command += '/digital/{}/1\r\n'.format(pin)
-        self.write_to_launcher_pattern(command)
+        self.write_to_launcher_sequence(command)
 
         time.sleep(int(step['delay']))

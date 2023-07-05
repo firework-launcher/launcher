@@ -15,7 +15,7 @@ socketio = flask_socketio.SocketIO(app)
 fireworks_launched = {'LFA': []}
 auth = auth.Auth()
 queue = {}
-pattern_status = {}
+sequence_status = {}
 
 def load_file(file):
     if not os.path.exists('config/' + file):
@@ -31,7 +31,7 @@ if not os.path.exists('config'):
     os.mkdir('config')
 
 firework_profiling = load_file('firework_profiles.json')
-patterns = load_file('patterns.json')
+sequences = load_file('sequences.json')
 launchers_to_add = load_file('launchers.json')
 notes = load_file('notes.json')
 
@@ -65,7 +65,7 @@ def home():
         launcher_counts=json.dumps(launcher_counts),
         launcher_names=json.dumps(launcher_names),
         notes=json.dumps(notes),
-        patterns=json.dumps(patterns)
+        sequences=json.dumps(sequences)
     )
 
 def get_lfa_firework_launched(firework_count):
@@ -117,7 +117,7 @@ def lfa():
         launchers_parsed='LFA',
         launcher_names=json.dumps({'LFA': 'Launch For All'}),
         notes=json.dumps(notes),
-        patterns=json.dumps(patterns)
+        sequences=json.dumps(sequences)
     )
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -180,47 +180,47 @@ def add_launcher():
     else:
         return render_template('add_launcher.html', error=False)
 
-@app.route('/pattern_status/<string:pattern>')
-def pattern_status_checker(pattern):
-    if pattern in pattern_status:
-        response = {'running': pattern_status[pattern], 'error': False}
+@app.route('/sequence_status/<string:sequence>')
+def sequence_status_checker(sequence):
+    if sequence in sequence_status:
+        response = {'running': sequence_status[sequence], 'error': False}
         if response['running']:
-            response.update(launcher_io.running_pattern_data[pattern])
+            response.update(launcher_io.running_sequence_data[sequence])
         if response['error']:
-            logging.error('Pattern "{}" failed to run'.format(pattern))
-            pattern_status[pattern] = False
-            return jsonify({'error': 'Pattern failed to run'})
+            logging.error('sequence "{}" failed to run'.format(sequence))
+            sequence_status[sequence] = False
+            return jsonify({'error': 'sequence failed to run'})
         else:
             del response['error']
         
-        response['next_step_in'] = launcher_io.running_pattern_data[pattern]['next_step_epoch_est'] - int(time.time())
+        response['next_step_in'] = launcher_io.running_sequence_data[sequence]['next_step_epoch_est'] - int(time.time())
         return jsonify(response)
     else:
         return jsonify({'running': False})
 
-@app.route('/patterns')
-def patterns_():
+@app.route('/sequences')
+def sequences_():
     """
     Path that shows the page for viewing and managing
-    patterns
+    sequences
     """
 
-    return render_template('patterns/patterns.html', patterns=patterns)
+    return render_template('sequences/sequences.html', sequences=sequences)
 
-@app.route('/patterns/add', methods=['GET', 'POST'])
-def add_pattern():
+@app.route('/sequences/add', methods=['GET', 'POST'])
+def add_sequence():
     """
-    Path for the pattern builder.
+    Path for the sequence builder.
     """
 
     if request.method == 'POST':
-        pattern_name = request.form['pattern_name']
-        pattern_data = json.loads(request.form['pattern_data'])
-        patterns[pattern_name] = pattern_data
-        f = open('config/patterns.json', 'w')
-        f.write(json.dumps(patterns, indent=4))
+        sequence_name = request.form['sequence_name']
+        sequence_data = json.loads(request.form['sequence_data'])
+        sequences[sequence_name] = sequence_data
+        f = open('config/sequences.json', 'w')
+        f.write(json.dumps(sequences, indent=4))
         f.close()
-        return redirect('/patterns')
+        return redirect('/sequences')
 
     launcher_counts = {}
     launchers = {}
@@ -228,7 +228,7 @@ def add_pattern():
         launchers[launcher] = launcher_io.launchers[launcher].name
         launcher_counts[launcher] = launcher_io.launchers[launcher].count
 
-    return render_template('patterns/add.html', launcher_counts=json.dumps(launcher_counts), launchers=launchers, firework_profiles=json.dumps(firework_profiling), notes=json.dumps(notes))
+    return render_template('sequences/add.html', launcher_counts=json.dumps(launcher_counts), launchers=launchers, firework_profiles=json.dumps(firework_profiling), notes=json.dumps(notes))
 
 @socketio.on('save_fp')
 def save_fp(firework_profiles):
@@ -243,49 +243,49 @@ def save_fp(firework_profiles):
     global firework_profiling
     firework_profiling = firework_profiles
 
-@socketio.on('run_pattern')
-def run_pattern(pattern):
+@socketio.on('run_sequence')
+def run_sequence(sequence):
     """
-    Runs a pattern, this is called from SocketIO,
-    /static/js/patterns.js.
+    Runs a sequence, this is called from SocketIO,
+    /static/js/sequences.js.
     """
 
-    socketio.emit('running_pattern', pattern)
-    pattern_status[pattern] = True
-    threading.Thread(target=run_pattern_threaded, args=[pattern]).start()
+    socketio.emit('running_sequence', sequence)
+    sequence_status[sequence] = True
+    threading.Thread(target=run_sequence_threaded, args=[sequence]).start()
 
-def run_pattern_threaded(pattern):
+def run_sequence_threaded(sequence):
     """
-    Thread run_pattern() starts. This is a thread
+    Thread run_sequence() starts. This is a thread
     because it has delays and interrupts the flask
     app.
     """
 
-    if not pattern in patterns:
+    if not sequence in sequences:
         return None
-    pattern_data = patterns[pattern]
+    sequence_data = sequences[sequence]
     pins_changed = []
-    for step in pattern_data:
-        pins_changed.append([pattern_data[step]['launcher'], pattern_data[step]['pins']])
+    for step in sequence_data:
+        pins_changed.append([sequence_data[step]['launcher'], sequence_data[step]['pins']])
     global fireworks_launched
     for pin in pins_changed:
         fireworks_launched[pin[0]] += pin[1]
-    launcher_io.run_pattern(pattern, pattern_data)
-    if not launcher_io.running_pattern_data[pattern]['error']:
-        pattern_status[pattern] = False
+    launcher_io.run_sequence(sequence, sequence_data)
+    if not launcher_io.running_sequence_data[sequence]['error']:
+        sequence_status[sequence] = False
 
-@socketio.on('delete_pattern')
-def delete_pattern(pattern):
+@socketio.on('delete_sequence')
+def delete_sequence(sequence):
     """
-    Deletes a pattern, called from the patterns
+    Deletes a sequence, called from the sequences
     js file.
     """
 
-    if not pattern in patterns:
+    if not sequence in sequences:
         return None
-    del patterns[pattern]
-    f = open('config/patterns.json', 'w')
-    f.write(json.dumps(patterns))
+    del sequences[sequence]
+    f = open('config/sequences.json', 'w')
+    f.write(json.dumps(sequences))
     f.close()
 
 @socketio.on('delete_note')
@@ -306,14 +306,14 @@ def delete_note(note):
     del notes[launcher][firework]
     save_notes()
 
-@socketio.on('stop_pattern')
-def stop_pattern(pattern):
+@socketio.on('stop_sequence')
+def stop_sequence(sequence):
     """
-    Stops a pattern
+    Stops a sequence
     """
 
-    launcher_io.running_pattern_data[pattern]['stop'] = True
-    launcher_io.running_pattern_data[pattern]['running'] = False
+    launcher_io.running_sequence_data[sequence]['stop'] = True
+    launcher_io.running_sequence_data[sequence]['running'] = False
 
 @app.before_request
 def beforerequest():

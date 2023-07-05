@@ -2,7 +2,7 @@ btn_div = document.getElementById("btns");
 
 
 clicked_btns = [];
-pattern_data = {};
+sequence_data = {};
 
 current_step = 1
 
@@ -94,7 +94,7 @@ function addStep() {
     }
     delay = document.getElementById("delay").value;
     launcher = document.getElementById("launcher_select").value;
-    pattern_data["Step " + (current_step-1)] = {
+    sequence_data["Step " + (current_step-1)] = {
         "pins": clicked_btns,
         "delay": delay,
         "launcher": launcher
@@ -103,14 +103,14 @@ function addStep() {
     clicked_btns = [];
 }
 
-function submitPattern() {
-    pattern_data_input = document.getElementById("pattern_data");
-    pattern_name = document.getElementById("patternname").value;
-    pattern_name_field = document.getElementById("pattern_name");
-    pattern_name_field.value = pattern_name;
-    pattern_data_input.value = JSON.stringify(pattern_data);
-    pattern_data_form = document.getElementById("pattern_form");
-    pattern_data_form.submit();
+function submitSequence() {
+    sequence_data_input = document.getElementById("sequence_data");
+    sequence_name = document.getElementById("sequencename").value;
+    sequence_name_field = document.getElementById("sequence_name");
+    sequence_name_field.value = sequence_name;
+    sequence_data_input.value = JSON.stringify(sequence_data);
+    sequence_data_form = document.getElementById("sequence_form");
+    sequence_data_form.submit();
 }
 
 reload_buttons();

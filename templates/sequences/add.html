@@ -3,26 +3,26 @@
     <head>
         <meta name="viewport" content="width=device-width, user-scalable=no">
         <link href="/static/css/main.css" rel="stylesheet">
-        <title>Firework Launcher - Add Pattern</title>
+        <title>Firework Launcher - Add Sequence</title>
     </head>
     <body>
         <ul class="navbar">
             <li class="navbar-item-li"><a class="navtitle" href="/">Firework Launcher</a></li>
             <li class="navbar-item-li"><a class="navbar-item" href="/add_launcher">Add launcher</a></li>
-            <li class="navbar-item-li"><a class="navbar-item" href="/patterns">Patterns</a></li>
+            <li class="navbar-item-li"><a class="navbar-item" href="/sequences">Sequences</a></li>
             <li class="navbar-item-hamburger"><a class="hamburger-menu" onclick="expand_hamburger()"><img src="/static/svgs/bars.svg" width="20" class="hamburger-menu-svg" alt="Hamburger Menu"/></a></li>
         </ul>
         <div id="hamburgerExpandMenu">
             <a class="navbar-item-expanded" href="/add_launcher">Add launcher</a>
-            <a class="navbar-item-expanded" href="/patterns">Patterns</a>
+            <a class="navbar-item-expanded" href="/sequences">Sequences</a>
         </div>
-        <div class="patternlist" id="form">
+        <div class="sequencelist" id="form">
             <h3>Launcher: <select id="launcher_select">
                 {% for launcher in launchers %}
                 <option value="{{ launcher }}">{{ launchers[launcher] }} ({{ launcher }})</option>
                 {% endfor %}
             </select></h3>
-            <h3>Name: <input type="text" id="patternname"></h3>
+            <h3>Name: <input type="text" id="sequencename"></h3>
             <h1 id="step">Step 1</h1>
             <input type="text" style="display: none;" name="pins" id="pins">
             <div id="btns"></div><br/>
@@ -33,11 +33,11 @@
 
             <h3>Delay: <input id="delay" value="0" type="number"></h3>
             <button class="firework_button" onclick="addStep();">Next Step</button><br/>
-            <button class="firework_button" onclick="submitPattern();">Done</button>
+            <button class="firework_button" onclick="submitSequence();">Done</button>
         </div>
-        <form style="display: none" id="pattern_form" method="POST">
-            <input type="text" name="pattern_data" id="pattern_data">
-            <input type="text" name="pattern_name" id="pattern_name">
+        <form style="display: none" id="sequence_form" method="POST">
+            <input type="text" name="sequence_data" id="sequence_data">
+            <input type="text" name="sequence_name" id="sequence_name">
         </form>
         <script>
             launcher_counts = JSON.parse('{{ launcher_counts | safe }}');
@@ -52,6 +52,6 @@
                 }
             }
         </script>
-        <script src="/static/js/pattern_builder.js"></script>
+        <script src="/static/js/sequence_builder.js"></script>
     </body>
 </html>

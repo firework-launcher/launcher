@@ -42,12 +42,12 @@ socket.on('reset_all', () => {
     }
 });
 
-socket.on('running_pattern', (pattern) => {
-    steps = Object.keys(patterns[pattern]);
+socket.on('running_sequence', (sequence) => {
+    steps = Object.keys(sequences[sequence]);
     for (i = 0; i < steps.length; i++) {
-        pins = patterns[pattern][steps[i]]["pins"];
+        pins = sequences[sequence][steps[i]]["pins"];
         for (x = 0; x < pins.length; x++) {
-            firework_launch(patterns[pattern][steps[i]]["launcher"], pins[x]);
+            firework_launch(sequences[sequence][steps[i]]["launcher"], pins[x]);
         }
     }
 })

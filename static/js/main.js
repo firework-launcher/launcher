@@ -272,20 +272,32 @@ function set_note(firework, launcher) {
 
 function add_note() {
     note = document.getElementById("note_content");
-    if (notes[modal_launcher] == null) {
-        notes[modal_launcher] = {};
-    }
-    button = document.getElementById("fb_" + modal_launcher + "_" + modal_firework);
     if (note.value == "") {
-        button.innerHTML = "#" + modal_firework;
         socket.emit("delete_note", modal_launcher + "_" + modal_firework);
     } else {
-        button.innerHTML = "#" + modal_firework + "<br/>" + note.value;
-        notes[modal_launcher][modal_firework] = note.value;
-        socket.emit("note_update", notes);
+        socket.emit("note_update", {
+            "launcher": modal_launcher,
+            "firework": modal_firework,
+            "note": note.value
+        });
     }
     close_modal();
 }
+
+socket.on("note_update", (note) => {
+    button = document.getElementById("fb_" + note["launcher"] + "_" + note["firework"]);
+    button.innerHTML = "#" + note["firework"] + "<br/>" + note["note"];
+    if (notes[note["launcher"]] == null) {
+        notes[note["launcher"]] = {};
+    }
+    notes[note["launcher"]][note["firework"]] = note["note"];
+});
+
+socket.on("delete_note", (note) => {
+    button = document.getElementById("fb_" + note["launcher"] + "_" + note["firework"]);
+    button.innerHTML = "#" + note["firework"];
+    delete notes[note["launcher"]][note["firework"]]
+});
 
 function close_modal() {
     modal = document.getElementById("modal");

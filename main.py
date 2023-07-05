@@ -92,9 +92,11 @@ def save_notes():
 
 @socketio.on("note_update")
 def note_update(note_data):
-    global notes
-    notes = note_data
+    if not note_data['launcher'] in notes:
+        notes[note_data['launcher']] = {}
+    notes[note_data['launcher']][str(note_data['firework'])] = note_data['note']
     save_notes()
+    socketio.emit('note_update', note_data)
 
 @app.route('/lfa')
 def lfa():
@@ -290,6 +292,10 @@ def delete_note(note):
     
     del notes[launcher][firework]
     save_notes()
+    socketio.emit('delete_note', {
+        'launcher': launcher,
+        'firework': firework
+    })
 
 @socketio.on('stop_sequence')
 def stop_sequence(sequence):

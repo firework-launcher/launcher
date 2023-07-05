@@ -56,7 +56,7 @@ class LauncherIOMGMT:
         pins on.
         """
 
-        self.running_pattern_data[pattern_name] = {'stop': False, 'error': False}
+        self.running_pattern_data[pattern_name] = {'stop': False, 'error': False, 'next_step_epoch_est': 0}
         for step in pattern_data:
             try:
                 if self.running_pattern_data[pattern_name]['stop']:

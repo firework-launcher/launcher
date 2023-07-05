@@ -21,16 +21,16 @@
       {% endif %}
       <form method="POST" class="themebuttons">
         <h1>Add Launcher</h1>
-        <label for="type">Serial, Shift Register or IP Launcher: </label>
+        <label for="type">Launcher Type: </label>
         <select name="type" id="type">
-          <option value="serial">Serial</option>
-          <option value="ip">IP</option>
-          <option value="shiftregister">Shift Register</option>
+          {% for launcher_type in type_metadata %}
+            <option value="{{ launcher_type }}">{{ type_metadata[launcher_type]['pretty_name'] }}</option>
+          {% endfor %}
         </select>
         <p>Launcher Name</p>
         <input name="launcher_name" type="text">
-        <p>Serial Port/IP/Chip</p>
-        <input name="serial_port" type="text">
+        <p>Port</p>
+        <input name="port" type="text">
         <p>Channel Count</p>
         <input name="count" type="text">
         <br/>

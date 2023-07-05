@@ -150,35 +150,20 @@ def add_launcher():
     cookies = dict(request.cookies)
     if request.method == 'POST':
         form = dict(request.form)
-        if request.form['type'] == 'serial':
 
-            try:
-                launcher_mgmt.SerialLauncher(launcher_io, form['launcher_name'], form['serial_port'], int(form['count']))
-            except launcher_mgmt.LauncherNotFound:
-                return render_template('add_launcher.html', error=True)
-            
-        elif request.form['type'] == 'shiftregister':
+        try:
+            launcher_io.launcher_types[form['type']](launcher_io, form['launcher_name'], form['port'], int(form['count']))
+        except launcher_mgmt.LauncherNotFound:
+            return render_template('add_launcher.html', error=True)
 
-            try:
-                launcher_mgmt.ShiftRegisterLauncher(launcher_io, form['launcher_name'], form['serial_port'], int(form['count']))
-            except launcher_mgmt.LauncherNotFound:
-                return render_template('add_launcher.html', error=True)
-        
-        else:
-
-            try:
-                launcher_mgmt.IPLauncher(launcher_io, form['launcher_name'], form['serial_port'], int(form['count']))
-            except launcher_mgmt.LauncherNotFound:
-                return render_template('add_launcher.html', error=True)
-
-        fireworks_launched[form['serial_port']] = []
-        if not form['serial_port'] in firework_profiling:
-            firework_profiling[form['serial_port']] = {'1': {'color': '#177bed', 'fireworks': list(range(1, int(form['count'])+1)), 'name': 'One Shot'}, '2': {'color': '#5df482', 'fireworks': [], 'name': 'Two Shot'}, '3': {'color': '#f4ff5e', 'fireworks': [], 'name': 'Three Shot'}, '4': {'color': '#ff2667', 'fireworks': [], 'name': 'Finale'}}
+        fireworks_launched[form['port']] = []
+        if not form['port'] in firework_profiling:
+            firework_profiling[form['port']] = {'1': {'color': '#177bed', 'fireworks': list(range(1, int(form['count'])+1)), 'name': 'One Shot'}, '2': {'color': '#5df482', 'fireworks': [], 'name': 'Two Shot'}, '3': {'color': '#f4ff5e', 'fireworks': [], 'name': 'Three Shot'}, '4': {'color': '#ff2667', 'fireworks': [], 'name': 'Finale'}}
             save_fp(firework_profiling)
-        threading.Thread(target=firework_serial_write, args=[form['serial_port']]).start()
+        threading.Thread(target=firework_serial_write, args=[form['port']]).start()
         return redirect('/')
     else:
-        return render_template('add_launcher.html', error=False)
+        return render_template('add_launcher.html', error=False, type_metadata=launcher_io.launcher_type_metadata)
 
 @app.route('/sequence_status/<string:sequence>')
 def sequence_status_checker(sequence):
@@ -428,13 +413,8 @@ def reset_all():
 if __name__ == '__main__':
     for launcher in launchers_to_add:
         launcher_data = launchers_to_add[launcher]
-        if launcher_data['type'] == 'serial':
-            launcher_mgmt.SerialLauncher(launcher_io, launcher_data['name'], launcher, launcher_data['count'])
-        elif launcher_data['type'] == 'ip':
-            launcher_mgmt.IPLauncher(launcher_io, launcher_data['name'], launcher, launcher_data['count'])
-        elif launcher_data['type'] == 'shiftregister':
-            launcher_mgmt.ShiftRegisterLauncher(launcher_io, launcher_data['name'], launcher, launcher_data['count'])
-        
+        launcher_io.launcher_types[launcher_data['type']](launcher_io, launcher_data['name'], launcher, launcher_data['count'])
+
         fireworks_launched[launcher] = []
         if not launcher in firework_profiling:
             firework_profiling[launcher] = {'1': {'color': '#177bed', 'fireworks': list(range(1, launcher_data['count']+1)), 'name': 'One Shot'}, '2': {'color': '#5df482', 'fireworks': [], 'name': 'Two Shot'}, '3': {'color': '#f4ff5e', 'fireworks': [], 'name': 'Three Shot'}, '4': {'color': '#ff2667', 'fireworks': [], 'name': 'Finale'}}

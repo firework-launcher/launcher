@@ -10,16 +10,7 @@ dir_list = os.listdir()
 update_file = sys.argv[1]
 main_pid = int(sys.argv[2])
 
-def check_pid(pid):        
-    try:
-        os.kill(pid, 0)
-    except OSError:
-        return False
-    else:
-        return True
-
-while check_pid(main_pid):
-    time.sleep(0.5)
+os.kill(main_pid)
 
 for file in dir_list:
     if not file == 'config' and not file == 'auth.sqlite' and not file == update_file:

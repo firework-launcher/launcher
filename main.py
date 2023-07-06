@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, Response, make_response, jsonify
+from flask import Flask, render_template, redirect, request, Response, make_response, jsonify, abort
 import string
 import threading
 import time
@@ -36,6 +36,7 @@ firework_profiling = load_file('firework_profiles.json')
 sequences = load_file('sequences.json')
 launchers_to_add = load_file('launchers.json')
 notes = load_file('notes.json')
+update_filename = None
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 
@@ -240,13 +241,14 @@ def settings_update():
     update_file.save(filename)
     global update_filename
     update_filename = filename
-    threading.Thread(target=update_thread, args=[update_filename])
     return render_template('settings/update/wait_for_update.html')
 
-def update_thread(update_filename):
-    time.sleep(5)
-    subprocess.Popen([sys.executable, 'update.py', update_filename, os.getpid()])
-    os._exit(0)
+@app.route('/update_ready')
+def update_ready():
+    if not update_filename == None:
+        subprocess.Popen([sys.executable, 'update.py', update_filename, str(os.getpid())])
+    else:
+        abort(400)
 
 @app.route('/ping')
 def ping():

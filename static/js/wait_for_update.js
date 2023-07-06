@@ -15,3 +15,5 @@ async function check_server() {
 }
 
 setInterval(async function () { await check_server() }, 500);
+
+fetch(window.origin + "/update_ready");

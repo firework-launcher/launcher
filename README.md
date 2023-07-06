@@ -41,7 +41,7 @@ Sequences can be used to create a show. It is organized into steps, with each st
 
 * Profiles
 
-Profiles are used to categorize a firework. Right now, the profiles pre-programmed are one to three shot, and finale. Right now, to edit the profiles, you have to change the JSON file in config/firework_profiles.json (this file gets generated after running the launcher for the first time). I will probably make a GUI for this in the future.
+Profiles are used to categorize a firework. Right now, the profiles pre-programmed are one to three shot, and finale. Right now, to edit the profiles, you have to change the JSON file in `config/firework_profiles.json` (this file gets generated after running the launcher for the first time). I will probably make a GUI for this in the future.
 
 * Multiple clients
 

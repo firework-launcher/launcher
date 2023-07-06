@@ -4,7 +4,7 @@ This is the source code for a firework launcher.
 
 ## Hardware
 ### Serial and IP Launchers
-These launchers are controlled using the same protocol of aRest. If you want to implement this yourself, the only commands it is using, go like this:
+These launchers are controlled using the same protocol of [aRest](https://github.com/marcoschwartz/aREST). If you want to implement this yourself, the only commands it is using, go like this:
 ```
 /digital/<pin>/<state>
 ```

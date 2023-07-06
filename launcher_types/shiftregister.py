@@ -1,4 +1,5 @@
 import shift_register_mgmt
+import launcher_mgmt
 
 launcher_type = 'shiftregister'
 type_pretty_name = 'Shift Register'
@@ -16,7 +17,7 @@ class Launcher:
         try:
             self.obj = shift_register_mgmt.ShiftRegisterMGMT(chip, count)
         except:
-            raise LauncherNotFound()
+            raise launcher_mgmt.LauncherNotFound()
         self.name = name
         self.port = chip
         self.type = 'shiftregister'

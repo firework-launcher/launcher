@@ -1,5 +1,6 @@
 import socket
 import time
+import launcher_mgmt
 
 launcher_type = 'ip'
 type_pretty_name = 'IP'
@@ -22,7 +23,7 @@ class Launcher:
         try:
             self.obj.connect((ip, 2364))
         except:
-            raise LauncherNotFound()
+            raise launcher_mgmt.LauncherNotFound()
         self.launcher_io.add_launcher(self)
     
     def write_to_launcher(self, msg):

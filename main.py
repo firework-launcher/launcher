@@ -1,4 +1,5 @@
 from flask import Flask, render_template, redirect, request, Response, make_response, jsonify
+import string
 import threading
 import time
 import os
@@ -9,6 +10,7 @@ import launcher_mgmt
 import argparse
 import logging
 import auth
+import subprocess
 
 app = Flask(__name__)
 socketio = flask_socketio.SocketIO(app)
@@ -216,6 +218,39 @@ def add_sequence():
         launcher_counts[launcher] = launcher_io.launchers[launcher].count
 
     return render_template('sequences/add.html', launcher_counts=json.dumps(launcher_counts), launchers=launchers, firework_profiles=json.dumps(firework_profiling), notes=json.dumps(notes))
+
+def secure_filename(filename):
+    allowed_characters = string.ascii_uppercase + string.ascii_lowercase + string.digits + '-.'
+    new_filename = []
+    for x in filename:
+        if not x in allowed_characters:
+            new_filename.append('_')
+        else:
+            new_filename.append(x)
+    return ''.join(new_filename)
+
+@app.route('/settings')
+def settings():
+    return render_template('settings/settings.html')
+
+@app.route('/settings/update', methods=['POST'])
+def settings_update():
+    update_file = request.files['update']
+    filename = secure_filename(update_file.filename)
+    update_file.save(filename)
+    global update_filename
+    update_filename = filename
+    threading.Thread(target=update_thread, args=[update_filename])
+    return render_template('settings/update/wait_for_update.html')
+
+def update_thread(update_filename):
+    time.sleep(5)
+    subprocess.Popen([sys.executable, 'update.py', update_filename, os.getpid()])
+    os._exit(0)
+
+@app.route('/ping')
+def ping():
+    return 'Pong'
 
 @socketio.on('save_fp')
 def save_fp(firework_profiles):

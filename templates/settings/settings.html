@@ -3,7 +3,7 @@
   <head>
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <link href="/static/css/main.css" rel="stylesheet">
-    <title>Firework Launcher - Add launcher</title>
+    <title>Firework Launcher - Settings</title>
   </head>
   <body>
     <ul class="navbar">
@@ -16,26 +16,12 @@
         <a class="navbar-item-expanded" href="/settings">Settings</a>
         <a class="navbar-item-expanded" href="/sequences">Sequences</a>
       </div>
-      {% if error %}
-        <p class="error">Launcher does not exist</p>
-      {% endif %}
-      <form method="POST" class="themebuttons">
-        <h1>Add Launcher</h1>
-        <label for="type">Launcher Type: </label>
-        <select name="type" id="type">
-          {% for launcher_type in type_metadata %}
-            <option value="{{ launcher_type }}">{{ type_metadata[launcher_type]['pretty_name'] }}</option>
-          {% endfor %}
-        </select>
-        <p>Launcher Name</p>
-        <input name="launcher_name" type="text" pattern="^[a-zA-Z 0-9.,+-]*$" required="true">
-        <p>Port</p>
-        <input name="port" type="text" pattern="^[a-zA-Z 0-9.,+-/]*$" required="true">
-        <p>Channel Count</p>
-        <input name="count" type="number" required="true">
-        <br/>
-        <button type="submit" class="themebutton">Add</button>
-      </form>
+      <div class="settings_content">
+        <form action="/settings/update" method="POST">
+          <h3>Update <input type="file" name="update" accept=".tar.gz"><button type=submit>Upload</button></h3>
+        </form>
+
+      </div>
       <script>
         function expand_hamburger () {
             menu = document.getElementById("hamburgerExpandMenu");

@@ -273,6 +273,11 @@ h5 {
     margin: 0;
 }
 
+.settings_content {
+    text-align: center;
+    margin: 50px;
+}
+
 @media screen and (max-width: 720px) {
     .navbar-item {
         display: none;

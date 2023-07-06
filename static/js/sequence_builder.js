@@ -84,33 +84,43 @@ function add_legend() {
 }
 
 function addStep() {
-    current_step += 1;
-    step_count = document.getElementById("step");
-    step_count.innerText = "Step " + current_step;
-    for (let i = 0; i < clicked_btns.length; ++i) {
-        btn = document.getElementById("btn_" + clicked_btns[i]);
-        fadeOut(btn);
-        btn.setAttribute("onclick", "");
-    }
     delay = document.getElementById("delay").value;
-    launcher = document.getElementById("launcher_select").value;
-    sequence_data["Step " + (current_step-1)] = {
-        "pins": clicked_btns,
-        "delay": delay,
-        "launcher": launcher
-    };
+    if (/^\d+$/.test(delay)) {
+        current_step += 1;
+        step_count = document.getElementById("step");
+        step_count.innerText = "Step " + current_step;
+        for (let i = 0; i < clicked_btns.length; ++i) {
+            btn = document.getElementById("btn_" + clicked_btns[i]);
+            fadeOut(btn);
+            btn.setAttribute("onclick", "");
+        }
+        launcher = document.getElementById("launcher_select").value;
+        sequence_data["Step " + (current_step-1)] = {
+            "pins": clicked_btns,
+            "delay": delay,
+            "launcher": launcher
+        };
 
-    clicked_btns = [];
+        clicked_btns = [];
+    } else {
+        delay_whole_number = document.getElementById("delay_whole_number");
+        delay_whole_number.setAttribute("style", "color: red; display: block;");
+    }
 }
 
 function submitSequence() {
     sequence_data_input = document.getElementById("sequence_data");
     sequence_name = document.getElementById("sequencename").value;
-    sequence_name_field = document.getElementById("sequence_name");
-    sequence_name_field.value = sequence_name;
-    sequence_data_input.value = JSON.stringify(sequence_data);
-    sequence_data_form = document.getElementById("sequence_form");
-    sequence_data_form.submit();
+    if (/^[a-zA-Z 0-9\.\,\+\-].*$/g.test(sequence_name)) {
+        sequence_name_field = document.getElementById("sequence_name");
+        sequence_name_field.value = sequence_name;
+        sequence_data_input.value = JSON.stringify(sequence_data);
+        sequence_data_form = document.getElementById("sequence_form");
+        sequence_data_form.submit();
+    } else {
+        special_characters = document.getElementById("special_characters");
+        special_characters.setAttribute("style", "color: red; display: block;");
+    }
 }
 
 reload_buttons();

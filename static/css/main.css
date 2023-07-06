@@ -129,18 +129,6 @@ h5 {
     font-family: var(--font);
 }
 
-@media screen and (max-width: 720px) {
-    .navbar-item {
-        display: none;
-    }
-    .hamburger-menu {
-        display: block;
-    }
-    .navtitle {
-        padding: 18px 16px;
-    }
-}
-
 .hamburger-menu-svg {
     filter: invert(99%) sepia(0%) saturate(7468%) hue-rotate(280deg) brightness(114%) contrast(97%);
 }
@@ -247,7 +235,7 @@ h5 {
     background-color: #303030;
     border: 3px black solid;
     width: 50%;
-    height: 30%;
+    height: 40%;
 }
 
 .blur {
@@ -283,4 +271,20 @@ h5 {
 
 #error_text {
     margin: 0;
+}
+
+@media screen and (max-width: 720px) {
+    .navbar-item {
+        display: none;
+    }
+    .hamburger-menu {
+        display: block;
+    }
+    .navtitle {
+        padding: 18px 16px;
+    }
+    .modal {
+        height: 45%;
+        width: 70%;
+    }
 }

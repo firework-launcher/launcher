@@ -23,6 +23,7 @@
                 {% endfor %}
             </select></h3>
             <h3>Name: <input type="text" id="sequencename"></h3>
+            <p id="special_characters" style="display: none">Please only use letters and numbers</p>
             <h1 id="step">Step 1</h1>
             <input type="text" style="display: none;" name="pins" id="pins">
             <div id="btns"></div><br/>
@@ -32,6 +33,7 @@
             <br/><br/>
 
             <h3>Delay: <input id="delay" value="0" type="number"></h3>
+            <p id="delay_whole_number" style="display: none">Please do not use decimals or negative numbers</p>
             <button class="firework_button" onclick="addStep();">Next Step</button><br/>
             <button class="firework_button" onclick="submitSequence();">Done</button>
         </div>

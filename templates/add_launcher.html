@@ -28,11 +28,11 @@
           {% endfor %}
         </select>
         <p>Launcher Name</p>
-        <input name="launcher_name" type="text">
+        <input name="launcher_name" type="text" pattern="^[a-zA-Z 0-9.,+-]*$" required="true">
         <p>Port</p>
-        <input name="port" type="text">
+        <input name="port" type="text" pattern="^[a-zA-Z 0-9.,+-/]*$" required="true">
         <p>Channel Count</p>
-        <input name="count" type="text">
+        <input name="count" type="number" required="true">
         <br/>
         <button type="submit" class="themebutton">Add</button>
       </form>

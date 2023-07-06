@@ -263,6 +263,8 @@ function set_note(firework, launcher) {
     modal_firework = firework;
     launcher_indicator.innerText = "Launcher: " + launcher_names[launcher] + " (" + launcher + ")";
     firework_indicator.innerText = "Firework: " + firework;
+    special_characters = document.getElementById("special_characters");
+    special_characters.setAttribute("style", "display: none");
     modal = document.getElementById("modal");
     modal.style.display = "block";
     content = document.getElementById("content");
@@ -272,16 +274,21 @@ function set_note(firework, launcher) {
 
 function add_note() {
     note = document.getElementById("note_content");
-    if (note.value == "") {
-        socket.emit("delete_note", modal_launcher + "_" + modal_firework);
+    if (/^[a-zA-Z 0-9\.\,\+\-]*$/g.test(note.value)) {
+        if (note.value == "") {
+            socket.emit("delete_note", modal_launcher + "_" + modal_firework);
+        } else {
+            socket.emit("note_update", {
+                "launcher": modal_launcher,
+                "firework": modal_firework,
+                "note": note.value
+            });
+        }
+        close_modal();
     } else {
-        socket.emit("note_update", {
-            "launcher": modal_launcher,
-            "firework": modal_firework,
-            "note": note.value
-        });
+        special_characters = document.getElementById("special_characters");
+        special_characters.setAttribute("style", "color: red; display: block;")
     }
-    close_modal();
 }
 
 socket.on("note_update", (note) => {

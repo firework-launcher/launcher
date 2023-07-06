@@ -17,7 +17,7 @@
         <a class="navbar-item-expanded" href="/sequences">Sequences</a>
       </div>
       <div class="settings_content">
-        <form action="/settings/update" method="POST">
+        <form enctype="multipart/form-data" action="/settings/update" method="POST">
           <h3>Update <input type="file" name="update" accept=".tar.gz"><button type=submit>Upload</button></h3>
         </form>
 

@@ -33,7 +33,7 @@ You can control more than one launcher through the same controller. This makes i
 
 * Notes
 
-You can create notes for each channel that can be displayed in the sequences, making it easier to know which fireworks are which while creating a show. This can also be useful when launching the fireworks manually
+You can create notes for each channel that can be displayed in the sequences, making it easier to know which fireworks are which while creating a show. This can also be useful when launching the fireworks manually.
 
 * Sequences
 

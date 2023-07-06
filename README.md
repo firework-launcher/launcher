@@ -13,6 +13,8 @@ An example of a command to set pin 2 to LOW, would look something like this:
 /digital/2/0
 ```
 
+These commands are seperated by a newline.
+
 ### Shift Register Launchers
 These launchers use the gpioset command to control SN74HC595N shift registers. The GPIO lines that it uses are set in the `shift_register_mgmt.py` file.
 

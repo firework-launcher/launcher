@@ -10,7 +10,7 @@ dir_list = os.listdir()
 update_file = sys.argv[1]
 main_pid = int(sys.argv[2])
 
-os.kill(main_pid)
+os.kill(main_pid, 9)
 
 for file in dir_list:
     if not file == 'config' and not file == 'auth.sqlite' and not file == update_file:

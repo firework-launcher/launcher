@@ -1,4 +1,5 @@
-from flask import Flask, render_template, redirect, request, Response, make_response, jsonify
+from flask import Flask, render_template, redirect, request, Response, make_response, jsonify, abort
+import string
 import threading
 import time
 import os
@@ -6,14 +7,19 @@ import flask_socketio
 import sys
 import json
 import launcher_mgmt
+import terminal_mgmt
 import argparse
 import logging
 import auth
+import subprocess
+import socket
+import random
 
 app = Flask(__name__)
 socketio = flask_socketio.SocketIO(app)
 fireworks_launched = {'LFA': []}
 auth = auth.Auth()
+terminals = terminal_mgmt.Terminals()
 queue = {}
 sequence_status = {}
 
@@ -34,6 +40,7 @@ firework_profiling = load_file('firework_profiles.json')
 sequences = load_file('sequences.json')
 launchers_to_add = load_file('launchers.json')
 notes = load_file('notes.json')
+update_filename = None
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 
@@ -122,6 +129,44 @@ def lfa():
         sequences=json.dumps(sequences)
     )
 
+@app.route('/settings/terminals')
+def terminals_():
+    """
+    Path for managing terminals.
+    """
+
+    return render_template('settings/terminals/terminals.html', terminals=terminals.open_terminal_processes)
+
+@app.route('/settings/terminals/add/<string:small_screen>')
+def add_terminal(small_screen):
+    """
+    Generates a random port and creates a terminal session.
+    """
+    
+    if small_screen == 'true':
+        small_screen = True
+    else:
+        small_screen = False
+    port = random.randrange(13000, 23000)
+    terminals.create_terminal(port, small_screen)
+    return redirect('/settings/terminals/sessions/{}'.format(port))
+
+@socketio.on('remove_terminal')
+def remove_terminal(port):
+    """
+    Removes a terminal.
+    """
+
+    terminals.delete_terminal(port)
+
+@app.route('/settings/terminals/sessions/<string:port>')
+def terminal_client(port):
+    """
+    Displays a terminal session
+    """
+    print(request.host)
+    return render_template('settings/terminals/client.html', url='http://' + socket.gethostbyname(socket.gethostname()) + ':' + port + '/s/local/')
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """
@@ -140,13 +185,13 @@ def login():
     else:
         return render_template('login.html')
 
-@app.route('/add_launcher', methods=['GET', 'POST'])
+@app.route('/settings/launchers/add', methods=['GET', 'POST'])
 def add_launcher():
     """
     Path for adding new launchers. There is a form on the
-    add_launcher.html template that is used to connect
-    to launchers. It makes a new object for each launcher
-    that is used for communicating to that launcher.
+    settings/launchers/add.html template that is used to
+    connect to launchers. It makes a new object for each
+    launcher that is used for communicating to that launcher.
     """
 
     cookies = dict(request.cookies)
@@ -156,7 +201,7 @@ def add_launcher():
         try:
             launcher_io.launcher_types[form['type']](launcher_io, form['launcher_name'], form['port'], int(form['count']))
         except launcher_mgmt.LauncherNotFound:
-            return render_template('add_launcher.html', error=True)
+            return render_template('settings/launchers/add.html', error=True)
 
         fireworks_launched[form['port']] = []
         if not form['port'] in firework_profiling:
@@ -165,7 +210,23 @@ def add_launcher():
         threading.Thread(target=firework_serial_write, args=[form['port']]).start()
         return redirect('/')
     else:
-        return render_template('add_launcher.html', error=False, type_metadata=launcher_io.launcher_type_metadata)
+        return render_template('settings/launchers/add.html', error=False, type_metadata=launcher_io.launcher_type_metadata)
+
+@app.route('/settings/launchers')
+def launcher_settings():
+    """
+    Path for adding and removing launchers.
+    """
+
+    return render_template('settings/launchers/launchers.html', launchers=launcher_io.get_ports())
+
+@socketio.on('remove_launcher')
+def remove_launcher(launcher):
+    """
+    Removes a launcher.
+    """
+
+    del launcher_io.launchers[launcher]
 
 @app.route('/sequence_status/<string:sequence>')
 def sequence_status_checker(sequence):
@@ -216,6 +277,40 @@ def add_sequence():
         launcher_counts[launcher] = launcher_io.launchers[launcher].count
 
     return render_template('sequences/add.html', launcher_counts=json.dumps(launcher_counts), launchers=launchers, firework_profiles=json.dumps(firework_profiling), notes=json.dumps(notes))
+
+def secure_filename(filename):
+    allowed_characters = string.ascii_uppercase + string.ascii_lowercase + string.digits + '-.'
+    new_filename = []
+    for x in filename:
+        if not x in allowed_characters:
+            new_filename.append('_')
+        else:
+            new_filename.append(x)
+    return ''.join(new_filename)
+
+@app.route('/settings')
+def settings():
+    return render_template('settings/settings.html')
+
+@app.route('/settings/update', methods=['POST'])
+def settings_update():
+    update_file = request.files['update']
+    filename = secure_filename(update_file.filename)
+    update_file.save(filename)
+    global update_filename
+    update_filename = filename
+    return render_template('settings/update/wait_for_update.html')
+
+@app.route('/update_ready')
+def update_ready():
+    if not update_filename == None:
+        subprocess.Popen([sys.executable, 'update.py', update_filename, str(os.getpid())])
+    else:
+        abort(400)
+
+@app.route('/ping')
+def ping():
+    return 'Pong'
 
 @socketio.on('save_fp')
 def save_fp(firework_profiles):
@@ -324,8 +419,8 @@ def beforerequest():
             else:
                 return redirect('/login')
 
-            if launcher_io.launchers == {} and not request.path == '/add_launcher':
-                return redirect('/add_launcher')
+            if launcher_io.launchers == {} and not request.path.startswith('/settings'):
+                return redirect('/settings/launchers/add')
 
 def firework_serial_write(launcher):
     """

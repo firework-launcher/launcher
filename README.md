@@ -49,3 +49,10 @@ Profiles are used to categorize a firework. Right now, the profiles pre-programm
 
 I have made it so multiple people can be on the website launching fireworks. With the help of [Socket.IO](https://socket.io), a lot of aspects of the website do not need a page reload to update each client.
 
+* Updating
+
+In the settings menu, you can upload a .tar.gz file with the launcher source code in the root directory of the archive. It will update and restart automatically. This can be useful in case the launcher does not have internet and cannot be easily updated through `git pull`.
+
+* Terminal
+
+In the settings menu, there is an option for terminals where you can get a linux terminal through the website with the help of [tty-share](https://github.com/elisescu/tty-share). Keep in mind that the resolution of the terminal may not be perfect due to tty-share not having the option to scale automatically.

@@ -436,8 +436,8 @@ def firework_serial_write(launcher):
         try:
             i = 0
             for pin in queue[launcher]:
-                launcher_io.write_to_launcher(launcher, '/digital/{}/0\r\n'.format(pin), int(pin)-1)
-                launcher_io.write_to_launcher(launcher, '/digital/{}/1\r\n'.format(pin), int(pin)-1)
+                launcher_io.write_to_launcher(launcher, int(pin), 0)
+                launcher_io.write_to_launcher(launcher, int(pin), 1)
                 del queue[launcher][i]
                 i = i + 1
                 logging.info('{} Queue update: {}'.format(launcher, queue))

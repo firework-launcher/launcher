@@ -26,10 +26,12 @@ class Launcher:
 
         self.launcher_io.add_launcher(self)
     
-    def write_to_launcher(self, msg):
+    def write_to_launcher(self, firework, state):
         """
         Writes to the launcher
         """
+
+        msg = '/digital/{}/{}'.format(firework, state)
 
         self.obj.write(msg.encode())
         self.launcher_io.logging.debug('Sent serial message: {} to launcher {}'.format(msg.replace('\r\n', ''), self.port))

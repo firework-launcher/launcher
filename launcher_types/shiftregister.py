@@ -25,14 +25,12 @@ class Launcher:
 
         self.launcher_io.add_launcher(self)
     
-    def write_to_launcher(self, msg):
+    def write_to_launcher(self, pin, value):
         """
         Writes to the launcher
         """
 
-        msg = msg.split('/')
-        pin = int(msg[2])-1
-        value = int(msg[3])
+        pin -= -1
         if value == 1:
             self.obj.set_output([pin])
             self.launcher_io.logging.debug('Triggered firework {} on shift register {}'.format(pin, self.port))

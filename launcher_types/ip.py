@@ -26,10 +26,12 @@ class Launcher:
             raise launcher_mgmt.LauncherNotFound()
         self.launcher_io.add_launcher(self)
     
-    def write_to_launcher(self, msg):
+    def write_to_launcher(self, firework, state):
         """
         Writes to the launcher
         """
+        
+        msg = '/digital/{}/{}'.format(firework, state)
 
         self.obj.send(msg.encode())
         self.launcher_io.logging.debug('Sent message: {} to launcher {}'.format(msg.replace('\r\n', ''), self.port))

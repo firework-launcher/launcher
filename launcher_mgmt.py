@@ -35,15 +35,15 @@ class LauncherIOMGMT:
         self.launchers[launcher.port] = launcher
         self.logging.debug('Added launcher {} ({})'.format(launcher.name, launcher.port))
 
-    def write_to_launcher(self, launcher_port, msg, firework):
+    def write_to_launcher(self, launcher_port, firework, state):
         """
         Code ran by the queue thread to launch a firework. This just makes sure
         the firework number does not exceed the amount of fireworks in the 
         launcher, and runs the function in the launcher object for writing to it.
         """
 
-        if firework <= self.launchers[launcher_port].count:
-            self.launchers[launcher_port].write_to_launcher(msg)
+        if (firework-1) <= self.launchers[launcher_port].count:
+            self.launchers[launcher_port].write_to_launcher(firework, state)
 
     def get_ports(self):
         """

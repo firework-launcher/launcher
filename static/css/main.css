@@ -275,7 +275,18 @@ h5 {
 
 .settings_content {
     text-align: center;
-    margin: 50px;
+    margin: 15px;
+}
+
+.terminal {
+    width: 100%;
+    border: none;
+    transform: scale(100%, 100%);
+}
+
+.flexbox {
+    display: flex;
+    height: 100vh;
 }
 
 @media screen and (max-width: 720px) {

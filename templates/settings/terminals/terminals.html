@@ -3,7 +3,7 @@
   <head>
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <link href="/static/css/main.css" rel="stylesheet">
-    <title>Firework Launcher - Settings</title>
+    <title>Firework Launcher - Terminals</title>
   </head>
   <body>
     <ul class="navbar">
@@ -16,23 +16,14 @@
         <a class="navbar-item-expanded" href="/settings">Settings</a>
         <a class="navbar-item-expanded" href="/sequences">Sequences</a>
       </div>
-      <div class="settings_content">
-        <h1>Settings</h1>
-        <form enctype="multipart/form-data" action="/settings/update" method="POST">
-          <h3>Update <input type="file" name="update" accept=".tar.gz"><button type=submit>Upload</button></h3>
-        </form>
-        <a class="firework_button" href="/settings/launchers">Launchers</a>
-        <a class="firework_button" href="/settings/terminals">Terminals</a>
-      </div>
-      <script>
-        function expand_hamburger () {
-            menu = document.getElementById("hamburgerExpandMenu");
-            if (menu.style.display == "block") {
-                menu.style.display = "none";
-            } else {
-                menu.style.display = "block";
-            }
-        }
-      </script>
+        <div class="settings_content">
+            <h1>Terminals</h1>
+            {% for terminal in terminals %}
+                <h2 id="terminal_{{ terminal }}">Port {{ terminal }}<a class="firework_button" href="/settings/terminals/sessions/{{ terminal }}">Open</a><button id="remove_{{ terminal }}" class="firework_button" onclick="remove_terminal('{{ terminal }}')">Remove</button></h2>
+            {% endfor %}
+            <a class="firework_button" id="add_terminal">Add Terminal</a>
+        </div>
+      <script src="/static/js/socketio.js"></script>
+      <script src="/static/js/terminals.js"></script>
   </body>
 </html>

@@ -3,7 +3,7 @@
   <head>
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <link href="/static/css/main.css" rel="stylesheet">
-    <title>Firework Launcher - Settings</title>
+    <title>Firework Launcher - Terminal</title>
   </head>
   <body>
     <ul class="navbar">
@@ -16,13 +16,8 @@
         <a class="navbar-item-expanded" href="/settings">Settings</a>
         <a class="navbar-item-expanded" href="/sequences">Sequences</a>
       </div>
-      <div class="settings_content">
-        <h1>Settings</h1>
-        <form enctype="multipart/form-data" action="/settings/update" method="POST">
-          <h3>Update <input type="file" name="update" accept=".tar.gz"><button type=submit>Upload</button></h3>
-        </form>
-        <a class="firework_button" href="/settings/launchers">Launchers</a>
-        <a class="firework_button" href="/settings/terminals">Terminals</a>
+      <div class="flexbox">
+        <iframe src="{{ url }}" class="terminal"></iframe>
       </div>
       <script>
         function expand_hamburger () {

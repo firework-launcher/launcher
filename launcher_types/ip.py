@@ -20,6 +20,7 @@ class Launcher:
         self.port = ip
         self.type = 'ip'
         self.count = count
+        self.sequences_supported = True
         try:
             self.obj.connect((ip, 2364))
         except:
@@ -69,3 +70,6 @@ class Launcher:
         self.write_to_launcher_sequence(command)
 
         time.sleep(int(step['delay']))
+    
+    def remove(self):
+        self.obj.close()

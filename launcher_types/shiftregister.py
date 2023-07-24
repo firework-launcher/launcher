@@ -22,6 +22,7 @@ class Launcher:
         self.port = chip
         self.type = 'shiftregister'
         self.count = count
+        self.sequences_supported = True
 
         self.launcher_io.add_launcher(self)
     
@@ -41,3 +42,6 @@ class Launcher:
         """
         
         self.obj.set_output_sequence({'Step': step})
+    
+    def remove(self):
+        pass

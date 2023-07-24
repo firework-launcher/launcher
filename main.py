@@ -225,7 +225,8 @@ def remove_launcher(launcher):
     """
     Removes a launcher.
     """
-
+    
+    launcher_io.launchers[launcher].remove()
     del launcher_io.launchers[launcher]
 
 @app.route('/sequence_status/<string:sequence>')
@@ -273,8 +274,12 @@ def add_sequence():
     launcher_counts = {}
     launchers = {}
     for launcher in launcher_io.launchers:
-        launchers[launcher] = launcher_io.launchers[launcher].name
-        launcher_counts[launcher] = launcher_io.launchers[launcher].count
+        if launcher_io.launchers[launcher].sequences_supported:
+            launchers[launcher] = launcher_io.launchers[launcher].name
+            launcher_counts[launcher] = launcher_io.launchers[launcher].count
+    
+    if launchers == {}:
+        return redirect('/settings/launchers/add')
 
     return render_template('sequences/add.html', launcher_counts=json.dumps(launcher_counts), launchers=launchers, firework_profiles=json.dumps(firework_profiling), notes=json.dumps(notes))
 

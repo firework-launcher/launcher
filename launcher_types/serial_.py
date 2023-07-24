@@ -23,6 +23,7 @@ class Launcher:
         self.port = port
         self.type = 'serial'
         self.count = count
+        self.sequences_supported = True
 
         self.launcher_io.add_launcher(self)
     
@@ -74,3 +75,6 @@ class Launcher:
         self.write_to_launcher_sequence(command)
 
         time.sleep(int(step['delay']))
+    
+    def remove(self):
+        self.obj.close()

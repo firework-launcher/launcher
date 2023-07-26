@@ -174,6 +174,10 @@ function dev() {
     devbutton_js_onclick = document.createAttribute("onclick");
     devbutton_js_onclick.value = "save_fp();";
     devbutton.setAttributeNode(devbutton_js_onclick);
+    notes_button = document.getElementById("notesbutton");
+    notes_button_2 = document.getElementById("notesbutton_");
+    notes_button.setAttribute("onclick", "");
+    notes_button_2.setAttribute("onclick", "");
     for (let index = 0; index < launchers.length; ++index) {
         for (let i = 1; i < launcher_counts[launchers[index]]+1; i++) {
             button = document.getElementById("fb_" + launchers[index] + "_" + i);
@@ -201,6 +205,10 @@ function save_fp() {
     devbutton_js_onclick = document.createAttribute("onclick");
     devbutton_js_onclick.value = "dev();";
     devbutton.setAttributeNode(devbutton_js_onclick);
+    notes_button = document.getElementById("notesbutton");
+    notes_button_2 = document.getElementById("notesbutton_");
+    notes_button.setAttribute("onclick", "manage_notes()");
+    notes_button_2.setAttribute("onclick", "manage_notes()");
     for (let li = 0; li < launchers.length; li++) {
         launcher = li
         for (let i = 1; i < launcher_counts[launchers[launcher]]+1; i++) {
@@ -317,7 +325,11 @@ function close_modal() {
 function manage_notes() {
     notes_button = document.getElementById("notesbutton");
     notes_button_2 = document.getElementById("notesbutton_");
+    devbutton = document.getElementById("devbutton");
+    devbutton_2 = document.getElementById("devbutton_");
     if (managing_notes) {
+        devbutton.setAttribute("onclick", "dev();");
+        devbutton_2.setAttribute("onclick", "dev();");
         notes_button.innerText = "Notes";
         notes_button_2.innerText = "Notes";
         managing_notes = false;
@@ -335,6 +347,8 @@ function manage_notes() {
     } else {
         notes_button.innerText = "Finish";
         notes_button_2.innerText = "Finish";
+        devbutton.setAttribute("onclick", "");
+        devbutton_2.setAttribute("onclick", "");
         managing_notes = true;
         for (let li = 0; li < launchers.length; li++) {
             launcher = li

@@ -267,6 +267,12 @@ def add_sequence():
     return render_template('sequences/add.html', launcher_counts=json.dumps(launcher_counts), launchers=launchers, firework_profiles=json.dumps(config.config['firework_profiles']), notes=json.dumps(config.config['notes']))
 
 def secure_filename(filename):
+    """
+    Replacement for werkzeug.secure_filename()
+    since I was having trouble trying to get it
+    working. This works fine.
+    """
+
     allowed_characters = string.ascii_uppercase + string.ascii_lowercase + string.digits + '-.'
     new_filename = []
     for x in filename:
@@ -278,10 +284,19 @@ def secure_filename(filename):
 
 @app.route('/settings')
 def settings():
+    """
+    Settings menu path
+    """
+
     return render_template('settings/settings.html')
 
 @app.route('/settings/update', methods=['POST'])
 def settings_update():
+    """
+    Saves files uploaded and prepares to update
+    using the uploaded file.
+    """
+
     update_file = request.files['update']
     filename = secure_filename(update_file.filename)
     update_file.save(filename)
@@ -291,6 +306,13 @@ def settings_update():
 
 @app.route('/update_ready')
 def update_ready():
+    """
+    The wait for update page makes a request
+    here to show that the wait for update page
+    is loaded and it can shut down the webserver
+    for updating.
+    """
+
     if not update_filename == None:
         subprocess.Popen([sys.executable, 'update.py', update_filename, str(os.getpid())])
     else:
@@ -298,6 +320,11 @@ def update_ready():
 
 @app.route('/ping')
 def ping():
+    """
+    Used by the wait for update page to see
+    if the webserver is up.
+    """
+
     return 'Pong'
 
 @socketio.on('save_fp')

@@ -14,32 +14,22 @@ import auth
 import subprocess
 import socket
 import random
+import config_mgmt
 
 app = Flask(__name__)
 socketio = flask_socketio.SocketIO(app)
 fireworks_launched = {'LFA': []}
 auth = auth.Auth()
 terminals = terminal_mgmt.Terminals()
+config = config_mgmt.ConfigMGMT()
 queue = {}
 sequence_status = {}
 
-def load_file(file):
-    if not os.path.exists('config/' + file):
-        f = open('config/' + file, 'x')
-        f.write('{}')
-        f.close()
-    f = open('config/' + file)
-    data = json.loads(f.read())
-    f.close()
-    return data
+config.load_file('firework_profiles.json')
+config.load_file('sequences.json')
+config.load_file('launchers.json')
+config.load_file('notes.json')
 
-if not os.path.exists('config'):
-    os.mkdir('config')
-
-firework_profiling = load_file('firework_profiles.json')
-sequences = load_file('sequences.json')
-launchers_to_add = load_file('launchers.json')
-notes = load_file('notes.json')
 update_filename = None
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.DEBUG)
@@ -66,13 +56,13 @@ def home():
         launcher_names[launcher] = launcher_io.launchers[launcher].name
     return render_template('home.html', 
         fireworks_launched=json.dumps(fireworks_launched),
-        firework_profiles=json.dumps(firework_profiling),
+        firework_profiles=json.dumps(config.config['firework_profiles']),
         launchers=launcher_io.get_ports(),
         launchers_parsed=':'.join(serial_ports),
         launcher_counts=json.dumps(launcher_counts),
         launcher_names=json.dumps(launcher_names),
-        notes=json.dumps(notes),
-        sequences=json.dumps(sequences)
+        notes=json.dumps(config.config['notes']),
+        sequences=json.dumps(config.config['sequences'])
     )
 
 def get_lfa_firework_launched(firework_count):
@@ -92,17 +82,12 @@ def get_lfa_firework_launched(firework_count):
             lfa_list.append(x+1)
     return {'LFA': lfa_list}
 
-def save_notes():
-    f = open('config/notes.json', 'w')
-    f.write(json.dumps(notes, indent=4))
-    f.close()
-
 @socketio.on("note_update")
 def note_update(note_data):
-    if not note_data['launcher'] in notes:
-        notes[note_data['launcher']] = {}
-    notes[note_data['launcher']][str(note_data['firework'])] = note_data['note']
-    save_notes()
+    if not note_data['launcher'] in config.config['notes']:
+        config.config['notes'][note_data['launcher']] = {}
+    config.config['notes'][note_data['launcher']][str(note_data['firework'])] = note_data['note']
+    config.save_config()
     socketio.emit('note_update', note_data)
 
 @app.route('/lfa')
@@ -125,8 +110,8 @@ def lfa():
         launcher_counts=json.dumps({'LFA': firework_count}),
         launchers_parsed='LFA',
         launcher_names=json.dumps({'LFA': 'Launch For All'}),
-        notes=json.dumps(notes),
-        sequences=json.dumps(sequences)
+        notes=json.dumps(config.config['notes']),
+        sequences=json.dumps(config.config['sequences'])
     )
 
 @app.route('/settings/terminals')
@@ -204,9 +189,9 @@ def add_launcher():
             return render_template('settings/launchers/add.html', error=True)
 
         fireworks_launched[form['port']] = []
-        if not form['port'] in firework_profiling:
-            firework_profiling[form['port']] = {'1': {'color': '#177bed', 'fireworks': list(range(1, int(form['count'])+1)), 'name': 'One Shot'}, '2': {'color': '#5df482', 'fireworks': [], 'name': 'Two Shot'}, '3': {'color': '#f4ff5e', 'fireworks': [], 'name': 'Three Shot'}, '4': {'color': '#ff2667', 'fireworks': [], 'name': 'Finale'}}
-            save_fp(firework_profiling)
+        if not form['port'] in config.config['firework_profiles']:
+            config.config['firework_profiles'][form['port']] = {'1': {'color': '#177bed', 'fireworks': list(range(1, int(form['count'])+1)), 'name': 'One Shot'}, '2': {'color': '#5df482', 'fireworks': [], 'name': 'Two Shot'}, '3': {'color': '#f4ff5e', 'fireworks': [], 'name': 'Three Shot'}, '4': {'color': '#ff2667', 'fireworks': [], 'name': 'Finale'}}
+            config.save_config()
         threading.Thread(target=firework_serial_write, args=[form['port']]).start()
         return redirect('/')
     else:
@@ -254,7 +239,7 @@ def sequences_():
     sequences
     """
 
-    return render_template('sequences/sequences.html', sequences=sequences)
+    return render_template('sequences/sequences.html', sequences=config.config['sequences'])
 
 @app.route('/sequences/add', methods=['GET', 'POST'])
 def add_sequence():
@@ -265,10 +250,8 @@ def add_sequence():
     if request.method == 'POST':
         sequence_name = request.form['sequence_name']
         sequence_data = json.loads(request.form['sequence_data'])
-        sequences[sequence_name] = sequence_data
-        f = open('config/sequences.json', 'w')
-        f.write(json.dumps(sequences, indent=4))
-        f.close()
+        config.config['sequences'][sequence_name] = sequence_data
+        config.save_config()
         return redirect('/sequences')
 
     launcher_counts = {}
@@ -281,7 +264,7 @@ def add_sequence():
     if launchers == {}:
         return redirect('/settings/launchers/add')
 
-    return render_template('sequences/add.html', launcher_counts=json.dumps(launcher_counts), launchers=launchers, firework_profiles=json.dumps(firework_profiling), notes=json.dumps(notes))
+    return render_template('sequences/add.html', launcher_counts=json.dumps(launcher_counts), launchers=launchers, firework_profiles=json.dumps(config.config['firework_profiles']), notes=json.dumps(config.config['notes']))
 
 def secure_filename(filename):
     allowed_characters = string.ascii_uppercase + string.ascii_lowercase + string.digits + '-.'
@@ -324,11 +307,8 @@ def save_fp(firework_profiles):
     from the client.
     """
 
-    f = open('config/firework_profiles.json', 'w')
-    f.write(json.dumps(firework_profiles, indent=4))
-    f.close()
-    global firework_profiling
-    firework_profiling = firework_profiles
+    config.config['firework_profiles'] = firework_profiles
+    config.save_config()
 
 @socketio.on('run_sequence')
 def run_sequence(sequence):
@@ -348,9 +328,9 @@ def run_sequence_threaded(sequence):
     app.
     """
 
-    if not sequence in sequences:
+    if not sequence in config.config['sequences']:
         return None
-    sequence_data = sequences[sequence]
+    sequence_data = config.config['sequences'][sequence]
     pins_changed = []
     for step in sequence_data:
         pins_changed.append([sequence_data[step]['launcher'], sequence_data[step]['pins']])
@@ -368,12 +348,10 @@ def delete_sequence(sequence):
     js file.
     """
 
-    if not sequence in sequences:
+    if not sequence in config.config['sequences']:
         return None
-    del sequences[sequence]
-    f = open('config/sequences.json', 'w')
-    f.write(json.dumps(sequences))
-    f.close()
+    del config.config['sequences'][sequence]
+    config.save_config()
 
 @socketio.on('delete_note')
 def delete_note(note):
@@ -384,14 +362,14 @@ def delete_note(note):
 
     launcher = note.split('_')[0]
     firework = note.split('_')[1]
-    if launcher in notes:
-        if firework in notes[launcher]:
+    if launcher in config.config['notes']:
+        if firework in config.config['notes'][launcher]:
             exists = True
     if not exists:
         return None
     
-    del notes[launcher][firework]
-    save_notes()
+    del config.config['notes'][launcher][firework]
+    config.save_config()
     socketio.emit('delete_note', {
         'launcher': launcher,
         'firework': firework
@@ -517,14 +495,14 @@ def reset_all():
     socketio.emit('reset_all')
 
 if __name__ == '__main__':
-    for launcher in launchers_to_add:
-        launcher_data = launchers_to_add[launcher]
+    for launcher in config.config['launchers']:
+        launcher_data = config.config['launchers'][launcher]
         launcher_io.launcher_types[launcher_data['type']](launcher_io, launcher_data['name'], launcher, launcher_data['count'])
 
         fireworks_launched[launcher] = []
-        if not launcher in firework_profiling:
-            firework_profiling[launcher] = {'1': {'color': '#177bed', 'fireworks': list(range(1, launcher_data['count']+1)), 'name': 'One Shot'}, '2': {'color': '#5df482', 'fireworks': [], 'name': 'Two Shot'}, '3': {'color': '#f4ff5e', 'fireworks': [], 'name': 'Three Shot'}, '4': {'color': '#ff2667', 'fireworks': [], 'name': 'Finale'}}
-            save_fp(firework_profiling)
+        if not launcher in config.config['firework_profiles']:
+            config.config['firework_profiles'][launcher] = {'1': {'color': '#177bed', 'fireworks': list(range(1, launcher_data['count']+1)), 'name': 'One Shot'}, '2': {'color': '#5df482', 'fireworks': [], 'name': 'Two Shot'}, '3': {'color': '#f4ff5e', 'fireworks': [], 'name': 'Three Shot'}, '4': {'color': '#ff2667', 'fireworks': [], 'name': 'Finale'}}
+            config.save_config()
         threading.Thread(target=firework_serial_write, args=[launcher]).start()
 
     socketio.run(app, host='0.0.0.0', port=80)

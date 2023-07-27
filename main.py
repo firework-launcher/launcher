@@ -206,7 +206,24 @@ def launcher_settings():
     Path for adding and removing launchers.
     """
 
-    return render_template('settings/launchers/launchers.html', launchers=launcher_io.get_ports())
+    return render_template('settings/launchers/launchers.html', launchers=launcher_io.get_ports(), add_on_start=config.config['launchers'])
+
+@socketio.on('launcher_addonstart')
+def launcher_addonstart(launcher):
+    """
+    Adds or removes from the launchers config file.
+    """
+
+    if launcher in config.config['launchers']:
+        del config.config['launchers'][launcher]
+    else:
+        config.config['launchers'][launcher] = {
+            'name': launcher_io.launchers[launcher].name,
+            'type': launcher_io.launchers[launcher].type,
+            'count': launcher_io.launchers[launcher].count
+        }
+    
+    config.save_config()
 
 @socketio.on('remove_launcher')
 def remove_launcher(launcher):

@@ -289,6 +289,36 @@ h5 {
     height: 100vh;
 }
 
+.addonstart_on {
+    padding: 15px 27px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5px;
+    margin: 10px;
+    font-family: var(--font);
+    transition: opacity 0.5s;
+    background-color: rgba(0, 0, 0, 0);
+    color: #50c760;
+    border: 2px solid #50c760;
+}
+
+.addonstart_off {
+    padding: 15px 27px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5px;
+    margin: 10px;
+    font-family: var(--font);
+    transition: opacity 0.5s;
+    background-color: rgba(0, 0, 0, 0);
+    color: #ff2667;
+    border: 2px solid #ff2667;
+}
+
 @media screen and (max-width: 720px) {
     .navbar-item {
         display: none;

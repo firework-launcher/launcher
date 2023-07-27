@@ -194,7 +194,17 @@ def add_launcher():
         fireworks_launched[form['port']] = []
         if not form['port'] in config.config['firework_profiles']:
             config.config['firework_profiles'][form['port']] = {'1': {'color': '#177bed', 'fireworks': list(range(1, int(form['count'])+1)), 'name': 'One Shot'}, '2': {'color': '#5df482', 'fireworks': [], 'name': 'Two Shot'}, '3': {'color': '#f4ff5e', 'fireworks': [], 'name': 'Three Shot'}, '4': {'color': '#ff2667', 'fireworks': [], 'name': 'Finale'}}
-            config.save_config()
+        else:
+            for channel in range(1, launcher_data['count']+1):
+                found = False
+                for profile in config.config['firework_profiles'][launcher]:
+                    if channel in config.config['firework_profiles'][launcher][profile]:
+                        found = True
+                if not found:
+                    for profile in config.config['firework_profiles'][launcher]:
+                        break
+                    config.config['firework_profiles'][launcher][profile].append(channel)
+        config.save_config()
         threading.Thread(target=firework_serial_write, args=[form['port']]).start()
         return redirect('/')
     else:
@@ -549,7 +559,17 @@ if __name__ == '__main__':
         fireworks_launched[launcher] = []
         if not launcher in config.config['firework_profiles']:
             config.config['firework_profiles'][launcher] = {'1': {'color': '#177bed', 'fireworks': list(range(1, launcher_data['count']+1)), 'name': 'One Shot'}, '2': {'color': '#5df482', 'fireworks': [], 'name': 'Two Shot'}, '3': {'color': '#f4ff5e', 'fireworks': [], 'name': 'Three Shot'}, '4': {'color': '#ff2667', 'fireworks': [], 'name': 'Finale'}}
-            config.save_config()
+        else:
+            for channel in range(1, launcher_data['count']+1):
+                found = False
+                for profile in config.config['firework_profiles'][launcher]:
+                    if channel in config.config['firework_profiles'][launcher][profile]['fireworks']:
+                        found = True
+                if not found:
+                    for profile in config.config['firework_profiles'][launcher]:
+                        break
+                    config.config['firework_profiles'][launcher][profile]['fireworks'].append(channel)
+        config.save_config()
         threading.Thread(target=firework_serial_write, args=[launcher]).start()
 
     socketio.run(app, host='0.0.0.0', port=80)

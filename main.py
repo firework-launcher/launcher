@@ -149,7 +149,10 @@ def terminal_client(port):
     """
     Displays a terminal session
     """
-    print(request.host)
+
+    if not port in terminals.open_terminal_processes:
+        abort(404)
+    
     return render_template('settings/terminals/client.html', url='http://' + socket.gethostbyname(socket.gethostname()) + ':' + port + '/s/local/')
 
 @app.route('/login', methods=['GET', 'POST'])

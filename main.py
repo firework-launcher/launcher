@@ -6,6 +6,7 @@ import os
 import flask_socketio
 import sys
 import json
+import urllib.parse
 import launcher_mgmt
 import terminal_mgmt
 import argparse
@@ -195,15 +196,15 @@ def add_launcher():
         if not form['port'] in config.config['firework_profiles']:
             config.config['firework_profiles'][form['port']] = {'1': {'color': '#177bed', 'fireworks': list(range(1, int(form['count'])+1)), 'name': 'One Shot'}, '2': {'color': '#5df482', 'fireworks': [], 'name': 'Two Shot'}, '3': {'color': '#f4ff5e', 'fireworks': [], 'name': 'Three Shot'}, '4': {'color': '#ff2667', 'fireworks': [], 'name': 'Finale'}}
         else:
-            for channel in range(1, launcher_data['count']+1):
+            for channel in range(1, int(form['count'])+1):
                 found = False
-                for profile in config.config['firework_profiles'][launcher]:
-                    if channel in config.config['firework_profiles'][launcher][profile]:
+                for profile in config.config['firework_profiles'][form['port']]:
+                    if channel in config.config['firework_profiles'][form['port']][profile]['fireworks']:
                         found = True
                 if not found:
-                    for profile in config.config['firework_profiles'][launcher]:
+                    for profile in config.config['firework_profiles'][form['port']]:
                         break
-                    config.config['firework_profiles'][launcher][profile].append(channel)
+                    config.config['firework_profiles'][form['port']][profile]['fireworks'].append(channel)
         config.save_config()
         threading.Thread(target=firework_serial_write, args=[form['port']]).start()
         return redirect('/')
@@ -216,7 +217,26 @@ def launcher_settings():
     Path for adding and removing launchers.
     """
 
-    return render_template('settings/launchers/launchers.html', launchers=launcher_io.get_ports(), add_on_start=config.config['launchers'])
+    return render_template('settings/launchers/launchers.html', launchers=launcher_io.get_ports(), add_on_start=config.config['launchers'], urlencode=urllib.parse.quote)
+
+@app.route('/settings/launchers/edit_fp/<path:launcher>')
+def launcher_edit_fp(launcher):
+    launcher = launcher[5:]
+    if not launcher in launcher_io.launchers:
+        abort(404)
+    return render_template('settings/launchers/edit_fp.html',
+        profilesjson=json.dumps(config.config['firework_profiles'][launcher]),
+        profiles=config.config['firework_profiles'][launcher],
+        launcher_port=launcher,
+        launcher=launcher_io.launchers[launcher].name
+    )
+
+@socketio.on('update_fp')
+def update_fp(data):
+    launcher = data['launcher']
+    profiles = data['profiles']
+    config.config['firework_profiles'][launcher] = profiles
+    config.save_config()
 
 @socketio.on('launcher_addonstart')
 def launcher_addonstart(launcher):

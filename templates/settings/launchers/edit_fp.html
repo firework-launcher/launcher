@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <link href="/static/css/main.css" rel="stylesheet">
+    <title>Firework Launcher - Edit Profiles</title>
+  </head>
+  <body>
+    <ul class="navbar">
+        <li class="navbar-item-li"><a class="navtitle" href="/">Firework Launcher</a></li>
+        <li class="navbar-item-li"><a class="navbar-item" href="/settings">Settings</a></li>
+        <li class="navbar-item-li"><a class="navbar-item" href="/sequences">Sequences</a></li>
+        <li class="navbar-item-hamburger"><a class="hamburger-menu" onclick="expand_hamburger()"><img src="/static/svgs/bars.svg" width="20" class="hamburger-menu-svg" alt="Hamburger Menu"/></a></li>
+    </ul>
+    <div id="hamburgerExpandMenu">
+        <a class="navbar-item-expanded" href="/settings">Settings</a>
+        <a class="navbar-item-expanded" href="/sequences">Sequences</a>
+    </div>
+    <div class="settings_content" id="profilelist">
+        <h1>Profiles</h1>
+        <h2>{{ launcher }} ({{ launcher_port }})</h2>
+        <p class="error" id="error" style="display: none">There has to be at least one profile.</p>
+        {% for profile in profiles %}
+        <h2 id="profile_{{ profile }}"><div style="display: inline" id="profiletext_{{ profile }}">{{ profiles[profile]["name"] }}</div>
+            <button class="firework_button" id="edit_{{ profile }}" onclick="edit_profile('{{ profile }}')">Edit</button>
+            <button class="firework_button" id="remove_{{ profile }}" onclick="remove_profile('{{ profile }}')">Remove</button>
+        </h2>
+        <script>document.getElementById("profile_{{ profile }}").setAttribute("style", "color: {{ profiles[profile]['color'] }};")</script> <!-- CSS errors were bothering me -->
+        {% endfor %}
+        <button class="firework_button" id="addprofilebutton" onclick="add_profile()">Add Profile</a>
+    </div>
+    <div class="settings_content" style="display: none;" id="profileeditor">
+      <h1>Profiles</h1>
+      <h2 id="profilename"></h2>
+      <p>Color: <input type="color" id="colorselector"></p>
+      <p>Name: <input type="text" id="nameinput"></p>
+      <button class="firework_button" id="savebutton">Save</button>
+      <button class="firework_button" onclick="exit_editor()">Back</button>
+    </div>
+    <script>
+        var profiles = JSON.parse('{{ profilesjson | safe }}');
+        var launcher = "{{ launcher_port | safe }}"
+    </script>
+    <script src="/static/js/socketio.js"></script>
+    <script src="/static/js/editprofiles.js"></script>
+  </body>
+</html>

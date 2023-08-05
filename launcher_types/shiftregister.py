@@ -23,6 +23,7 @@ class Launcher:
         self.type = 'shiftregister'
         self.count = count
         self.sequences_supported = True
+        self.armed = False
 
         self.launcher_io.add_launcher(self)
     
@@ -30,11 +31,11 @@ class Launcher:
         """
         Writes to the launcher
         """
-
-        pin -= -1
-        if value == 1:
-            self.obj.set_output([pin])
-            self.launcher_io.logging.debug('Triggered firework {} on shift register {}'.format(pin, self.port))
+        if self.armed:
+            pin -= -1
+            if value == 1:
+                self.obj.set_output([pin])
+                self.launcher_io.logging.debug('Triggered firework {} on shift register {}'.format(pin, self.port))
     
     def run_step(self, step):
         """
@@ -43,5 +44,11 @@ class Launcher:
         
         self.obj.set_output_sequence({'Step': step})
     
+    def arm(self):
+        self.armed = True
+    
+    def disarm(self):
+        self.armed = False
+
     def remove(self):
         pass

@@ -20,6 +20,7 @@ class Launcher:
         self.name = name
         self.port = ip
         self.type = 'espnode'
+        self.armed = False
         self.count = count
         self.sequences_supported = False
         try:
@@ -32,14 +33,20 @@ class Launcher:
         """
         Writes to the launcher
         """
-
-        if state == 1:
-            self.obj.send(json.dumps({
-                'code': 1,
-                'payload': [firework-1]
-            }).encode())
-            self.launcher_io.logging.debug('Triggered firework {} on launcher {}'.format(firework-1, self.port))
-        time.sleep(0.5)
+        if self.armed:
+            if state == 1:
+                self.obj.send(json.dumps({
+                    'code': 1,
+                    'payload': [firework-1]
+                }).encode())
+                self.launcher_io.logging.debug('Triggered firework {} on launcher {}'.format(firework-1, self.port))
+            time.sleep(0.5)
     
+    def arm(self):
+        self.armed = True
+    
+    def disarm(self):
+        self.armed = False
+
     def remove(self):
         self.obj.close()

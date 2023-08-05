@@ -50,11 +50,13 @@ def home():
     for launcher in old_ports:
         serial_ports.append(old_ports[launcher])
     launcher_counts = {}
+    launcher_names = {}
+    launchers_armed = {}
     for launcher in launcher_io.launchers:
         launcher_counts[launcher] = launcher_io.launchers[launcher].count
-    launcher_names = {}
-    for launcher in launcher_io.launchers:
         launcher_names[launcher] = launcher_io.launchers[launcher].name
+        launchers_armed[launcher] = launcher_io.launchers[launcher].armed
+
     return render_template('home.html', 
         fireworks_launched=json.dumps(fireworks_launched),
         firework_profiles=json.dumps(config.config['firework_profiles']),
@@ -62,6 +64,8 @@ def home():
         launchers_parsed=':'.join(serial_ports),
         launcher_counts=json.dumps(launcher_counts),
         launcher_names=json.dumps(launcher_names),
+        launchers_armed=launchers_armed,
+        launchers_armedjson=json.dumps(launchers_armed),
         notes=json.dumps(config.config['notes']),
         sequences=json.dumps(config.config['sequences'])
     )
@@ -91,6 +95,12 @@ def note_update(note_data):
     config.save_config()
     socketio.emit('note_update', note_data)
 
+def check_lfa_armed():
+    lfa_armed = False
+    for launcher in launcher_io.launchers:
+        if launcher_io.launchers[launcher].armed:
+            lfa_armed = True
+
 @app.route('/lfa')
 def lfa():
     """
@@ -104,6 +114,9 @@ def lfa():
     for launcher in launcher_io.launchers:
         if launcher_io.launchers[launcher].count > firework_count:
             firework_count = launcher_io.launchers[launcher].count
+
+    lfa_armed = check_lfa_armed()
+    
     return render_template('home.html', 
         fireworks_launched=json.dumps(get_lfa_firework_launched(firework_count)),
         firework_profiles=json.dumps({'LFA': {'1': {'color': '#fc2339', 'fireworks': list(range(1, firework_count+1)), 'name': 'LFA'}}}),
@@ -111,6 +124,8 @@ def lfa():
         launcher_counts=json.dumps({'LFA': firework_count}),
         launchers_parsed='LFA',
         launcher_names=json.dumps({'LFA': 'Launch For All'}),
+        launchers_armed={'LFA': lfa_armed},
+        launchers_armedjson=json.dumps({'LFA': lfa_armed}),
         notes=json.dumps(config.config['notes']),
         sequences=json.dumps(config.config['sequences'])
     )
@@ -254,6 +269,31 @@ def launcher_addonstart(launcher):
         }
     
     config.save_config()
+
+@socketio.on("arm")
+def arm(launcher):
+    """
+    Arms a launcher
+    """
+
+    if launcher == 'LFA':
+        for launcher in launcher_io.launchers:
+            launcher_io.launchers[launcher].arm()
+    else:
+        launcher_io.launchers[launcher].arm()
+        socketio.emit('arm', launcher)
+
+@socketio.on("disarm")
+def disarm(launcher):
+    """
+    Disarms a launcher
+    """
+    
+    if launcher == 'LFA':
+        for launcher in launcher_io.launchers:
+            launcher_io.launchers[launcher].disarm()
+    launcher_io.launchers[launcher].disarm()
+    socketio.emit('disarm', launcher)
 
 @socketio.on('remove_launcher')
 def remove_launcher(launcher):
@@ -519,15 +559,20 @@ def trigger_firework(data):
     ports = launcher_io.get_ports()
     launcher = data['launcher']
     if launcher == 'LFA':
-        for launcher_ in ports:
-            trigger_firework({'launcher': ports[launcher_], 'firework': firework})
+        armed = check_lfa_armed()
     else:
-        global fireworks_launched
-        fireworks_launched[launcher].append(firework)
-        pin = str(int(firework)+1)
-        global queue
-        queue[launcher].append(pin)
-    socketio.emit('firework_launch', {'firework': firework, 'launcher': launcher})
+        armed = launcher_io.launchers[launcher].armed
+    if armed:
+        if launcher == 'LFA':
+            for launcher_ in ports:
+                trigger_firework({'launcher': ports[launcher_], 'firework': firework})
+        else:
+            global fireworks_launched
+            fireworks_launched[launcher].append(firework)
+            pin = str(int(firework)+1)
+            global queue
+            queue[launcher].append(pin)
+        socketio.emit('firework_launch', {'firework': firework, 'launcher': launcher})
 
 def reset_queue():
     """

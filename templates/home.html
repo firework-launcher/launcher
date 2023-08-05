@@ -26,7 +26,9 @@
     </div>
     <div class="content" id="content">
       {% for launcher in launchers %}
-        <h2 style="text-align: center;">{{ launcher }} ({{ launchers[launcher] }})
+        <h2 style="text-align: center;">{{ launcher }} ({{ launchers[launcher] }})<br/>
+        <span><a class="resetbutton" id="armbutton_{{ launchers[launcher] }}" {% if launchers_armed[launchers[launcher]] %}style="display: none"{% endif %} onclick="arm('{{ launchers[launcher] }}')">Arm</a></span>
+        <span><a class="resetbutton" id="disarmbutton_{{ launchers[launcher] }}" {% if not launchers_armed[launchers[launcher]] %}style="display: none"{% endif %} onclick="disarm('{{ launchers[launcher] }}')">Disarm</a></span>
         <span><a class="resetbutton" onclick="reset('{{ launchers[launcher] }}');">Reset</a></span>
         </h2>
         <div class="firework_buttons" id="firework_buttons_{{ launchers[launcher] }}"></div>
@@ -55,6 +57,7 @@
       var launcher_counts = JSON.parse('{{ launcher_counts | safe }}');
       var notes = JSON.parse('{{ notes | safe }}');
       var sequences = JSON.parse('{{ sequences | safe }}');
+      var launchers_armed = JSON.parse('{{ launchers_armedjson | safe }}');
     </script>
     <script src="/static/js/socketio.js"></script>
     <script src="/static/js/main.js"></script>

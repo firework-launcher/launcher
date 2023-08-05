@@ -50,7 +50,32 @@ socket.on('running_sequence', (sequence) => {
             firework_launch(sequences[sequence][steps[i]]["launcher"], pins[x]);
         }
     }
-})
+});
+
+socket.on('arm', (launcher) => {
+    armbutton = document.getElementById("armbutton_" + launcher);
+    disarmbutton = document.getElementById("disarmbutton_" + launcher);
+    armbutton.setAttribute("style", "display: none");
+    disarmbutton.setAttribute("style", "");
+    launchers_armed[launcher] = true;
+    firework_buttons = document.getElementById("firework_buttons_" + launcher);
+    for(var button=firework_buttons.firstChild; button!==null; button=button.nextSibling) {
+        button.classList.remove("disarmed");
+    }
+});
+
+socket.on('disarm', (launcher) => {
+    armbutton = document.getElementById("armbutton_" + launcher);
+    disarmbutton = document.getElementById("disarmbutton_" + launcher);
+    armbutton.setAttribute("style", "");
+    disarmbutton.setAttribute("style", "display: none");
+    launchers_armed[launcher] = false;
+    for(var button=firework_buttons.firstChild; button!==null; button=button.nextSibling) {
+        if (!(button.classList.contains("remove"))) {
+            button.classList.add("disarmed");
+        }
+    }
+});
 
 function get_profile_id(launcher, btn_id) {
     profile = null;
@@ -65,6 +90,7 @@ function get_profile_id(launcher, btn_id) {
 }
 
 function add_btns(rows, launcher) {
+    armed = launchers_armed[launcher];
     for (let i = 1; i < rows+1; i++) {
         profile_id = get_profile_id(launcher, i);
         profile = firework_profiles[launcher][profile_id]
@@ -75,7 +101,11 @@ function add_btns(rows, launcher) {
         button_js_onclick = document.createAttribute("onclick");
         button_id = document.createAttribute("id");
         button_style = document.createAttribute("style");
-        button_class.value = "firework_button";
+        if (armed) {
+            button_class.value = "firework_button";
+        } else {
+            button_class.value = "firework_button disarmed";
+        }
         button_js_onclick.value = "trigger_firework(" + i + ", \"" + launcher + "\");";
         button_id.value = "fb_" + launcher + "_" + i;
         button_fp.value = profile_id;
@@ -131,8 +161,11 @@ function fadeOut(element) {
     element.classList.add("remove");
 }
 
-function fadeIn(element) {
-    element.classList.remove("remove")
+function fadeIn(launcher, element) {
+    if (launchers_armed[launcher] == false) {
+        element.classList.add("disarmed");
+    }
+    element.classList.remove("remove");
 }
 
 
@@ -153,7 +186,7 @@ function reset(launcher) {
 function set_btn_blue(launcher, btn_id) {
     button = document.getElementById("fb_" + launcher + "_" + btn_id);
     if (button != null) {
-        fadeIn(button);
+        fadeIn(launcher, button);
         button.removeAttribute("onclick");
         button_js_onclick = document.createAttribute("onclick");
         button_js_onclick.value = "trigger_firework(" + btn_id + ", '" + launcher + "');";
@@ -320,6 +353,14 @@ function close_modal() {
     content = document.getElementById("content");
     content.classList.remove("blur");
     content.style.pointerEvents = "auto"
+}
+
+function arm(launcher) {
+    socket.emit("arm", launcher);
+}
+
+function disarm(launcher) {
+    socket.emit("disarm", launcher);
 }
 
 function manage_notes() {

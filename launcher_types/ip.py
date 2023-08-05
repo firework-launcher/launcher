@@ -20,6 +20,7 @@ class Launcher:
         self.port = ip
         self.type = 'ip'
         self.count = count
+        self.armed = False
         self.sequences_supported = True
         try:
             self.obj.connect((ip, 2364))
@@ -32,25 +33,27 @@ class Launcher:
         Writes to the launcher
         """
         
-        msg = '/digital/{}/{}'.format(firework, state)
+        if self.armed:
+            msg = '/digital/{}/{}'.format(firework, state)
 
-        self.obj.send(msg.encode())
-        self.launcher_io.logging.debug('Sent message: {} to launcher {}'.format(msg.replace('\r\n', ''), self.port))
+            self.obj.send(msg.encode())
+            self.launcher_io.logging.debug('Sent message: {} to launcher {}'.format(msg.replace('\r\n', ''), self.port))
 
-        data = self.obj.recv(1024)
-        data = data.decode('utf-8')
-        self.launcher_io.logging.debug('Recieved response: {}'.format(data.replace('\r\n', '')))
-        time.sleep(1)
+            data = self.obj.recv(1024)
+            data = data.decode('utf-8')
+            self.launcher_io.logging.debug('Recieved response: {}'.format(data.replace('\r\n', '')))
+            time.sleep(1)
     
     def write_to_launcher_sequence(self, msg):
         """
         Writes to the launcher with no delay and not logging the response.
         """
 
-        self.obj.send(msg.encode())
-        self.launcher_io.logging.debug('Sent message: {} to launcher {}'.format(msg.replace('\r\n', ''), self.port))
+        if self.armed:
+            self.obj.send(msg.encode())
+            self.launcher_io.logging.debug('Sent message: {} to launcher {}'.format(msg.replace('\r\n', ''), self.port))
 
-        data = self.obj.recv(1048576)
+            data = self.obj.recv(1048576)
     
     def run_step(self, step):
         """
@@ -71,5 +74,11 @@ class Launcher:
 
         time.sleep(int(step['delay']))
     
+    def arm(self):
+        self.armed = True
+    
+    def disarm(self):
+        self.armed = False
+
     def remove(self):
         self.obj.close()

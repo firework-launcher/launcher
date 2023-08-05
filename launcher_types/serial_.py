@@ -33,7 +33,6 @@ class Launcher:
         Writes to the launcher
         """
         
-        print('Write called')
         if self.armed:
             msg = '/digital/{}/{}'.format(firework, state)
 

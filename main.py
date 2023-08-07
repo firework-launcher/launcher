@@ -109,6 +109,7 @@ def check_lfa_armed():
     for launcher in launcher_io.launchers:
         if launcher_io.launchers[launcher].armed:
             lfa_armed = True
+    return lfa_armed
 
 @app.route('/lfa')
 def lfa():
@@ -295,7 +296,8 @@ def arm(launcher):
 
     if launcher == 'LFA':
         for launcher in launcher_io.launchers:
-            launcher_io.launchers[launcher].arm()
+            arm(launcher)
+        socketio.emit('arm', 'LFA')
     else:
         launcher_io.launchers[launcher].arm()
         socketio.emit('arm', launcher)
@@ -309,8 +311,11 @@ def disarm(launcher):
     if launcher == 'LFA':
         for launcher in launcher_io.launchers:
             launcher_io.launchers[launcher].disarm()
-    launcher_io.launchers[launcher].disarm()
-    socketio.emit('disarm', launcher)
+            disarm(launcher)
+        socketio.emit('disarm', 'LFA')
+    else:
+        launcher_io.launchers[launcher].disarm()
+        socketio.emit('disarm', launcher)
 
 @socketio.on('remove_launcher')
 def remove_launcher(launcher):

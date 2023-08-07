@@ -62,26 +62,31 @@ socket.on('running_sequence', (sequence) => {
 });
 
 socket.on('arm', (launcher) => {
-    armbutton = document.getElementById("armbutton_" + launcher);
-    disarmbutton = document.getElementById("disarmbutton_" + launcher);
-    armbutton.setAttribute("style", "display: none");
-    disarmbutton.setAttribute("style", "");
-    launchers_armed[launcher] = true;
-    firework_buttons = document.getElementById("firework_buttons_" + launcher);
-    for(var button=firework_buttons.firstChild; button!==null; button=button.nextSibling) {
-        button.classList.remove("disarmed");
+    if (launchers.includes(launcher)) {
+        armbutton = document.getElementById("armbutton_" + launcher);
+        disarmbutton = document.getElementById("disarmbutton_" + launcher);
+        armbutton.setAttribute("style", "display: none");
+        disarmbutton.setAttribute("style", "");
+        launchers_armed[launcher] = true;
+        firework_buttons = document.getElementById("firework_buttons_" + launcher);
+        for(var button=firework_buttons.firstChild; button!==null; button=button.nextSibling) {
+            button.classList.remove("disarmed");
+        }
     }
 });
 
 socket.on('disarm', (launcher) => {
-    armbutton = document.getElementById("armbutton_" + launcher);
-    disarmbutton = document.getElementById("disarmbutton_" + launcher);
-    armbutton.setAttribute("style", "");
-    disarmbutton.setAttribute("style", "display: none");
-    launchers_armed[launcher] = false;
-    for(var button=firework_buttons.firstChild; button!==null; button=button.nextSibling) {
-        if (!(button.classList.contains("remove"))) {
-            button.classList.add("disarmed");
+    if (launchers.includes(launcher)) {
+        armbutton = document.getElementById("armbutton_" + launcher);
+        disarmbutton = document.getElementById("disarmbutton_" + launcher);
+        armbutton.setAttribute("style", "");
+        disarmbutton.setAttribute("style", "display: none");
+        launchers_armed[launcher] = false;
+        firework_buttons = document.getElementById("firework_buttons_" + launcher);
+        for(var button=firework_buttons.firstChild; button!==null; button=button.nextSibling) {
+            if (!(button.classList.contains("remove"))) {
+                button.classList.add("disarmed");
+            }
         }
     }
 });

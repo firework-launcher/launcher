@@ -40,8 +40,7 @@ launcher_io = launcher_mgmt.LauncherIOMGMT(logging)
 @app.route('/')
 def home():
     """
-    Path / for the webserver. It creates lists to pass on to the client,
-    and renders the template home.html.
+    Path / for the webserver.
     """
 
     launchers_armed = {}

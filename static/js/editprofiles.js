@@ -1,3 +1,5 @@
+var profiles = root["firework_profiles"][launcher];
+
 socket = io();
 
 function expand_hamburger () {

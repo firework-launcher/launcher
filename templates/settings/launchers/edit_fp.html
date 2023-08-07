@@ -38,10 +38,9 @@
       <button class="firework_button" onclick="exit_editor()">Back</button>
     </div>
     <script>
-        var profiles = JSON.parse('{{ profilesjson | safe }}');
-        var launcher = "{{ launcher_port | safe }}"
+        var launcher = "{{ launcher_port | safe }}";
     </script>
-    <script src="/static/js/socketio.js"></script>
-    <script src="/static/js/editprofiles.js"></script>
+    <script src="/static/js/fetchvars.js"></script>
+    <script>fetch_variables("/static/js/editprofiles.js")</script>
   </body>
 </html>

@@ -49,17 +49,17 @@
         </div>
       </div>
     </div>
+    <script src="/static/js/fetchvars.js"></script>
     <script>
-      var fireworks_launched = JSON.parse('{{ fireworks_launched | safe }}');;
-      var firework_profiles = JSON.parse('{{ firework_profiles | safe }}');
-      var launcher_names = JSON.parse('{{ launcher_names | safe }}');
-      var launchers = "{{ launchers_parsed }}".split(":");
-      var launcher_counts = JSON.parse('{{ launcher_counts | safe }}');
-      var notes = JSON.parse('{{ notes | safe }}');
-      var sequences = JSON.parse('{{ sequences | safe }}');
-      var launchers_armed = JSON.parse('{{ launchers_armedjson | safe }}');
+      lfa = "{{ lfa }}";
+      bool_lfa = null;
+      if (lfa == "True") {
+        bool_lfa = true;
+      } else if (lfa == "False") {
+        bool_lfa = false;
+      }
+      lfa = bool_lfa;
+      fetch_variables("/static/js/main.js", lfa)
     </script>
-    <script src="/static/js/socketio.js"></script>
-    <script src="/static/js/main.js"></script>
   </body>
 </html>

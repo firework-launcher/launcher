@@ -1,3 +1,7 @@
+launcher_counts = root["launcher_data"]["counts"];
+firework_profiles = root["firework_profiles"];
+notes = root["notes"];
+
 btn_div = document.getElementById("btns");
 
 
@@ -10,6 +14,15 @@ document.getElementById("launcher_select").addEventListener("change", function()
     reload_buttons();
     clicked_btns = []
 });
+
+function expand_hamburger () {
+    menu = document.getElementById("hamburgerExpandMenu");
+    if (menu.style.display == "block") {
+        menu.style.display = "none";
+    } else {
+        menu.style.display = "block";
+    }
+}
 
 function find_fp(firework, launcher) {
     fp = firework_profiles[launcher];

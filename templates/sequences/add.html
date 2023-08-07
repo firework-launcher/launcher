@@ -41,19 +41,7 @@
             <input type="text" name="sequence_data" id="sequence_data">
             <input type="text" name="sequence_name" id="sequence_name">
         </form>
-        <script>
-            launcher_counts = JSON.parse('{{ launcher_counts | safe }}');
-            firework_profiles = JSON.parse('{{ firework_profiles | safe }}');
-            notes = JSON.parse('{{ notes | safe }}');
-            function expand_hamburger () {
-                menu = document.getElementById("hamburgerExpandMenu");
-                if (menu.style.display == "block") {
-                    menu.style.display = "none";
-                } else {
-                    menu.style.display = "block";
-                }
-            }
-        </script>
-        <script src="/static/js/sequence_builder.js"></script>
+        <script src="/static/js/fetchvars.js"></script>
+        <script>fetch_variables("/static/js/sequence_builder.js")</script>
     </body>
 </html>

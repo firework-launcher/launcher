@@ -44,31 +44,41 @@ def home():
     and renders the template home.html.
     """
 
-    cookies = dict(request.cookies)
-    serial_ports = []
-    old_ports = launcher_io.get_ports()
-    for launcher in old_ports:
-        serial_ports.append(old_ports[launcher])
-    launcher_counts = {}
-    launcher_names = {}
     launchers_armed = {}
     for launcher in launcher_io.launchers:
-        launcher_counts[launcher] = launcher_io.launchers[launcher].count
-        launcher_names[launcher] = launcher_io.launchers[launcher].name
         launchers_armed[launcher] = launcher_io.launchers[launcher].armed
 
     return render_template('home.html', 
-        fireworks_launched=json.dumps(fireworks_launched),
-        firework_profiles=json.dumps(config.config['firework_profiles']),
         launchers=launcher_io.get_ports(),
-        launchers_parsed=':'.join(serial_ports),
-        launcher_counts=json.dumps(launcher_counts),
-        launcher_names=json.dumps(launcher_names),
         launchers_armed=launchers_armed,
-        launchers_armedjson=json.dumps(launchers_armed),
-        notes=json.dumps(config.config['notes']),
-        sequences=json.dumps(config.config['sequences'])
+        lfa=False
     )
+
+@app.route('/home/launcher_json_data')
+def launcher_json_data():
+    launcher_ports = []
+    old_ports = launcher_io.get_ports()
+    for launcher in old_ports:
+        launcher_ports.append(old_ports[launcher])
+    root = {
+        'fireworks_launched': fireworks_launched,
+        'firework_profiles': config.config['firework_profiles'],
+        'launchers': launcher_ports,
+        'notes': config.config['notes'],
+        'sequences': config.config['sequences']
+    }
+
+    root['launcher_data'] = {
+        'counts': {},
+        'names': {},
+        'armed': {}
+    }
+    for launcher in launcher_io.launchers:
+        root['launcher_data']['counts'][launcher] = launcher_io.launchers[launcher].count
+        root['launcher_data']['names'][launcher] = launcher_io.launchers[launcher].name
+        root['launcher_data']['armed'][launcher] = launcher_io.launchers[launcher].armed
+    
+    return jsonify(root)
 
 def get_lfa_firework_launched(firework_count):
     """
@@ -108,27 +118,35 @@ def lfa():
     When you launch a firework on this page, it will launch that
     same firework on all the launchers.
     """
+    
+    return render_template('home.html', 
+        launchers={'Launch For All': 'LFA'},
+        launchers_armed={'LFA': check_lfa_armed()},
+        lfa=True
+    )
 
-    cookies = dict(request.cookies)
+@app.route('/lfa/launcher_json_data')
+def lfa_launcher_json_data():
+    lfa_armed = check_lfa_armed()
     firework_count = 0
     for launcher in launcher_io.launchers:
         if launcher_io.launchers[launcher].count > firework_count:
             firework_count = launcher_io.launchers[launcher].count
+    root = {
+        'fireworks_launched': get_lfa_firework_launched(firework_count),
+        'firework_profiles': {'LFA': {'1': {'color': '#fc2339', 'fireworks': list(range(1, firework_count+1)), 'name': 'LFA'}}},
+        'launchers': ['LFA'],
+        'notes': config.config['notes'],
+        'sequences': config.config['sequences']
+    }
 
-    lfa_armed = check_lfa_armed()
+    root['launcher_data'] = {
+        'counts': {'LFA': firework_count},
+        'names': {'LFA': 'Launch For All'},
+        'armed': {'LFA': lfa_armed}
+    }
     
-    return render_template('home.html', 
-        fireworks_launched=json.dumps(get_lfa_firework_launched(firework_count)),
-        firework_profiles=json.dumps({'LFA': {'1': {'color': '#fc2339', 'fireworks': list(range(1, firework_count+1)), 'name': 'LFA'}}}),
-        launchers={'Launch For All': 'LFA'},
-        launcher_counts=json.dumps({'LFA': firework_count}),
-        launchers_parsed='LFA',
-        launcher_names=json.dumps({'LFA': 'Launch For All'}),
-        launchers_armed={'LFA': lfa_armed},
-        launchers_armedjson=json.dumps({'LFA': lfa_armed}),
-        notes=json.dumps(config.config['notes']),
-        sequences=json.dumps(config.config['sequences'])
-    )
+    return jsonify(root)
 
 @app.route('/settings/terminals')
 def terminals_():

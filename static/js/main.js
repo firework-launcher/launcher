@@ -1,3 +1,12 @@
+var fireworks_launched = root["fireworks_launched"];
+var firework_profiles = root["firework_profiles"];
+var launcher_names = root["launcher_data"]["names"];
+var launcher_counts = root["launcher_data"]["counts"];
+var launchers_armed = root["launcher_data"]["armed"];
+var launchers = root["launchers"];
+var notes = root["notes"];
+var sequences = root["sequences"];
+
 const socket = io();
 
 managing_notes = false;

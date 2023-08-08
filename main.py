@@ -626,11 +626,8 @@ def reset_launcher(launcher):
     """
     This resets a launcher.
     """
-
-    global queue
+    
     global fireworks_launched
-    global if_reset
-
     fireworks_launched[launcher] = []
     reset_queue()
 

@@ -1,36 +1,19 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta name="viewport" content="width=device-width, user-scalable=no">
-        <link href="/static/css/main.css" rel="stylesheet">
-        <title>{{ name }} - Sequences</title>
-    </head>
-    <body>
-        <ul class="navbar">
-            <li class="navbar-item-li"><a class="navtitle" href="/">{{ name }}</a></li>
-            <li class="navbar-item-li"><a class="navbar-item" href="/settings">Settings</a></li>
-            <li class="navbar-item-li"><a class="navbar-item" href="/sequences">Sequences</a></li>
-            <li class="navbar-item-hamburger"><a class="hamburger-menu" onclick="expand_hamburger()"><img src="/static/svgs/bars.svg" width="20" class="hamburger-menu-svg" alt="Hamburger Menu"/></a></li>
-        </ul>
-        <div id="hamburgerExpandMenu">
-            <a class="navbar-item-expanded" href="/settings">Settings</a>
-            <a class="navbar-item-expanded" href="/sequences">Sequences</a>
+{% extends 'base.html' %}
+{% block content %}
+<div id="error" class="error_msg">
+    <p id="error_text"></p>
+</div>
+<div class="sequencelist">
+    {% for sequence in sequences %}
+        <div id="sequence_{{ sequence }}">
+            <h1 id="h1sequence_{{ sequence }}">{{ sequence }} 
+                <button class="firework_button" id="run_{{ sequence }}" onclick="run_sequence('{{ sequence }}')">Run</button>
+                <button class="firework_button" id="delete_{{ sequence }}" onclick="delete_sequence('{{ sequence }}')">Delete</button>
+            </h1><br/>
         </div>
-        <div id="error" class="error_msg">
-            <p id="error_text"></p>
-        </div>
-        <div class="sequencelist">
-            {% for sequence in sequences %}
-                <div id="sequence_{{ sequence }}">
-                    <h1 id="h1sequence_{{ sequence }}">{{ sequence }} 
-                        <button class="firework_button" id="run_{{ sequence }}" onclick="run_sequence('{{ sequence }}')">Run</button>
-                        <button class="firework_button" id="delete_{{ sequence }}" onclick="delete_sequence('{{ sequence }}')">Delete</button>
-                    </h1><br/>
-                </div>
-            {% endfor %}
-            <a class="firework_button" href="/sequences/add">Add Sequence</a>
-        </div>
-        <script src="/static/js/socketio.js"></script>
-        <script src="/static/js/sequences.js"></script>
-    </body>
-</html>
+    {% endfor %}
+    <a class="firework_button" href="/sequences/add">Add Sequence</a>
+</div>
+<script src="/static/js/socketio.js"></script>
+<script src="/static/js/sequences.js"></script>
+{% endblock %}

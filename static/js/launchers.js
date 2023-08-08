@@ -24,12 +24,3 @@ function remove_launcher_confirm(launcher) {
     launcher_element = document.getElementById("launcher_" + launcher);
     launcher_element.remove();
 }
-
-function expand_hamburger () {
-    menu = document.getElementById("hamburgerExpandMenu");
-    if (menu.style.display == "block") {
-        menu.style.display = "none";
-    } else {
-        menu.style.display = "block";
-    }
-}

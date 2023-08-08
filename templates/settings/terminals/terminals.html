@@ -1,29 +1,14 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, user-scalable=no">
-    <link href="/static/css/main.css" rel="stylesheet">
-    <title>{{ name }} - Terminals</title>
-  </head>
-  <body>
-    <ul class="navbar">
-        <li class="navbar-item-li"><a class="navtitle" href="/">{{ name }}</a></li>
-        <li class="navbar-item-li"><a class="navbar-item" href="/settings">Settings</a></li>
-        <li class="navbar-item-li"><a class="navbar-item" href="/sequences">Sequences</a></li>
-        <li class="navbar-item-hamburger"><a class="hamburger-menu" onclick="expand_hamburger()"><img src="/static/svgs/bars.svg" width="20" class="hamburger-menu-svg" alt="Hamburger Menu"/></a></li>
-      </ul>
-      <div id="hamburgerExpandMenu">
-        <a class="navbar-item-expanded" href="/settings">Settings</a>
-        <a class="navbar-item-expanded" href="/sequences">Sequences</a>
-      </div>
-        <div class="settings_content">
-            <h1>Terminals</h1>
-            {% for terminal in terminals %}
-                <h2 id="terminal_{{ terminal }}">Port {{ terminal }}<a class="firework_button" href="/settings/terminals/sessions/{{ terminal }}">Open</a><button id="remove_{{ terminal }}" class="firework_button" onclick="remove_terminal('{{ terminal }}')">Remove</button></h2>
-            {% endfor %}
-            <a class="firework_button" id="add_terminal">Add Terminal</a>
-        </div>
-      <script src="/static/js/socketio.js"></script>
-      <script src="/static/js/terminals.js"></script>
-  </body>
-</html>
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="settings_content">
+    <h1>Terminals</h1>
+    {% for terminal in terminals %}
+        <h2 id="terminal_{{ terminal }}">Port {{ terminal }}<a class="firework_button" href="/settings/terminals/sessions/{{ terminal }}">Open</a><button id="remove_{{ terminal }}" class="firework_button" onclick="remove_terminal('{{ terminal }}')">Remove</button></h2>
+    {% endfor %}
+    <a class="firework_button" id="add_terminal">Add Terminal</a>
+</div>
+<script src="/static/js/socketio.js"></script>
+<script src="/static/js/terminals.js"></script>
+
+{% endblock %}

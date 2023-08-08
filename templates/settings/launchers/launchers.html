@@ -1,33 +1,18 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, user-scalable=no">
-    <link href="/static/css/main.css" rel="stylesheet">
-    <title>{{ name }} - Launchers</title>
-  </head>
-  <body>
-    <ul class="navbar">
-        <li class="navbar-item-li"><a class="navtitle" href="/">{{ name }}</a></li>
-        <li class="navbar-item-li"><a class="navbar-item" href="/settings">Settings</a></li>
-        <li class="navbar-item-li"><a class="navbar-item" href="/sequences">Sequences</a></li>
-        <li class="navbar-item-hamburger"><a class="hamburger-menu" onclick="expand_hamburger()"><img src="/static/svgs/bars.svg" width="20" class="hamburger-menu-svg" alt="Hamburger Menu"/></a></li>
-    </ul>
-    <div id="hamburgerExpandMenu">
-        <a class="navbar-item-expanded" href="/settings">Settings</a>
-        <a class="navbar-item-expanded" href="/sequences">Sequences</a>
-    </div>
-    <div class="settings_content">
-        <h1>Launchers</h1>
-        {% for launcher in launchers %}
-            <h2 id="launcher_{{ launchers[launcher] }}">{{ launcher }} ({{ launchers[launcher] }}) 
-              <button id="remove_{{ launchers[launcher] }}" class="firework_button" onclick="remove_launcher('{{ launchers[launcher] }}')">Remove</button>
-              <button id="addonstart_{{ launchers[launcher] }}" class="firework_button {% if launchers[launcher] in add_on_start %}addonstart_on{% else %}addonstart_off{% endif %}" onclick="launcher_addonstart('{{ launchers[launcher] }}')">Add on start</button>
-              <a class="firework_button" href="/settings/launchers/edit_fp/start{{ urlencode(launchers[launcher], safe='') }}">Edit Profiles</a>
-            </h2>
-        {% endfor %}
-        <a class="firework_button" href="/settings/launchers/add">Add Launcher</a>
-    </div>
-    <script src="/static/js/socketio.js"></script>
-    <script src="/static/js/launchers.js"></script>
-  </body>
-</html>
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="settings_content">
+  <h1>Launchers</h1>
+  {% for launcher in launchers %}
+    <h2 id="launcher_{{ launchers[launcher] }}">{{ launcher }} ({{ launchers[launcher] }}) 
+      <button id="remove_{{ launchers[launcher] }}" class="firework_button" onclick="remove_launcher('{{ launchers[launcher] }}')">Remove</button>
+      <button id="addonstart_{{ launchers[launcher] }}" class="firework_button {% if launchers[launcher] in add_on_start %}addonstart_on{% else %}addonstart_off{% endif %}" onclick="launcher_addonstart('{{ launchers[launcher] }}')">Add on start</button>
+      <a class="firework_button" href="/settings/launchers/edit_fp/start{{ urlencode(launchers[launcher], safe='') }}">Edit Profiles</a>
+    </h2>
+  {% endfor %}
+  <a class="firework_button" href="/settings/launchers/add">Add Launcher</a>
+</div>
+<script src="/static/js/socketio.js"></script>
+<script src="/static/js/launchers.js"></script>
+
+{% endblock %}

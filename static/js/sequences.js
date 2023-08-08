@@ -44,15 +44,6 @@ function stop_sequence(sequence) {
     socket.emit("stop_sequence", sequence);
 }
 
-function expand_hamburger () {
-    menu = document.getElementById("hamburgerExpandMenu");
-    if (menu.style.display == "block") {
-        menu.style.display = "none";
-    } else {
-        menu.style.display = "block";
-    }
-}
-
 async function check_sequence(sequence) {
     request = await fetch(window.origin + "/sequence_status/" + sequence);
     data = await request.json();

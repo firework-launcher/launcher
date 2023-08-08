@@ -2,15 +2,6 @@ var profiles = root["firework_profiles"][launcher];
 
 socket = io();
 
-function expand_hamburger () {
-    menu = document.getElementById("hamburgerExpandMenu");
-    if (menu.style.display == "block") {
-        menu.style.display = "none";
-    } else {
-        menu.style.display = "block";
-    }
-}
-
 function remove_profile(profile) {
     profile_button = document.getElementById("remove_" + profile);
     profile_button.setAttribute("class", "sequence_delete_confirm");

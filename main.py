@@ -157,7 +157,7 @@ def terminals_():
     Path for managing terminals.
     """
 
-    return render_template('settings/terminals/terminals.html', terminals=terminals.open_terminal_processes, name=config.config['branding']['name'])
+    return render_template('settings/terminals/terminals.html', terminals=terminals.open_terminal_processes, name=config.config['branding']['name'], page='Terminals')
 
 @app.route('/settings/terminals/add/<string:small_screen>')
 def add_terminal(small_screen):
@@ -190,7 +190,7 @@ def terminal_client(port):
     if not port in terminals.open_terminal_processes:
         abort(404)
     
-    return render_template('settings/terminals/client.html', url='http://' + socket.gethostbyname(socket.gethostname()) + ':' + port + '/s/local/.', name=config.config['branding']['name'])
+    return render_template('settings/terminals/client.html', url='http://' + socket.gethostbyname(socket.gethostname()) + ':' + port + '/s/local/.', name=config.config['branding']['name'], page='Terminal')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -226,7 +226,7 @@ def add_launcher():
         try:
             launcher_io.launcher_types[form['type']](launcher_io, form['launcher_name'], form['port'], int(form['count']))
         except launcher_mgmt.LauncherNotFound:
-            return render_template('settings/launchers/add.html', error=True, name=config.config['branding']['name'])
+            return render_template('settings/launchers/add.html', error=True, name=config.config['branding']['name'], page='Add Launcher')
 
         fireworks_launched[form['port']] = []
         if not form['port'] in config.config['firework_profiles']:
@@ -245,7 +245,7 @@ def add_launcher():
         threading.Thread(target=firework_serial_write, args=[form['port']]).start()
         return redirect('/')
     else:
-        return render_template('settings/launchers/add.html', error=False, type_metadata=launcher_io.launcher_type_metadata, name=config.config['branding']['name'])
+        return render_template('settings/launchers/add.html', error=False, type_metadata=launcher_io.launcher_type_metadata, name=config.config['branding']['name'], page='Add Launcher')
 
 @app.route('/settings/launchers')
 def launcher_settings():
@@ -253,7 +253,7 @@ def launcher_settings():
     Path for adding and removing launchers.
     """
 
-    return render_template('settings/launchers/launchers.html', launchers=launcher_io.get_ports(), add_on_start=config.config['launchers'], urlencode=urllib.parse.quote, name=config.config['branding']['name'])
+    return render_template('settings/launchers/launchers.html', launchers=launcher_io.get_ports(), add_on_start=config.config['launchers'], urlencode=urllib.parse.quote, name=config.config['branding']['name'], page='Launchers')
 
 @app.route('/settings/launchers/edit_fp/<path:launcher>')
 def launcher_edit_fp(launcher):
@@ -265,7 +265,8 @@ def launcher_edit_fp(launcher):
         profiles=config.config['firework_profiles'][launcher],
         launcher_port=launcher,
         launcher=launcher_io.launchers[launcher].name,
-        name=config.config['branding']['name']
+        name=config.config['branding']['name'],
+        page='Edit Profiles'
     )
 
 @socketio.on('update_fp')
@@ -355,7 +356,7 @@ def sequences_():
     sequences
     """
 
-    return render_template('sequences/sequences.html', sequences=config.config['sequences'], name=config.config['branding']['name'])
+    return render_template('sequences/sequences.html', sequences=config.config['sequences'], name=config.config['branding']['name'], page='Sequences')
 
 @app.route('/sequences/add', methods=['GET', 'POST'])
 def add_sequence():
@@ -380,7 +381,7 @@ def add_sequence():
     if launchers == {}:
         return redirect('/settings/launchers/add')
 
-    return render_template('sequences/add.html', launcher_counts=json.dumps(launcher_counts), launchers=launchers, firework_profiles=json.dumps(config.config['firework_profiles']), notes=json.dumps(config.config['notes']), name=config.config['branding']['name'])
+    return render_template('sequences/add.html', launchers=launchers, name=config.config['branding']['name'], page='Add Sequence')
 
 def secure_filename(filename):
     """
@@ -404,7 +405,7 @@ def settings():
     Settings menu path
     """
 
-    return render_template('settings/settings.html', name=config.config['branding']['name'])
+    return render_template('settings/settings.html', name=config.config['branding']['name'], page='Settings')
 
 @app.route('/settings/update', methods=['POST'])
 def settings_update():
@@ -418,7 +419,7 @@ def settings_update():
     update_file.save(filename)
     global update_filename
     update_filename = filename
-    return render_template('settings/update/wait_for_update.html', name=config.config['branding']['name'])
+    return render_template('settings/update/wait_for_update.html', name=config.config['branding']['name'], page='Updating')
 
 @app.route('/update_ready')
 def update_ready():

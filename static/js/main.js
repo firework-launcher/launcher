@@ -139,15 +139,6 @@ function add_btns(rows, launcher) {
     }
 }
 
-function expand_hamburger () {
-    menu = document.getElementById("hamburgerExpandMenu");
-    if (menu.style.display == "block") {
-        menu.style.display = "none";
-    } else {
-        menu.style.display = "block";
-    }
-}
-
 function add_legend() {
     legend_div = document.getElementById("legend");
     fp_length = Object.keys(firework_profiles[launchers[0]]).length;;

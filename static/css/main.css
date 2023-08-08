@@ -1,7 +1,21 @@
 :root {
     --fg: #ffffff;
     --bg: #303030;
+    --hamburger-menu-bg: #202020;
+
     --font: Arial, Helvetica, sans-serif;
+
+    --navbar-color: #fc5050;
+    --navbar-title-color: #fc2020;
+
+    --default-button-color: #177bed;
+    --red-button-color: #ff2667;
+    --yellow-button-color: #cde03c;
+    --green-button-color: #50c760;
+
+    --error-color: red;
+    --error-color-secondary: #a8100d;
+
 }
 
 body {
@@ -50,13 +64,13 @@ h5 {
 
 .firework_button {
     border: none;
-    color: white;
+    color: var(--fg);
     padding: 15px 27px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     font-size: 16px;
-    background-color: #177bed;
+    background-color: var(--default-button-color);
     border-radius: 5px;
     margin: 10px;
     font-family: var(--font);
@@ -84,12 +98,12 @@ h5 {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background-color: #fc5050;
+    background-color: var(--navbar-color);
 }
 
 .navbar-item {
     display: block;
-    color: white;
+    color: var(--fg);
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
@@ -98,7 +112,7 @@ h5 {
 
 .hamburger-menu {
     display: none;
-    color: white;
+    color: var(--fg);
     text-align: right;
     padding: 14px 16px;
     text-decoration: none;
@@ -106,10 +120,10 @@ h5 {
 }
 
 .navtitle {
-    background-color: #fc2020;
+    background-color: var(--navbar-title-color);
     margin: 0;
     display: block;
-    color: white;
+    color: var(--fg);
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
@@ -118,12 +132,12 @@ h5 {
 
 #hamburgerExpandMenu {
     display: none;
-    background-color: #202020;
+    background-color: var(--hamburger-menu-bg);
 }
 
 .navbar-item-expanded {
     display: block;
-    color: white;
+    color: var(--fg);
     padding: 10px 16px;
     text-decoration: none;
     font-family: var(--font);
@@ -141,17 +155,13 @@ h5 {
     float: right
 }
 
-.navbar-item :hover {
-    background-color: #ce1e1e;
-}
-
 .current_theme {
     margin: 0;
     padding: 10px;
 }
 
 .error {
-    color: red;
+    color: var(--error-color);
     text-align: center;
 }
 
@@ -165,13 +175,13 @@ h5 {
     margin: 10px;
     font-family: var(--font);
     background-color: rgba(0, 0, 0, 0);
-    color: #177bed;
-    border: 2px solid #177bed;
+    color: var(--default-button-color);
+    border: 2px solid var(--default-button-color);
 }
 
 .resetbutton {
-    border: 2px solid #ff2667;
-    color: #ff2667;
+    border: 2px solid var(--red-button-color);
+    color: var(--red-button-color);
     padding: 15px 27px;
     text-align: center;
     text-decoration: none;
@@ -188,8 +198,8 @@ h5 {
 
 .firework_button {
     background-color: rgba(0, 0, 0, 0);
-    color: #177bed;
-    border: 2px solid #177bed;
+    color: var(--default-button-color);
+    border: 2px solid var(--default-button-color);
 }
 
 .sequence_delete_confirm {
@@ -203,8 +213,8 @@ h5 {
     font-family: var(--font);
     transition: opacity 0.5s;
     background-color: rgba(0, 0, 0, 0);
-    color: #ff2667;
-    border: 2px solid #ff2667;
+    color: var(--red-button-color);
+    border: 2px solid var(--red-button-color);
 }
 
 .yellow-fb {
@@ -218,8 +228,8 @@ h5 {
     font-family: var(--font);
     transition: opacity 0.5s;
     background-color: rgba(0, 0, 0, 0);
-    color: #cde03c;
-    border: 2px solid #cde03c;
+    color: var(--yellow-button-color);
+    border: 2px solid var(--yellow-button-color);
 }
 
 .sequencelist {
@@ -232,7 +242,7 @@ h5 {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: #303030;
+    background-color: var(--bg);
     border: 3px black solid;
     width: 50%;
     height: 40%;
@@ -264,7 +274,7 @@ h5 {
 .error_msg {
     display: none;
     width: 100%;
-    background-color: #a8100d;
+    background-color: var(--error-color-secondary);
     text-align: center;
     padding: 8px;
 }
@@ -300,8 +310,8 @@ h5 {
     font-family: var(--font);
     transition: opacity 0.5s;
     background-color: rgba(0, 0, 0, 0);
-    color: #50c760;
-    border: 2px solid #50c760;
+    color: var(--green-button-color);
+    border: 2px solid var(--green-button-color);
 }
 
 .addonstart_off {
@@ -315,8 +325,8 @@ h5 {
     font-family: var(--font);
     transition: opacity 0.5s;
     background-color: rgba(0, 0, 0, 0);
-    color: #ff2667;
-    border: 2px solid #ff2667;
+    color: var(--red-button-color);
+    border: 2px solid var(--red-button-color);
 }
 
 .disarmed {

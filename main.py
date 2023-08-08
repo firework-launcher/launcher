@@ -32,6 +32,9 @@ config.load_file('launchers.json')
 config.load_file('notes.json')
 config.load_file('branding.json', placeholder_data={'name': 'Firework Launcher'})
 
+if not os.path.exists('config/branding.css'):
+    open('config/branding.css', 'x').close()
+
 update_filename = None
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.DEBUG)
@@ -80,6 +83,17 @@ def launcher_json_data():
         root['launcher_data']['armed'][launcher] = launcher_io.launchers[launcher].armed
     
     return jsonify(root)
+
+@app.route('/branding.css')
+def branding_css():
+    if not os.path.exists('config/branding.css'):
+        open('config/branding.css', 'x').close()
+    f = open('config/branding.css')
+    css = f.read()
+    f.close()
+    resp = make_response(css)
+    resp.headers['Content-Type'] = 'text/css'
+    return resp
 
 def get_lfa_firework_launched(firework_count):
     """

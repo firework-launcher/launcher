@@ -23,6 +23,7 @@ class Launcher:
         self.port = port
         self.type = 'serial'
         self.count = count
+        self.channels_connected = None
         self.armed = False
         self.sequences_supported = True
 

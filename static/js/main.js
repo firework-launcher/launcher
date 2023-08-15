@@ -3,6 +3,7 @@ var firework_profiles = root["firework_profiles"];
 var launcher_names = root["launcher_data"]["names"];
 var launcher_counts = root["launcher_data"]["counts"];
 var launchers_armed = root["launcher_data"]["armed"];
+var launcher_channels_connected = root["launcher_data"]["channels_connected"];
 var launchers = root["launchers"];
 var notes = root["notes"];
 var sequences = root["sequences"];
@@ -10,6 +11,61 @@ var sequences = root["sequences"];
 const socket = io();
 
 managing_notes = false;
+devmode = false;
+
+function update_channels_connected() {
+    if (!(managing_notes) && !(devmode)) {
+        for (i = 0; i < Object.keys(launcher_channels_connected).length; i++) {
+            launcher = Object.keys(launcher_channels_connected)[i];
+
+            firework_buttons = document.getElementById("firework_buttons_" + launcher);
+            x = 1;
+            for(var button=firework_buttons.firstChild; button!==null; button=button.nextSibling) {
+                if (launcher_channels_connected[launcher].includes(x)) {
+                    button.classList.remove("disconnected");
+                } else {
+                    if (!(button.classList.contains("disconnected"))) {
+                        button.classList.add("disconnected");
+                    }
+                }
+                x += 1
+            }
+        }
+    }
+}
+
+function check_all_armed() {
+    if (lfa) {
+        all_armed = launchers_armed["LFA"];
+    } else {
+        all_armed = false;
+        for (i = 0; i < launchers.length; i++) {
+            if (launchers_armed[launchers[i]]) {
+                all_armed = true;
+            }
+        }
+    }
+
+    if (all_armed) {
+        arm_all_button = document.getElementById("armbutton");
+        arm_all_button.setAttribute("style", "display: none");
+        arm_all_button = document.getElementById("armbutton_");
+        arm_all_button.setAttribute("style", "display: none");
+        disarm_all_button = document.getElementById("disarmbutton");
+        disarm_all_button.setAttribute("style", "");
+        disarm_all_button = document.getElementById("disarmbutton_");
+        disarm_all_button.setAttribute("style", "");
+    } else {
+        arm_all_button = document.getElementById("armbutton");
+        arm_all_button.setAttribute("style", "");
+        arm_all_button = document.getElementById("armbutton_");
+        arm_all_button.setAttribute("style", "");
+        disarm_all_button = document.getElementById("disarmbutton");
+        disarm_all_button.setAttribute("style", "display: none");
+        disarm_all_button = document.getElementById("disarmbutton_");
+        disarm_all_button.setAttribute("style", "display: none");
+    }
+}
 
 socket.on("disconnect", () => {
     console.log("Lost Connection");
@@ -62,7 +118,10 @@ socket.on('running_sequence', (sequence) => {
 });
 
 socket.on('arm', (launcher) => {
-    if (launchers.includes(launcher)) {
+    if (launchers.includes(launcher) || lfa) {
+        if (lfa) {
+            launcher = "LFA";
+        }
         armbutton = document.getElementById("armbutton_" + launcher);
         disarmbutton = document.getElementById("disarmbutton_" + launcher);
         armbutton.setAttribute("style", "display: none");
@@ -73,6 +132,7 @@ socket.on('arm', (launcher) => {
             button.classList.remove("disarmed");
         }
     }
+    check_all_armed();
 });
 
 socket.on('disarm', (launcher) => {
@@ -89,7 +149,13 @@ socket.on('disarm', (launcher) => {
             }
         }
     }
+    check_all_armed();
 });
+
+socket.on('update_channels_connected', (channels_connected) => {
+    launcher_channels_connected = channels_connected
+    update_channels_connected();
+})
 
 function get_profile_id(launcher, btn_id) {
     profile = null;
@@ -208,6 +274,14 @@ function set_btn_blue(launcher, btn_id) {
     }
 }
 
+function arm_all() {
+    socket.emit("arm_all");
+}
+
+function disarm_all() {
+    socket.emit("disarm_all");
+}
+
 function dev() {
     devbutton = document.getElementById("devbutton")
     devbutton.innerText = "Save";
@@ -225,10 +299,12 @@ function dev() {
     notes_button_2 = document.getElementById("notesbutton_");
     notes_button.setAttribute("onclick", "");
     notes_button_2.setAttribute("onclick", "");
+    devmode = true;
     for (let index = 0; index < launchers.length; ++index) {
         for (let i = 1; i < launcher_counts[launchers[index]]+1; i++) {
             button = document.getElementById("fb_" + launchers[index] + "_" + i);
             if (button != null) {
+                button.classList.remove("disconnected")
                 button.removeAttribute("onclick");
                 button_js_onclick = document.createAttribute("onclick");
                 button_js_onclick.value = "change_profile('" + launchers[index] + "', " + i + ");";
@@ -261,12 +337,16 @@ function save_fp() {
         for (let i = 1; i < launcher_counts[launchers[launcher]]+1; i++) {
             button = document.getElementById("fb_" + launchers[launcher] + "_" + i);
             if (button != null) {
-                button.setAttribute("onclick", "trigger_firework(" + i + ", '" + launchers[launcher] + "');");
+                if (!(button.classList.contains("disconnected"))) {
+                    button.setAttribute("onclick", "trigger_firework(" + i + ", '" + launchers[launcher] + "');");
+                }
             } else {
                 console.warn("Tried to change non-existant button, fb_" + launchers[launcher] + "_" + i)
             }
         }
     }
+    devmode = false;
+    update_channels_connected();
 }
 
 function removeItem(array, item) {
@@ -375,6 +455,7 @@ function arm(launcher) {
 
 function disarm(launcher) {
     socket.emit("disarm", launcher);
+    
 }
 
 function manage_notes() {
@@ -399,6 +480,7 @@ function manage_notes() {
                 }
             }
         }
+        update_channels_connected();
     } else {
         notes_button.innerText = "Finish";
         notes_button_2.innerText = "Finish";
@@ -410,6 +492,7 @@ function manage_notes() {
             for (let i = 1; i < launcher_counts[launchers[launcher]]+1; i++) {
                 button = document.getElementById("fb_" + launchers[launcher] + "_" + i);
                 if (button != null) {
+                    button.classList.remove("disconnected");
                     button.setAttribute("onclick", "set_note(" + i + ", '" + launchers[launcher] + "');");
                 } else {
                     console.warn("Tried to change non-existant button, fb_" + launchers[launcher] + "_" + i)
@@ -424,6 +507,7 @@ for (let index = 0; index < launchers.length; ++index) {
 }
 
 add_legend();
+update_channels_connected();
 
 Object.entries(fireworks_launched).forEach(([launcher,launched]) => {
     for (let index = 0; index < launched.length; ++index) {

@@ -23,6 +23,7 @@ class Launcher:
         self.type = 'shiftregister'
         self.count = count
         self.sequences_supported = True
+        self.channels_connected = None
         self.armed = False
 
         self.launcher_io.add_launcher(self)

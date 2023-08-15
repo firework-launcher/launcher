@@ -7,10 +7,11 @@ class LauncherNotFound(Exception):
     pass
 
 class LauncherIOMGMT:
-    def __init__(self, logging):
+    def __init__(self, app, logging):
         self.logging = logging
         self.launchers = {}
         self.running_sequence_data = {}
+        self.app = app
         self.load_launcher_types()
 
     def load_launcher_types(self):

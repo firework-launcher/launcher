@@ -21,6 +21,7 @@ class Launcher:
         self.type = 'ip'
         self.count = count
         self.armed = False
+        self.channels_connected = None
         self.sequences_supported = True
         try:
             self.obj.connect((ip, 2364))

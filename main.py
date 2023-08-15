@@ -39,7 +39,7 @@ update_filename = None
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 
-launcher_io = launcher_mgmt.LauncherIOMGMT(logging)
+launcher_io = launcher_mgmt.LauncherIOMGMT(app, logging)
 
 @app.route('/')
 def home():
@@ -54,6 +54,7 @@ def home():
     return render_template('home.html', 
         launchers=launcher_io.get_ports(),
         launchers_armed=launchers_armed,
+        lfa_armed=check_lfa_armed(),
         lfa=False,
         name=config.config['branding']['name']
     )
@@ -69,18 +70,21 @@ def launcher_json_data():
         'firework_profiles': config.config['firework_profiles'],
         'launchers': launcher_ports,
         'notes': config.config['notes'],
-        'sequences': config.config['sequences']
+        'sequences': config.config['sequences'],
     }
 
     root['launcher_data'] = {
         'counts': {},
         'names': {},
-        'armed': {}
+        'armed': {},
+        'channels_connected': {}
     }
     for launcher in launcher_io.launchers:
         root['launcher_data']['counts'][launcher] = launcher_io.launchers[launcher].count
         root['launcher_data']['names'][launcher] = launcher_io.launchers[launcher].name
         root['launcher_data']['armed'][launcher] = launcher_io.launchers[launcher].armed
+        if not launcher_io.launchers[launcher].channels_connected == None:
+            root['launcher_data']['channels_connected'][launcher] = launcher_io.launchers[launcher].channels_connected
     
     return jsonify(root)
 
@@ -138,6 +142,7 @@ def lfa():
     return render_template('home.html', 
         launchers={'Launch For All': 'LFA'},
         launchers_armed={'LFA': check_lfa_armed()},
+        lfa_armed=check_lfa_armed(),
         lfa=True,
         name=config.config['branding']['name']
     )
@@ -160,10 +165,20 @@ def lfa_launcher_json_data():
     root['launcher_data'] = {
         'counts': {'LFA': firework_count},
         'names': {'LFA': 'Launch For All'},
-        'armed': {'LFA': lfa_armed}
+        'armed': {'LFA': lfa_armed},
+        'channels_connected': {}
     }
     
     return jsonify(root)
+
+@app.route('/update_connected_channels')
+def update_connected_channels():
+    connected_channels = {}
+    for launcher in launcher_io.launchers:
+        if not launcher_io.launchers[launcher].channels_connected == None:
+            connected_channels[launcher] = launcher_io.launchers[launcher].channels_connected
+    socketio.emit('update_channels_connected', connected_channels)
+    return 'OK'
 
 @app.route('/settings/terminals')
 def terminals_():
@@ -335,6 +350,12 @@ def disarm(launcher):
     else:
         launcher_io.launchers[launcher].disarm()
         socketio.emit('disarm', launcher)
+        all_disarmed = True
+        for launcher in launcher_io.launchers:
+            if launcher_io.launchers[launcher].armed:
+                all_disarmed = False
+        if all_disarmed:
+            socketio.emit('disarm', 'LFA')
 
 @socketio.on('remove_launcher')
 def remove_launcher(launcher):
@@ -550,18 +571,20 @@ def beforerequest():
     redirects anyone not logged in to the login page
     if they are on a private network.
     """
-    if not request.remote_addr.startswith('192.168.') and not request.remote_addr.startswith('172.16.') and not request.remote_addr.startswith('10.'):
-        return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
-    else:
-        if not request.path.startswith('/static') and not request.path == '/login':
-            if 'token' in request.cookies:
-                if auth.verify_token(request.remote_addr, request.cookies['token']) == False:
-                    return redirect('/login')
-            else:
-                return redirect('/login')
 
-            if launcher_io.launchers == {} and not request.path.startswith('/settings'):
-                return redirect('/settings/launchers/add')
+    if not request.path == '/update_connected_channels':
+        if not request.remote_addr.startswith('192.168.') and not request.remote_addr.startswith('172.16.') and not request.remote_addr.startswith('10.'):
+            return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
+        else:
+            if not request.path.startswith('/static') and not request.path == '/login':
+                if 'token' in request.cookies:
+                    if auth.verify_token(request.remote_addr, request.cookies['token']) == False:
+                        return redirect('/login')
+                else:
+                    return redirect('/login')
+
+                if launcher_io.launchers == {} and not request.path.startswith('/settings'):
+                    return redirect('/settings/launchers/add')
 
 def firework_serial_write(launcher):
     """
@@ -626,7 +649,7 @@ def reset_launcher(launcher):
     """
     This resets a launcher.
     """
-    
+
     global fireworks_launched
     fireworks_launched[launcher] = []
     reset_queue()
@@ -653,6 +676,26 @@ def reset_all():
     for launcher in fireworks_launched:
         reset_launcher(launcher)
     socketio.emit('reset_all')
+
+@socketio.on('arm_all')
+def arm_all():
+    """
+    Arms all launchers.
+    """
+    
+    for launcher in launcher_io.launchers:
+        arm(launcher)
+    arm('LFA')
+    
+@socketio.on('disarm_all')
+def disarm_all():
+    """
+    Disarms all launchers.
+    """
+    
+    for launcher in launcher_io.launchers:
+        disarm(launcher)
+    disarm('LFA')
 
 if __name__ == '__main__':
     for launcher in config.config['launchers']:

@@ -333,6 +333,10 @@ h5 {
     opacity: 0.5;
 }
 
+.disconnected {
+    opacity: 0;
+}
+
 @media screen and (max-width: 720px) {
     .navbar-item {
         display: none;

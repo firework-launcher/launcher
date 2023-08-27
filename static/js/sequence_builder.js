@@ -5,14 +5,16 @@ notes = root["notes"];
 btn_div = document.getElementById("btns");
 
 
-clicked_btns = [];
+clicked_btns = {};
 sequence_data = {};
 
 current_step = 1
 
 document.getElementById("launcher_select").addEventListener("change", function() {
+    if (!(Object.keys(clicked_btns).includes(document.getElementById("launcher_select").value))) {
+        clicked_btns[document.getElementById("launcher_select").value] = [];
+    }
     reload_buttons();
-    clicked_btns = []
 });
 
 function find_fp(firework, launcher) {
@@ -35,7 +37,11 @@ function reload_buttons() {
         button.setAttribute("onclick", "buttonClick(" + i + ")");
         button.setAttribute("class", "firework_button");
         color = find_fp(i, launcher)["color"];
-        button.setAttribute("style", "color: " + color + "; border-color: " + color + ";");
+        if (clicked_btns[launcher].includes(i)) {
+            button.classList.add("yellow-fb");
+        } else {
+            button.setAttribute("style", "color: " + color + "; border-color: " + color + ";");
+        }
         button.innerText = "#" + i;
         if (notes[launcher] != null) {
             if (notes[launcher][i.toString()] != null) {
@@ -51,19 +57,19 @@ function fadeOut(element) {
 }
 
 function buttonClick(btn) {
-    if (clicked_btns.includes(btn)) {
-        launcher = document.getElementById("launcher_select").value;
+    launcher = document.getElementById("launcher_select").value;
+    if (clicked_btns[launcher].includes(btn)) {
         button = document.getElementById("btn_" + btn);
         button.setAttribute("class", "firework_button");
         color = find_fp(btn, launcher)["color"];
         button.setAttribute("style", "color: " + color + "; border-color: " + color + ";");
-        index = clicked_btns.indexOf(btn);
-        clicked_btns.splice(index, 1);
+        index = clicked_btns[launcher].indexOf(btn);
+        clicked_btns[launcher].splice(index, 1);
     } else {
         button = document.getElementById("btn_" + btn);
         button.setAttribute("class", "yellow-fb");
         button.setAttribute("style", "");
-        clicked_btns.push(btn);
+        clicked_btns[launcher].push(btn)
     }
 }
 
@@ -93,19 +99,22 @@ function addStep() {
         current_step += 1;
         step_count = document.getElementById("step");
         step_count.innerText = "Step " + current_step;
-        for (let i = 0; i < clicked_btns.length; ++i) {
-            btn = document.getElementById("btn_" + clicked_btns[i]);
+        launcher = document.getElementById("launcher_select").value;
+        for (let i = 0; i < clicked_btns[launcher].length; ++i) {
+            btn = document.getElementById("btn_" + clicked_btns[launcher][i]);
             fadeOut(btn);
             btn.setAttribute("onclick", "");
         }
-        launcher = document.getElementById("launcher_select").value;
+        for (let i = 0; i < Object.keys(clicked_btns); i++) {
+            if (clicked_btns[Object.keys(clicked_btns)[i]] == []) {
+                delete clicked_btns[Object.keys(clicked_btns)[i]];
+            }
+        }
+        
         sequence_data["Step " + (current_step-1)] = {
             "pins": clicked_btns,
             "delay": delay,
-            "launcher": launcher
         };
-
-        clicked_btns = [];
     } else {
         delay_whole_number = document.getElementById("delay_whole_number");
         delay_whole_number.setAttribute("style", "color: red; display: block;");

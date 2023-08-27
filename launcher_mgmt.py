@@ -75,7 +75,8 @@ class LauncherIOMGMT:
                     break
                 self.running_sequence_data[sequence_name]['step'] = step
                 self.running_sequence_data[sequence_name]['next_step_epoch_est'] = int(time.time())+int(sequence_data[step]['delay'])+1
-                self.launchers[sequence_data[step]['launcher']].run_step(sequence_data[step])
+                for launcher in sequence_data[step]['pins']:
+                    self.launchers[launcher].run_step({'pins': sequence_data[step]['pins'][launcher], 'delay': sequence_data[step]['delay']})
             except:
                 print(traceback.format_exc())
                 self.running_sequence_data[sequence_name]['error'] = True

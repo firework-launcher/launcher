@@ -513,7 +513,8 @@ def run_sequence_threaded(sequence):
     sequence_data = config.config['sequences'][sequence]
     pins_changed = []
     for step in sequence_data:
-        pins_changed.append([sequence_data[step]['launcher'], sequence_data[step]['pins']])
+        for launcher in sequence_data[step]['pins']:
+            pins_changed.append([launcher, sequence_data[step]['pins'][launcher]])
     global fireworks_launched
     for pin in pins_changed:
         fireworks_launched[pin[0]] += pin[1]

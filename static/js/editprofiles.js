@@ -50,6 +50,7 @@ function save_editor(profile) {
     }
     profiles[profile]["name"] = document.getElementById("nameinput").value;
     profiles[profile]["color"] = document.getElementById("colorselector").value;
+    profiles[profile]["pwm"] = parseInt(document.getElementById("pwm_slider").value);
     if (profile_existed == false) {
         add_profile_to_list(profile)
     } else {
@@ -68,6 +69,8 @@ function edit_profile(profile) {
     profilename.innerText = profiles[profile]["name"];
     document.getElementById("nameinput").value = profiles[profile]["name"];
     document.getElementById("colorselector").value = profiles[profile]["color"];
+    document.getElementById("pwm_slider").value = profiles[profile]["pwm"];
+    document.getElementById("pwm_slider_percentage").innerText = ((profiles[profile]["pwm"]/7500)*100).toFixed(2) + "%";
     document.getElementById("savebutton").setAttribute("onclick", "save_editor('" + profile + "')")
 }
 
@@ -81,6 +84,7 @@ function add_profile() {
     profilename.innerText = "New profile";
     document.getElementById("nameinput").value = "";
     document.getElementById("colorselector").value = "#000000";
+    document.getElementById("pwm_slider").value = 1875;
     document.getElementById("savebutton").setAttribute("onclick", "save_editor('" + profile + "')")
 }
 
@@ -120,3 +124,7 @@ function remove_profile_confirm(profile) {
         socket.emit("update_fp", {"launcher": launcher, "profiles": profiles});
     }
 }
+
+document.getElementById("pwm_slider").addEventListener("input", (event) => {
+    document.getElementById("pwm_slider_percentage").innerText = ((event.target.value/7500)*100).toFixed(2) + "%";
+});

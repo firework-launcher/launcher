@@ -28,7 +28,7 @@ class Launcher:
         self.channels_connected = []
         self.armed = False
         self.count = count
-        self.sequences_supported = False
+        self.sequences_supported = True
         try:
             self.send_obj.connect((ip, 3333))
             self.recv_obj.connect((ip, 4444))
@@ -38,6 +38,12 @@ class Launcher:
         threading.Thread(target=self.channels_connected_thread).start()
         self.launcher_io.add_launcher(self)
     
+    def find_pwm(self, channel):
+        profiles = self.launcher_io.config.config['firework_profiles'][self.port]
+        for profile in profiles:
+            if channel in profiles[profile]['fireworks']:
+                return profiles[profile]['pwm']
+
     def channels_connected_thread(self):
         while self.cc_thread_running:
             data_full = self.recv_obj.recv(1024).decode('utf-8').split('\r\n')
@@ -79,22 +85,43 @@ class Launcher:
                             x += 1
                         if not channels_connected_new == self.channels_connected:
                             self.channels_connected = channels_connected_new
-                            requests.get('http://localhost/update_connected_channels')
+                            try:
+                                requests.get('http://localhost/update_connected_channels')
+                            except:
+                                pass
         self.recv_obj.close()
     
     def write_to_launcher(self, firework, state):
         """
         Writes to the launcher
         """
+
+        firework -= 1
+
         if self.armed:
             if state == 1:
                 self.send_obj.send(json.dumps({
                     'code': 1,
-                    'payload': [firework-1, 1000]
+                    'payload': [firework, self.find_pwm(firework)]
                 }).encode())
-                self.launcher_io.logging.debug('Triggered firework {} on launcher {}'.format(firework-1, self.port))
+                self.launcher_io.logging.debug('Triggered firework {} on launcher {}'.format(firework, self.port))
             time.sleep(0.5)
     
+    def run_step(self, step):
+        """
+        Creates a dictionary to send to the ESP that has the correct format
+        """
+
+        pin_pwm = []
+        for pin in step['pins']:
+            pin_pwm.append(self.find_pwm(pin))
+
+        data = {'code': 4, 'payload': [step['pins'], pin_pwm]}
+        self.send_obj.send(json.dumps(data).encode())
+        self.launcher_io.logging.debug('Sent step to ESP Node: {} ({})'.format(self.name, self.port))
+        time.sleep(0.5)
+        time.sleep(int(step['delay']))
+
     def arm(self):
         self.send_obj.send(json.dumps({
                     'code': 2,

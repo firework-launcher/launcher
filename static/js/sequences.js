@@ -49,7 +49,7 @@ async function check_sequence(sequence) {
     data = await request.json();
     if (data["error"] != undefined) {
         error_text_element = document.getElementById("error_text");
-        error_text_element.innerText = "sequence \"" + sequence + "\" failed to run. Check logs for more info.";
+        error_text_element.innerText = "Sequence \"" + sequence + "\" failed to run. Check logs for more info.";
         error_element = document.getElementById("error");
         error_element.setAttribute("style", "display: block");
     }

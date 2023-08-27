@@ -18,6 +18,12 @@
   <h1>Profiles</h1>
   <h2 id="profilename"></h2>
   <p>Color: <input type="color" id="colorselector"></p>
+  {% if show_pwm %}
+    <br/>
+    <p>Power to igniter: <span id="pwm_slider_percentage"></span></p><input type="range" min="0" max="7500" id="pwm_slider"><br/><br/>
+  {% else %}
+    <p style="display: none">Power to igniter: <span id="pwm_slider_percentage"></span></p><input style="display: none" type="range" min="0" max="7500" id="pwm_slider">
+  {% endif %}
   <p>Name: <input type="text" id="nameinput"></p>
   <button class="firework_button" id="savebutton">Save</button>
   <button class="firework_button" onclick="exit_editor()">Back</button>

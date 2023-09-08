@@ -419,6 +419,31 @@ def add_sequence():
 
     return render_template('sequences/add.html', launchers=launchers, name=config.config['branding']['name'], page='Add Sequence')
 
+@app.route('/sequences/new_builder', methods=['GET', 'POST'])
+def new_sequence_builder():
+    """
+    Path for the new sequence builder using drawflow.
+    """
+
+    if request.method == 'POST':
+        sequence_name = request.form['sequence_name']
+        sequence_data = json.loads(request.form['sequence_data'])
+        config.config['sequences'][sequence_name] = sequence_data
+        config.save_config()
+        return redirect('/sequences')
+
+    launcher_counts = {}
+    launchers = {}
+    for launcher in launcher_io.launchers:
+        if launcher_io.launchers[launcher].sequences_supported:
+            launchers[launcher] = launcher_io.launchers[launcher].name
+            launcher_counts[launcher] = launcher_io.launchers[launcher].count
+    
+    if launchers == {}:
+        return redirect('/settings/launchers/new_builder')
+
+    return render_template('sequences/new_builder.html', launchers=launchers, name=config.config['branding']['name'], page='New Builder')
+
 def secure_filename(filename):
     """
     Replacement for werkzeug.secure_filename()

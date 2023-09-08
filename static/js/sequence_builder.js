@@ -1,19 +1,27 @@
 launcher_counts = root["launcher_data"]["counts"];
 firework_profiles = root["firework_profiles"];
+launchers = root["launchers"];
 notes = root["notes"];
 
 btn_div = document.getElementById("btns");
 
 
 clicked_btns = {};
+
+function reset_clicked_btns() {
+    for (let i = 0; i < launchers.length; i++) {
+        clicked_btns[launchers[i]] = [];
+    }
+}
+
+reset_clicked_btns()
+
+
 sequence_data = {};
 
 current_step = 1
 
 document.getElementById("launcher_select").addEventListener("change", function() {
-    if (!(Object.keys(clicked_btns).includes(document.getElementById("launcher_select").value))) {
-        clicked_btns[document.getElementById("launcher_select").value] = [];
-    }
     reload_buttons();
 });
 
@@ -41,6 +49,16 @@ function reload_buttons() {
             button.classList.add("yellow-fb");
         } else {
             button.setAttribute("style", "color: " + color + "; border-color: " + color + ";");
+        }
+        show_button = true;
+        for (let i = 0; i < Object.keys(sequence_data); i++) {
+            if (Object.keys(sequence_data[Object.keys(sequence_data)[i]]["pins"]).includes(launcher)) {
+                show_button = false
+            }
+        }
+        if (!(show_button)) {
+            button.setAttribute("style", "display: none");
+            button.setAttribute("onclick", "");
         }
         button.innerText = "#" + i;
         if (notes[launcher] != null) {
@@ -105,16 +123,17 @@ function addStep() {
             fadeOut(btn);
             btn.setAttribute("onclick", "");
         }
-        for (let i = 0; i < Object.keys(clicked_btns); i++) {
-            if (clicked_btns[Object.keys(clicked_btns)[i]] == []) {
-                delete clicked_btns[Object.keys(clicked_btns)[i]];
+        new_clicked_btns = JSON.parse(JSON.stringify(clicked_btns));
+        for (let i = 0; i < Object.keys(new_clicked_btns).length; i++) {
+            if (new_clicked_btns[Object.keys(new_clicked_btns)[i]] == []) {
+                delete new_clicked_btns[Object.keys(new_clicked_btns)[i]];
             }
         }
-        
         sequence_data["Step " + (current_step-1)] = {
-            "pins": clicked_btns,
+            "pins": new_clicked_btns,
             "delay": delay,
         };
+        reset_clicked_btns();
     } else {
         delay_whole_number = document.getElementById("delay_whole_number");
         delay_whole_number.setAttribute("style", "color: red; display: block;");

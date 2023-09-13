@@ -3,20 +3,44 @@
 <link rel="stylesheet" href="/static/css/drawflow.css">
 <link rel="stylesheet" href="/static/css/drawflow2.css">
 <link rel="stylesheet" href="/static/css/drawflow_theme.css">
+<p class="drawflow_error" id="error" style="display: none"></p>
 <div class="content" id="content">
     <div class="drawflow_buttons">
-        <button class="firework_button" onclick="addNodeToDrawFlow('launch')">Launch Firework</button>
-        <button class="firework_button" onclick="addNodeToDrawFlow('delay')">Delay</button>
+        <div class="centered_drawflow">
+            <button class="firework_button" onclick="addNodeToDrawFlow('launch')">Launch Firework</button>
+            <button class="firework_button" onclick="addNodeToDrawFlow('delay')">Delay</button>
+        </div>
+        <div class="right_drawflow">
+            <button class="firework_button" onclick="editSelectedNode()">Edit</button>
+        </div>
     </div>
-    <div class="modal" id="launchmodal">
+    <div class="modal" id="launchmodal" style="z-index: 9999;">
         <div class="inner-modal">
-            <h3>Hello, World!</h3>
+            <h2>Launch Firework</h2>
+            <h3>Firework:</h3>
+            <select id="launchmodal_launcher"></select><br/><br/>
+            <select id="launchmodal_firework"></select><br/><br/>
+            <input type="text" id="launchmodal_nodeId" style="display: none">
         <div class="modal-button">
+            <button class="firework_button" onclick="save_launchmodal()">Save</button>
             <button class="firework_button" onclick="close_modal('launchmodal')">Close</button>
         </div>
         </div>
     </div>
-    <div class="wrapper"><div id="drawflow"></div></div>
+    <div class="modal" id="delaymodal" style="z-index: 9999;">
+        <div class="inner-modal">
+            <h2>Delay</h2>
+            <h3>Time (seconds):</h3>
+            <input type="number" id="delaymodal_delay">
+            <input type="text" id="delaymodal_nodeId" style="display: none">
+        <div class="modal-button">
+            <button class="firework_button" onclick="save_delaymodal()">Save</button>
+            <button class="firework_button" onclick="close_modal('delaymodal')">Close</button>
+        </div>
+        </div>
+    </div>
+    <div class="wrapper" style="border: 2px #202020 solid;"><div id="drawflow"></div></div>
+    <button class="firework_button" onclick="saveSequence()">Save</button>
 </div>
 <script src="/static/js/fetchvars.js"></script>
 <script src="/static/js/drawflow.js"></script>

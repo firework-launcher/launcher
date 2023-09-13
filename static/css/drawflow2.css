@@ -38,7 +38,6 @@ header a {
 
 .wrapper {
   width: 100%;
-  height: calc(100vh - 67px);
   display: flex;
 }
 
@@ -155,9 +154,9 @@ cursor: pointer;
 #drawflow {
   position: relative;
   width: 100vw;
-  height: 100%;
-  top: 40px;
+  height: 100vh;
 }
+
 
 @media only screen and (max-width: 768px) {
   .col {
@@ -293,5 +292,21 @@ cursor: pointer;
 }
 
 .drawflow_buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.centered_drawflow {
+  flex: 1;
+  text-align: center;
+}
+
+.right_drawflow {
+  text-align: right;
+}
+
+.drawflow_error {
   text-align: center;
 }

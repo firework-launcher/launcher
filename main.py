@@ -13,9 +13,12 @@ import argparse
 import logging
 import auth
 import subprocess
+import copy
 import socket
 import random
 import config_mgmt
+import networkx as nx
+from collections import deque
 
 app = Flask(__name__)
 socketio = flask_socketio.SocketIO(app)
@@ -525,6 +528,138 @@ def run_sequence(sequence):
     socketio.emit('running_sequence', sequence)
     sequence_status[sequence] = True
     threading.Thread(target=run_sequence_threaded, args=[sequence]).start()
+
+def parse_drawflow_export(save_data, name):
+    data = {
+        'nodes': [],
+        'connections': [],
+        'name': name
+    }
+    for node in save_data:
+        node = save_data[node]
+        data['nodes'].append({
+            'id': node['id'],
+            'name': node['name'],
+            'data': node['data']
+        })
+        if 'output_1' in node['outputs']:
+            for connection in node['outputs']['output_1']['connections']:
+                data['connections'].append([node['id'], int(connection['node'])])
+    return data
+
+
+def validate_full_path(G, data):
+    """
+    Validates that nodes either have a path to
+    both the start and end nodes, or they have
+    no path.
+    """
+
+    for node in data['nodes']:
+        id = node['id']
+        if node['name'] not in ['start', 'end']:
+            path_to_start = False
+            path_to_end = False
+            try:
+                path_to_start = nx.has_path(G, 1, id)
+            except nx.NodeNotFound:
+                pass
+            try:
+                path_to_end = nx.has_path(G, id, 2)
+            except nx.NodeNotFound:
+                pass
+            if path_to_start != path_to_end:
+                return False
+    return True
+
+
+def find_all_paths(data):
+    G = nx.DiGraph()
+    G.add_nodes_from([node['id'] for node in data['nodes']])
+    G.add_edges_from(data['connections'])
+    start_node = [node["id"] for node in data["nodes"] if node["name"] == "start"][0]
+    end_node = [node["id"] for node in data["nodes"] if node["name"] == "end"][0]
+    all_paths = list(nx.all_simple_paths(G, start_node, end_node))
+    return all_paths
+
+def parse_sequence(data):
+    paths = find_all_paths(data)
+    getNodeFromId = lambda id, data: next((node for node in data['nodes'] if node['id'] == id), None)
+
+    steps = {}
+    delay_times = []
+    for path in paths:
+        current_time = 0
+        for node in path:
+            node_data = getNodeFromId(node, data)
+            if node_data['name'] == 'delay':
+                current_time += node_data['data']['delay']
+            elif node_data['name'] == 'launch':
+                if not str(current_time) in steps:
+                    steps[str(current_time)] = []
+                    delay_times.append(current_time)
+                if not node in steps[str(current_time)]:
+                    steps[str(current_time)].append(node)
+    new_steps = {
+        data['name']: {}
+    }
+    x = 1
+
+    for step in steps:
+        new_steps[data['name']]['Step {}'.format(x)] = {}
+        new_steps[data['name']]['Step {}'.format(x)]['pins'] = {}
+        for node in steps[step]:
+            node_data = getNodeFromId(node, data)
+            if not node_data['data']['launcher'] in new_steps[data['name']]['Step {}'.format(x)]['pins']:
+                new_steps[data['name']]['Step {}'.format(x)]['pins'][node_data['data']['launcher']] = []
+            new_steps[data['name']]['Step {}'.format(x)]['pins'][node_data['data']['launcher']].append(node_data['data']['firework'])
+            if len(delay_times) == x:
+                delay = 1
+            else:
+                delay = delay_times[x]-delay_times[x-1]
+            new_steps[data['name']]['Step {}'.format(x)]['delay'] = delay
+        x += 1
+    return new_steps
+
+@socketio.on('sequencebuilder_save')
+def sequencebuilder_save(save_data):
+    """
+    Interprets drawflow's export data to build
+    the sequence.
+    """
+
+    socketio_id = copy.copy(save_data['socketio_id'])
+    name = copy.copy(save_data['name'])
+    original_save_data = copy.copy(save_data)
+    del original_save_data['socketio_id']
+    del original_save_data['name']
+    save_data = save_data['drawflow']['Home']['data']
+    data = parse_drawflow_export(save_data, name)
+    getNodeFromId = lambda id, data: next((node for node in data['nodes'] if node['id'] == id), None)
+    startNodeId = None
+    endNodeId = None
+    for node in data['nodes']:
+        if node['name'] == 'start':
+            startNodeId = node['id']
+        elif node['name'] == 'end':
+            endNodeId = node['id']
+    G = nx.DiGraph()
+    G.add_edges_from(data['connections'])
+
+    if not validate_full_path(G, data):
+        socketio.emit(socketio_id + '_save', {
+            'success': False,
+            'error': 'Some blocks have an incomplete path from start to end.'
+        })
+        return
+    sequence_data = parse_sequence(data)
+
+    config.config['sequences'][name] = copy.copy(sequence_data[name])
+    config.save_config()
+
+    socketio.emit(socketio_id + '_save', {
+        'success': True
+    })
 
 def run_sequence_threaded(sequence):
     """

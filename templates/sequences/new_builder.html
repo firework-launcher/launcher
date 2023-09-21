@@ -9,6 +9,7 @@
         <div class="centered_drawflow">
             <button class="firework_button" onclick="addNodeToDrawFlow('launch')">Launch Firework</button>
             <button class="firework_button" onclick="addNodeToDrawFlow('delay')">Delay</button>
+            <button class="firework_button" onclick="save_button()">Save</button>
         </div>
         <div class="right_drawflow">
             <button class="firework_button" onclick="editSelectedNode()">Edit</button>
@@ -39,8 +40,18 @@
         </div>
         </div>
     </div>
+    <div class="modal" id="savemodal" style="z-index: 9999;">
+        <div class="inner-modal">
+            <h2>Save</h2>
+            <h3>Name: </h3>
+            <input type="text" id="savemodal_name">
+        <div class="modal-button">
+            <button class="firework_button" onclick="save_savemodal()">Save</button>
+            <button class="firework_button" onclick="close_modal('savemodal')">Close</button>
+        </div>
+        </div>
+    </div>
     <div class="wrapper" style="border: 2px #202020 solid;"><div id="drawflow"></div></div>
-    <button class="firework_button" onclick="saveSequence()">Save</button>
 </div>
 <script src="/static/js/fetchvars.js"></script>
 <script src="/static/js/drawflow.js"></script>

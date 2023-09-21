@@ -7,10 +7,39 @@ editor.editor_mode = 'edit';
 editor.start();
 
 selectedNode = null;
-launchNodes = {};
-delayNodes = {};
 startId = 1;
 endId = 2;
+
+function updateNodeData(id, key, value) {
+    node_data = editor.getNodeFromId(id)["data"];
+    node_data[key] = value;
+    editor.updateNodeDataFromId(id, node_data)
+}
+
+function makeid(length) {
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    let counter = 0;
+    while (counter < length) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      counter += 1;
+    }
+    return result;
+}
+
+socketio_id = makeid(16);
+socket = io()
+
+sequence_name = null;
+
+socket.on(socketio_id + "_save", (data) => {
+    if (data["success"] == true) {
+        console.log("Saved");
+    } else {
+        sequence_error(data["error"]);
+    }
+});
 
 possibleConnections = {
     "start": ["launch"],
@@ -25,9 +54,6 @@ node_prettynames = {
     "delay": "Delay"
 }
 
-nodeList = [];
-connectionList = [];
-
 function sequence_error(msg) {
     errortext = document.getElementById("error")
     errortext.innerText = msg;
@@ -37,19 +63,15 @@ function sequence_error(msg) {
 editor.on('nodeCreated', function(id) {
     console.log("Node created " + id);
     if (editor.getNodeFromId(id)["name"] == "launch") {
-        launchNodes[id.toString()] = {"launcher": launchers[0], "firework": 1, "outConnected": false};
+        editor.updateNodeDataFromId(id, {"launcher": launchers[0], "firework": 1, "outConnected": false});
         document.getElementById("node-" + id).children[1].children[0].children[0].children[0].innerText = launchers[0] + ", 1";
-        nodeList.push({"id": id, "type": "Trigger Firework"});
     } else if (editor.getNodeFromId(id)["name"] == "delay") {
-        delayNodes[id.toString()] = {"delay": 1};
+        editor.updateNodeDataFromId(id, {"delay": 1});
         document.getElementById("node-" + id).children[1].children[0].children[0].children[0].innerText = "1 second(s)";
-        nodeList.push({"id": id, "type": "Delay"});
     } else if (editor.getNodeFromId(id)["name"] == "start") {
         startId = id;
-        nodeList.push({"id": id, "type": "Start of sequence"});
     } else if (editor.getNodeFromId(id)["name"] == "end") {
         endId = id;
-        nodeList.push({"id": id, "type": "End of sequence"});
     }
 });
 
@@ -70,8 +92,6 @@ editor.on('nodeRemoved', function(id) {
         `;
         editor.addNode('end', 1,  0, 50, 150, 'end', {}, end );
     }
-    delete launchNodes[id];
-    delete delayNodes[id];
 });
 
 editor.on('nodeSelected', function(id) {
@@ -97,66 +117,17 @@ function getPossibleConnectionPrettyNames(nodename) {
     return result;
 }
 
-function correctConnections(input) {
-    const nodes = input.nodes;
-    const connections = input.connections;
-    const correctedConnections = [...connections];
-    const lastConnection = connections[connections.length - 1];
-    const fromNode = nodes.find(node => node.id === lastConnection.from);
-    const toNode = nodes.find(node => node.id === lastConnection.to);
-
-    if (fromNode.type === 'Start of sequence' && toNode.type === 'Trigger Firework') {
-        const nextNode = nodes.find(node => connections.some(conn => conn.from === toNode.id && conn.to === node.id));
-        const otherTriggerFireworkNodes = nodes.filter(node => node.type === 'Trigger Firework' && connections.some(conn => conn.from === fromNode.id && conn.to === node.id));
-        
-        for (const node of otherTriggerFireworkNodes) {
-            correctedConnections.push({ from: node.id, to: nextNode.id });
-        }
-    }
-    
-    return { nodes, connections: correctedConnections };
-}
-
-function getLayout() {
-    result = {
-        "nodes": [
-            nodeList
-        ], 
-        "connections": [
-            connectionList
-        ]
-    };
-    return result;
-}
-
-function processLayout(layout) {
-    newConnections = layout["connections"];
-    oldConnectionList = JSON.parse(JSON.stringify(connectionList));
-    for (let i = 0; i < oldConnectionList.length; i++) {
-        connection = oldConnectionList[i];
-        editor.removeSingleConnection(connection["from"], connection["to"], "output_1", "input_1");
-    }
-    for (let i = 0; i < newConnections.length; i++) {
-        connection = newConnections[i];
-        console.log(newConnections, connection)
-
-        editor.addConnection(connection["from"], connection["to"], "output_1",  "input_1");
-    }
-}
-
 editor.on('connectionCreated', function(connection) {
     console.log('Connection created');
-    connectionList.push({"from": connection["output_id"], "to": connection["input_id"]})
-    processLayout(correctConnections(getLayout()))
     fromNode = editor.getNodeFromId(connection["output_id"]);
     error = false;
     if (fromNode["name"] == "launch") {
-        if (launchNodes[fromNode["id"]]["outConnected"] == true) {
+        if (fromNode["data"]["outConnected"] == true) {
             editor.removeSingleConnection(connection["output_id"], connection["input_id"], "output_1", "input_1");
             sequence_error("Launch Firework blocks can only have 1 out connection.");
             error = true;
         }
-        launchNodes[fromNode["id"]]["outConnected"] = true;
+        updateNodeData(connection["output_id"], "outConnected", true);
     }
     if (!(error)) {
         toNode = editor.getNodeFromId(connection["input_id"]);
@@ -169,14 +140,9 @@ editor.on('connectionCreated', function(connection) {
 
 editor.on('connectionRemoved', function(connection) {
     console.log('Connection removed');
-    for (let i = 0; i < connectionList.length; i++) {
-        if (JSON.stringify(connectionList[i]) == JSON.stringify({"from": connection["output_id"], "to": connection["input_id"]})) {
-            delete connectionList[i];
-        }
-    }
     node = editor.getNodeFromId(connection["output_id"])
     if (node["name"] == "launch") {
-        launchNodes[node["id"]]["outConnected"] = false;
+        updateNodeData(node["id"], "outConnected", false);
     }
 })
 
@@ -230,8 +196,8 @@ function save_launchmodal() {
     modal_launcher = document.getElementById("launchmodal_launcher");
     modal_nodeId = document.getElementById("launchmodal_nodeId");
     nodeId = modal_nodeId.value;
-    launchNodes[nodeId]["firework"] = parseInt(modal_firework.value);
-    launchNodes[nodeId]["launcher"] = modal_launcher.value;
+    updateNodeData(nodeId, "firework", parseInt(modal_firework.value));
+    updateNodeData(nodeId, "launcher", modal_launcher.value);
     close_modal("launchmodal");
     document.getElementById("node-" + nodeId).children[1].children[0].children[0].children[0].innerText = modal_launcher.value + ", " + modal_firework.value;
 }
@@ -240,7 +206,7 @@ function save_delaymodal() {
     modal_delay = document.getElementById("delaymodal_delay");
     modal_nodeId = document.getElementById("delaymodal_nodeId");
     nodeId = modal_nodeId.value;
-    delayNodes[nodeId] = {"delay": parseInt(modal_delay.value)};
+    editor.updateNodeDataFromId(nodeId, {"delay": parseInt(modal_delay.value)});
     close_modal("delaymodal");
     document.getElementById("node-" + nodeId).children[1].children[0].children[0].children[0].innerText = modal_delay.value + " second(s)";
 }
@@ -251,6 +217,19 @@ function close_modal(modal) {
     editor.editor_mode = "edit";
 }
 
+function updateAllText() {
+    launch_nodes = editor.getNodesFromName("launch");
+    delay_nodes = editor.getNodesFromName("delay")
+    for (let i = 0; i < launch_nodes.length; i++) {
+        node_data = editor.getNodeFromId(launch_nodes[i])["data"]
+        document.getElementById("node-" + launch_nodes[i]).children[1].children[0].children[0].children[0].innerText = node_data["launcher"] + ", " + node_data["firework"];
+    }
+    for (let i = 0; i < delay_nodes.length; i++) {
+        node_data = editor.getNodeFromId(delay_nodes[i])["data"]
+        document.getElementById("node-" + delay_nodes[i]).children[1].children[0].children[0].children[0].innerText = node_data["delay"] + " second(s)";
+    }
+}
+
 function openmodal(modal, nodeId) {
     if (modal == "launchmodal") {
         modal_launcher = document.getElementById("launchmodal_launcher");
@@ -259,24 +238,32 @@ function openmodal(modal, nodeId) {
         for (let i = 0; i < launchers.length; i++) {
             modal_launcher.innerHTML += '<option value="' + launchers[i] + '">' + launchers[i] + '</option>'
         }
-        for (let i = 1; i < launcher_counts[launchNodes[nodeId]["launcher"]]+1; i++) {
+        for (let i = 1; i < launcher_counts[editor.getNodeFromId(nodeId)["data"]["launcher"]]+1; i++) {
             modal_firework.innerHTML += '<option value="' + i + '">' + i + '</option>'
         }
         
-        modal_firework.value = launchNodes[nodeId]["firework"];
-        modal_launcher.value = launchNodes[nodeId]["launcher"];
+        modal_firework.value = editor.getNodeFromId(nodeId)["data"]["firework"];
+        modal_launcher.value = editor.getNodeFromId(nodeId)["data"]["launcher"];
     } else if (modal == "delaymodal") {
         modal_delay = document.getElementById("delaymodal_delay");
-        modal_delay.value = delayNodes[nodeId]["delay"];
+        modal_delay.value = editor.getNodeFromId(nodeId)["data"]["delay"];
     }
-    modal_nodeId = document.getElementById(modal + "_nodeId");
-    modal_nodeId.value = nodeId;
+    if (!(modal == "savemodal")) {
+        modal_nodeId = document.getElementById(modal + "_nodeId");
+        modal_nodeId.value = nodeId;
+    }
     modal = document.getElementById(modal);
     modal.style.display = "block";
     editor.editor_mode = "fixed";
 }
 
-
+function save_button() {
+    if (sequence_name == null) {
+        openmodal("savemodal", null);
+    } else {
+        save(sequence_name);
+    }
+}
 
 function editSelectedNode() {
     if (!(selectedNode == null)) {
@@ -287,6 +274,20 @@ function editSelectedNode() {
             openmodal("delaymodal", selectedNode);
         }
     }
+}
+
+
+function save(name) {
+    save_data = editor.export();
+    save_data["socketio_id"] = socketio_id;
+    save_data["name"] = name
+    socket.emit("sequencebuilder_save", save_data);
+}
+
+function save_savemodal() {
+    sequence_name = document.getElementById("savemodal_name").value;
+    save(sequence_name);
+    close_modal("savemodal");
 }
 
 document.getElementById("launchmodal_launcher").addEventListener("change", function (ev) {

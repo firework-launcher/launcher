@@ -63,7 +63,7 @@ function sequence_error(msg) {
 editor.on('nodeCreated', function(id) {
     console.log("Node created " + id);
     if (editor.getNodeFromId(id)["name"] == "launch") {
-        editor.updateNodeDataFromId(id, {"launcher": launchers[0], "firework": 1, "outConnected": false});
+        editor.updateNodeDataFromId(id, {"launcher": launchers[0], "firework": 1, "outConnected": false, "inConnected": false});
         document.getElementById("node-" + id).children[1].children[0].children[0].children[0].innerText = launchers[0] + ", 1";
     } else if (editor.getNodeFromId(id)["name"] == "delay") {
         editor.updateNodeDataFromId(id, {"delay": 1});
@@ -120,6 +120,7 @@ function getPossibleConnectionPrettyNames(nodename) {
 editor.on('connectionCreated', function(connection) {
     console.log('Connection created');
     fromNode = editor.getNodeFromId(connection["output_id"]);
+    toNode = editor.getNodeFromId(connection["input_id"])
     error = false;
     if (fromNode["name"] == "launch") {
         if (fromNode["data"]["outConnected"] == true) {
@@ -128,6 +129,14 @@ editor.on('connectionCreated', function(connection) {
             error = true;
         }
         updateNodeData(connection["output_id"], "outConnected", true);
+    }
+    if (toNode["name"] == "launch") {
+        if (fromNode["data"]["inConnected"] == true) {
+            editor.removeSingleConnection(connection["output_id"], connection["input_id"], "output_1", "input_1");
+            sequence_error("Launch Firework blocks can only have 1 in connection.");
+            error = true;
+        }
+        updateNodeData(connection["output_id"], "inConnected", true);
     }
     if (!(error)) {
         toNode = editor.getNodeFromId(connection["input_id"]);
@@ -143,6 +152,10 @@ editor.on('connectionRemoved', function(connection) {
     node = editor.getNodeFromId(connection["output_id"])
     if (node["name"] == "launch") {
         updateNodeData(node["id"], "outConnected", false);
+    }
+    node = editor.getNodeFromId(connection["input_id"])
+    if (node["name"] == "launch") {
+        updateNodeData(node["id"], "inConnected", false);
     }
 })
 

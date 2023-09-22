@@ -11,8 +11,7 @@ current_nodeId = null;
 selectedNode = null;
 startId = 1;
 endId = 2;
-
-
+fireworks_used = []
 
 function updateNodeData(id, key, value) {
     node_data = editor.getNodeFromId(id)["data"];
@@ -42,6 +41,22 @@ socket.on(socketio_id + "_save", (data) => {
         console.log("Saved");
     } else {
         sequence_error(data["error"]);
+    }
+});
+
+socket.on("full_note_update", (data) => {
+    notes = JSON.parse(JSON.stringify(data));
+    firework_select = document.getElementById("firework_select");
+    firework_select.innerHTML = "";
+    for (let i = 0; i < Object.keys(notes).length; i++) {
+        launcher = Object.keys(notes)[i];
+        for (let x = 0; x < Object.keys(notes[launcher]).length; x++) {
+            firework_button = document.createElement("button");
+            firework_button.setAttribute("class", "firework_button");
+            firework_button.setAttribute("onclick", "selectFirework('" + notes[launcher][Object.keys(notes[launcher])[x]] + "')");
+            firework_button.innerText = notes[launcher][Object.keys(notes[launcher])[x]];
+            firework_select.appendChild(firework_button);
+        }
     }
 });
 

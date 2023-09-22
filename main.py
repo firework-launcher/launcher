@@ -125,6 +125,7 @@ def note_update(note_data):
         config.config['notes'][note_data['launcher']] = {}
     config.config['notes'][note_data['launcher']][str(note_data['firework'])] = note_data['note']
     config.save_config()
+    socketio.emit('full_note_update', config.config['notes'])
     socketio.emit('note_update', note_data)
 
 def check_lfa_armed():

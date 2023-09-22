@@ -420,7 +420,7 @@ def sequence_builder():
     if launchers == {}:
         return redirect('/settings/launchers/builder')
 
-    return render_template('sequences/builder.html', launchers=launchers, name=config.config['branding']['name'], page='Sequence uilder')
+    return render_template('sequences/builder.html', launchers=launchers, name=config.config['branding']['name'], page='Sequence Builder')
 
 def secure_filename(filename):
     """

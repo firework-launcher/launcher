@@ -337,6 +337,11 @@ h5 {
     opacity: 0;
 }
 
+.firework_select {
+    display: none;
+    text-align: center;
+}
+
 @media screen and (max-width: 720px) {
     .navbar-item {
         display: none;

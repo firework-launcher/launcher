@@ -1,14 +1,18 @@
 launchers = root["launchers"]
 launcher_counts = root["launcher_data"]["counts"]
+notes = root["notes"];
 
 var id = document.getElementById("drawflow");
 const editor = new Drawflow(id);
 editor.editor_mode = 'edit';
 editor.start();
 
+current_nodeId = null;
 selectedNode = null;
 startId = 1;
 endId = 2;
+
+
 
 function updateNodeData(id, key, value) {
     node_data = editor.getNodeFromId(id)["data"];
@@ -63,8 +67,8 @@ function sequence_error(msg) {
 editor.on('nodeCreated', function(id) {
     console.log("Node created " + id);
     if (editor.getNodeFromId(id)["name"] == "launch") {
-        editor.updateNodeDataFromId(id, {"launcher": launchers[0], "firework": 1, "outConnected": false, "inConnected": false});
-        document.getElementById("node-" + id).children[1].children[0].children[0].children[0].innerText = launchers[0] + ", 1";
+        editor.updateNodeDataFromId(id, {"launcher": null, "firework": null, "outConnected": false, "inConnected": false});
+        document.getElementById("node-" + id).children[1].children[0].children[0].children[0].innerText = "No firework selected";
     } else if (editor.getNodeFromId(id)["name"] == "delay") {
         editor.updateNodeDataFromId(id, {"delay": 1});
         document.getElementById("node-" + id).children[1].children[0].children[0].children[0].innerText = "1 second(s)";
@@ -117,6 +121,20 @@ function getPossibleConnectionPrettyNames(nodename) {
     return result;
 }
 
+function get_note_from_data(launcher, firework) {
+    firework = parseInt(firework);
+    note = null;
+    for (let i = 0; i < Object.keys(notes).length; i++) {
+        launcher_ = Object.keys(notes)[i];
+        for (let x = 0; x < Object.keys(notes[launcher_]).length; x++) {
+            if (launcher_ == launcher && firework == parseInt(Object.keys(notes[launcher_])[x])) {
+                note = notes[launcher][Object.keys(notes[launcher])[x]];
+            }
+        }
+    }
+    return note;
+}
+
 editor.on('connectionCreated', function(connection) {
     console.log('Connection created');
     fromNode = editor.getNodeFromId(connection["output_id"]);
@@ -131,12 +149,12 @@ editor.on('connectionCreated', function(connection) {
         updateNodeData(connection["output_id"], "outConnected", true);
     }
     if (toNode["name"] == "launch") {
-        if (fromNode["data"]["inConnected"] == true) {
+        if (toNode["data"]["inConnected"] == true) {
             editor.removeSingleConnection(connection["output_id"], connection["input_id"], "output_1", "input_1");
             sequence_error("Launch Firework blocks can only have 1 in connection.");
             error = true;
         }
-        updateNodeData(connection["output_id"], "inConnected", true);
+        updateNodeData(connection["input_id"], "inConnected", true)
     }
     if (!(error)) {
         toNode = editor.getNodeFromId(connection["input_id"]);
@@ -212,7 +230,7 @@ function save_launchmodal() {
     updateNodeData(nodeId, "firework", parseInt(modal_firework.value));
     updateNodeData(nodeId, "launcher", modal_launcher.value);
     close_modal("launchmodal");
-    document.getElementById("node-" + nodeId).children[1].children[0].children[0].children[0].innerText = modal_launcher.value + ", " + modal_firework.value;
+    document.getElementById("node-" + nodeId).children[1].children[0].children[0].children[0].innerText = get_note_from_data(modal_launcher.value, modal_firework.value);
 }
 
 function save_delaymodal() {
@@ -235,7 +253,7 @@ function updateAllText() {
     delay_nodes = editor.getNodesFromName("delay")
     for (let i = 0; i < launch_nodes.length; i++) {
         node_data = editor.getNodeFromId(launch_nodes[i])["data"]
-        document.getElementById("node-" + launch_nodes[i]).children[1].children[0].children[0].children[0].innerText = node_data["launcher"] + ", " + node_data["firework"];
+        document.getElementById("node-" + launch_nodes[i]).children[1].children[0].children[0].children[0].innerText = get_note_from_data(node_data["launcher"], node_data["firework"]);
     }
     for (let i = 0; i < delay_nodes.length; i++) {
         node_data = editor.getNodeFromId(delay_nodes[i])["data"]
@@ -243,20 +261,14 @@ function updateAllText() {
     }
 }
 
-function openmodal(modal, nodeId) {
+function openmodal(modal, nodeId, dont_set_data) {
     if (modal == "launchmodal") {
         modal_launcher = document.getElementById("launchmodal_launcher");
         modal_firework = document.getElementById("launchmodal_firework");
-        modal_launcher.innerHTML = "";
-        for (let i = 0; i < launchers.length; i++) {
-            modal_launcher.innerHTML += '<option value="' + launchers[i] + '">' + launchers[i] + '</option>'
+        if (!(dont_set_data == true)) {
+            modal_firework.value = editor.getNodeFromId(nodeId)["data"]["firework"];
+            modal_launcher.value = editor.getNodeFromId(nodeId)["data"]["launcher"];
         }
-        for (let i = 1; i < launcher_counts[editor.getNodeFromId(nodeId)["data"]["launcher"]]+1; i++) {
-            modal_firework.innerHTML += '<option value="' + i + '">' + i + '</option>'
-        }
-        
-        modal_firework.value = editor.getNodeFromId(nodeId)["data"]["firework"];
-        modal_launcher.value = editor.getNodeFromId(nodeId)["data"]["launcher"];
     } else if (modal == "delaymodal") {
         modal_delay = document.getElementById("delaymodal_delay");
         modal_delay.value = editor.getNodeFromId(nodeId)["data"]["delay"];
@@ -268,6 +280,34 @@ function openmodal(modal, nodeId) {
     modal = document.getElementById(modal);
     modal.style.display = "block";
     editor.editor_mode = "fixed";
+}
+
+function set_modal_firework() {
+    current_nodeId = document.getElementById("launchmodal_nodeId").value;
+    close_modal("launchmodal");
+    document.getElementById("content").setAttribute("style", "display: none;");
+    document.getElementById("firework_select").setAttribute("style", "display: block");
+}
+
+function selectFirework(firework) {
+    correct_firework = null;
+    correct_launcher = null;
+    for (let i = 0; i < Object.keys(notes).length; i++) {
+        launcher = Object.keys(notes)[i];
+        for (let x = 0; x < Object.keys(notes[launcher]).length; x++) {
+            if (notes[launcher][Object.keys(notes[launcher])[x]] == firework) {
+                correct_firework = Object.keys(notes[launcher])[x];
+                correct_launcher = JSON.parse(JSON.stringify(launcher));
+            }
+        }
+    }
+    modal_launcher = document.getElementById("launchmodal_launcher");
+    modal_firework = document.getElementById("launchmodal_firework");
+    modal_launcher.value = JSON.parse(JSON.stringify(correct_launcher));
+    modal_firework.value = JSON.parse(JSON.stringify(correct_firework));
+    document.getElementById("firework_select").setAttribute("style", "");
+    document.getElementById("content").setAttribute("style", "");
+    openmodal("launchmodal", current_nodeId, true);
 }
 
 function save_button() {
@@ -311,3 +351,16 @@ document.getElementById("launchmodal_launcher").addEventListener("change", funct
         modal_firework.innerHTML += '<option value="' + i + '">' + i + '</option>';
     }
 });
+
+firework_select = document.getElementById("firework_select");
+
+for (let i = 0; i < Object.keys(notes).length; i++) {
+    launcher = Object.keys(notes)[i];
+    for (let x = 0; x < Object.keys(notes[launcher]).length; x++) {
+        firework_button = document.createElement("button");
+        firework_button.setAttribute("class", "firework_button");
+        firework_button.setAttribute("onclick", "selectFirework('" + notes[launcher][Object.keys(notes[launcher])[x]] + "')");
+        firework_button.innerText = notes[launcher][Object.keys(notes[launcher])[x]];
+        firework_select.appendChild(firework_button);
+    }
+}

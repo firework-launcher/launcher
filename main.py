@@ -627,6 +627,13 @@ def sequencebuilder_save(save_data):
             'error': 'Some blocks have an incomplete path from start to end.'
         })
         return
+    for node in data['nodes']:
+        if node['name'] == 'launch':
+            if node['data']['launcher'] == None:
+                socketio.emit(socketio_id + '_save', {
+                    'success': False,
+                    'error': 'One or more launch blocks do not have a firework selected.'
+                })
     sequence_data = parse_sequence(data)
 
     config.config['sequences'][name] = copy.copy(sequence_data[name])

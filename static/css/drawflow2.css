@@ -225,6 +225,7 @@ cursor: pointer;
   background: var(--background-box-title);
   border-radius: 4px 4px 0px 0px;
   padding-left: 10px;
+  padding-right: 10px;
 }
 .drawflow .title-box svg {
   position: initial;

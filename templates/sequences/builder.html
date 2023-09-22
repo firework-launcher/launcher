@@ -21,8 +21,9 @@
         <div class="inner-modal">
             <h2>Launch Firework</h2>
             <h3>Firework:</h3>
-            <select id="launchmodal_launcher"></select><br/><br/>
-            <select id="launchmodal_firework"></select><br/><br/>
+            <button class="firework_button" onclick="set_modal_firework()">Set Firework</button>
+            <input type="text" id="launchmodal_launcher" style="display: none">
+            <input type="text" id="launchmodal_firework" style="display: none">
             <input type="text" id="launchmodal_nodeId" style="display: none">
         <div class="modal-button">
             <button class="firework_button" onclick="save_launchmodal()">Save</button>
@@ -55,6 +56,7 @@
     </div>
     <div class="wrapper" style="border: 2px #202020 solid;"><div id="drawflow"></div></div>
 </div>
+<div class="firework_select" id="firework_select"></div>
 <script src="/static/js/fetchvars.js"></script>
 <script src="/static/js/drawflow.js"></script>
 <script>fetch_variables("/static/js/sequence_builder.js")</script>

@@ -262,6 +262,10 @@ function save_launchmodal() {
     modal_firework = document.getElementById("launchmodal_firework");
     modal_launcher = document.getElementById("launchmodal_launcher");
     modal_nodeId = document.getElementById("launchmodal_nodeId");
+    if (modal_launcher.value == "") {
+        close_modal("launchmodal");
+        return;
+    }
     nodeId = modal_nodeId.value;
     updateNodeData(nodeId, "firework", parseInt(modal_firework.value));
     updateNodeData(nodeId, "launcher", modal_launcher.value);

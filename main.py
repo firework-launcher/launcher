@@ -635,6 +635,7 @@ def sequencebuilder_save(save_data):
                     'success': False,
                     'error': 'One or more launch blocks do not have a firework selected.'
                 })
+                return
     sequence_data = parse_sequence(data)
 
     config.config['sequences'][name] = copy.copy(sequence_data[name])

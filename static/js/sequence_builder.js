@@ -11,7 +11,7 @@ current_nodeId = null;
 selectedNode = null;
 startId = 1;
 endId = 2;
-fireworks_used = []
+fireworks_used = [];
 
 function updateNodeData(id, key, value) {
     node_data = editor.getNodeFromId(id)["data"];
@@ -39,6 +39,11 @@ sequence_name = null;
 socket.on(socketio_id + "_save", (data) => {
     if (data["success"] == true) {
         console.log("Saved");
+        document.getElementById("error").setAttribute("style", "display: none")
+        document.getElementById("saveText").setAttribute("style", "display: block");
+        setTimeout(function(){
+            document.getElementById("saveText").setAttribute("style", "");
+        }, 5000);
     } else {
         sequence_error(data["error"]);
     }

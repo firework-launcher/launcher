@@ -39,7 +39,7 @@ sequence_name = null;
 socket.on(socketio_id + "_save", (data) => {
     if (data["success"] == true) {
         console.log("Saved");
-        document.getElementById("error").setAttribute("style", "display: none")
+        document.getElementById("error").setAttribute("style", "display: none");
         document.getElementById("saveText").setAttribute("style", "display: block");
         setTimeout(function(){
             document.getElementById("saveText").setAttribute("style", "");
@@ -49,20 +49,25 @@ socket.on(socketio_id + "_save", (data) => {
     }
 });
 
-socket.on("full_note_update", (data) => {
-    notes = JSON.parse(JSON.stringify(data));
+function updateFireworkSelector() {
     firework_select = document.getElementById("firework_select");
     firework_select.innerHTML = "<h1>Select a Firework</h1>";
     for (let i = 0; i < Object.keys(notes).length; i++) {
         launcher = Object.keys(notes)[i];
         for (let x = 0; x < Object.keys(notes[launcher]).length; x++) {
-            firework_button = document.createElement("button");
-            firework_button.setAttribute("class", "firework_button");
-            firework_button.setAttribute("onclick", "selectFirework('" + notes[launcher][Object.keys(notes[launcher])[x]] + "')");
-            firework_button.innerText = notes[launcher][Object.keys(notes[launcher])[x]];
-            firework_select.appendChild(firework_button);
+            if (!(fireworks_used.includes(notes[launcher][Object.keys(notes[launcher])[x]]))) {
+                firework_button = document.createElement("button");
+                firework_button.setAttribute("class", "firework_button");
+                firework_button.setAttribute("onclick", "selectFirework('" + notes[launcher][Object.keys(notes[launcher])[x]] + "')");
+                firework_button.innerText = notes[launcher][Object.keys(notes[launcher])[x]];
+                firework_select.appendChild(firework_button);
+            }
         }
     }
+}
+
+socket.on("full_note_update", (data) => {
+    notes = JSON.parse(JSON.stringify(data));
 });
 
 possibleConnections = {
@@ -115,6 +120,17 @@ editor.on('nodeRemoved', function(id) {
         </div>
         `;
         editor.addNode('end', 1,  0, 50, 150, 'end', {}, end );
+    }
+
+    fireworks_used = [];
+    export_data = editor.export()["drawflow"]["Home"]["data"];
+    for (let i = 0; i < Object.keys(export_data).length; i++) {
+        node = export_data[Object.keys(export_data)[i]];
+        if (node["name"] == "launch") {
+            if (!(node["data"]["launcher"] == null)) {
+                fireworks_used.push(notes[node["data"]["launcher"]][node["data"]["firework"].toString()])
+            }
+        }
     }
 });
 
@@ -304,12 +320,18 @@ function openmodal(modal, nodeId, dont_set_data) {
 
 function set_modal_firework() {
     current_nodeId = document.getElementById("launchmodal_nodeId").value;
+    if (!(modal_launcher.value == "")) {
+        firework_note = notes[modal_launcher.value][modal_firework.value];
+        fireworks_used.splice(fireworks_used.indexOf(firework_note), 1);
+    }
+    updateFireworkSelector();
     close_modal("launchmodal");
     document.getElementById("content").setAttribute("style", "display: none;");
     document.getElementById("firework_select").setAttribute("style", "display: block");
 }
 
 function selectFirework(firework) {
+    fireworks_used.push(firework);
     correct_firework = null;
     correct_launcher = null;
     for (let i = 0; i < Object.keys(notes).length; i++) {
@@ -373,14 +395,3 @@ document.getElementById("launchmodal_launcher").addEventListener("change", funct
 });
 
 firework_select = document.getElementById("firework_select");
-
-for (let i = 0; i < Object.keys(notes).length; i++) {
-    launcher = Object.keys(notes)[i];
-    for (let x = 0; x < Object.keys(notes[launcher]).length; x++) {
-        firework_button = document.createElement("button");
-        firework_button.setAttribute("class", "firework_button");
-        firework_button.setAttribute("onclick", "selectFirework('" + notes[launcher][Object.keys(notes[launcher])[x]] + "')");
-        firework_button.innerText = notes[launcher][Object.keys(notes[launcher])[x]];
-        firework_select.appendChild(firework_button);
-    }
-}

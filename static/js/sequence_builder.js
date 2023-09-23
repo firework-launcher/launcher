@@ -51,7 +51,7 @@ socket.on(socketio_id + "_save", (data) => {
 
 function updateFireworkSelector() {
     firework_select = document.getElementById("firework_select");
-    firework_select.innerHTML = "<h1>Select a Firework</h1>";
+    firework_select.innerHTML = `<h1>Select a Firework <button class="firework_button" onclick="closeFireworkSelect()">Close</button></h1>`;
     for (let i = 0; i < Object.keys(notes).length; i++) {
         launcher = Object.keys(notes)[i];
         for (let x = 0; x < Object.keys(notes[launcher]).length; x++) {
@@ -347,6 +347,12 @@ function selectFirework(firework) {
     modal_firework = document.getElementById("launchmodal_firework");
     modal_launcher.value = JSON.parse(JSON.stringify(correct_launcher));
     modal_firework.value = JSON.parse(JSON.stringify(correct_firework));
+    document.getElementById("firework_select").setAttribute("style", "");
+    document.getElementById("content").setAttribute("style", "");
+    openmodal("launchmodal", current_nodeId, true);
+}
+
+function closeFireworkSelect() {
     document.getElementById("firework_select").setAttribute("style", "");
     document.getElementById("content").setAttribute("style", "");
     openmodal("launchmodal", current_nodeId, true);

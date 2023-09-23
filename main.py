@@ -694,6 +694,7 @@ def delete_note(note):
     
     del config.config['notes'][launcher][firework]
     config.save_config()
+    socketio.emit('full_note_update', config.config['notes'])
     socketio.emit('delete_note', {
         'launcher': launcher,
         'firework': firework

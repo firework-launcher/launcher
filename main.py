@@ -259,7 +259,7 @@ def add_launcher():
         try:
             launcher_io.launcher_types[form['type']](launcher_io, form['launcher_name'], form['port'], int(form['count']))
         except launcher_mgmt.LauncherNotFound:
-            return render_template('settings/launchers/add.html', error=True, name=config.config['branding']['name'], page='Add Launcher')
+            return render_template('settings/launchers/add.html', error=True, type_metadata=launcher_io.launcher_type_metadata, name=config.config['branding']['name'], page='Add Launcher')
 
         fireworks_launched[form['port']] = []
         if not form['port'] in config.config['firework_profiles']:

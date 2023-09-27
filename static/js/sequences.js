@@ -27,6 +27,10 @@ function run_sequence(sequence) {
     socket.emit("run_sequence", sequence);
 }
 
+function edit_sequence(sequence) {
+    window.open(window.origin + "/sequences/edit/" + sequence, '_blank').focus();
+}
+
 function delete_sequence(sequence) {
     delete_ = document.getElementById("delete_" + sequence);
     delete_.innerText = "Are you sure?";

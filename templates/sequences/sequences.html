@@ -9,10 +9,11 @@
             <h1 id="h1sequence_{{ sequence }}">{{ sequence }} 
                 <button class="firework_button" id="run_{{ sequence }}" onclick="run_sequence('{{ sequence }}')">Run</button>
                 <button class="firework_button" id="delete_{{ sequence }}" onclick="delete_sequence('{{ sequence }}')">Delete</button>
+                <button class="firework_button" id="edit_{{ sequence }}" onclick="edit_sequence('{{ sequence }}')">Edit</button>
             </h1><br/>
         </div>
     {% endfor %}
-    <a class="firework_button" href="/sequences/add">Add Sequence</a>
+    <a class="firework_button" href="/sequences/builder">Add Sequence</a>
 </div>
 <script src="/static/js/socketio.js"></script>
 <script src="/static/js/sequences.js"></script>

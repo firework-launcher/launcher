@@ -13,9 +13,12 @@ import argparse
 import logging
 import auth
 import subprocess
+import copy
 import socket
 import random
 import config_mgmt
+import networkx as nx
+from collections import deque
 
 app = Flask(__name__)
 socketio = flask_socketio.SocketIO(app)
@@ -29,6 +32,7 @@ sequence_status = {}
 config.load_file('firework_profiles.json')
 config.load_file('sequences.json')
 config.load_file('launchers.json')
+config.load_file('drawflow_sequences.json')
 config.load_file('notes.json')
 config.load_file('branding.json', placeholder_data={'name': 'Firework Launcher'})
 
@@ -71,6 +75,7 @@ def launcher_json_data():
         'launchers': launcher_ports,
         'notes': config.config['notes'],
         'sequences': config.config['sequences'],
+        'drawflow_sequences': config.config['drawflow_sequences']
     }
 
     root['launcher_data'] = {
@@ -122,6 +127,7 @@ def note_update(note_data):
         config.config['notes'][note_data['launcher']] = {}
     config.config['notes'][note_data['launcher']][str(note_data['firework'])] = note_data['note']
     config.save_config()
+    socketio.emit('full_note_update', config.config['notes'])
     socketio.emit('note_update', note_data)
 
 def check_lfa_armed():
@@ -159,7 +165,8 @@ def lfa_launcher_json_data():
         'firework_profiles': {'LFA': {'1': {'color': '#fc2339', 'fireworks': list(range(1, firework_count+1)), 'name': 'LFA'}}},
         'launchers': ['LFA'],
         'notes': config.config['notes'],
-        'sequences': config.config['sequences']
+        'sequences': config.config['sequences'],
+        'drawflow_sequences': config.config['drawflow_sequences']
     }
 
     root['launcher_data'] = {
@@ -255,7 +262,7 @@ def add_launcher():
         try:
             launcher_io.launcher_types[form['type']](launcher_io, form['launcher_name'], form['port'], int(form['count']))
         except launcher_mgmt.LauncherNotFound:
-            return render_template('settings/launchers/add.html', error=True, name=config.config['branding']['name'], page='Add Launcher')
+            return render_template('settings/launchers/add.html', error=True, type_metadata=launcher_io.launcher_type_metadata, name=config.config['branding']['name'], page='Add Launcher')
 
         fireworks_launched[form['port']] = []
         if not form['port'] in config.config['firework_profiles']:
@@ -394,10 +401,10 @@ def sequences_():
 
     return render_template('sequences/sequences.html', sequences=config.config['sequences'], name=config.config['branding']['name'], page='Sequences')
 
-@app.route('/sequences/add', methods=['GET', 'POST'])
-def add_sequence():
+@app.route('/sequences/builder', methods=['GET', 'POST'])
+def sequence_builder():
     """
-    Path for the sequence builder.
+    Path for the new sequence builder using drawflow.
     """
 
     if request.method == 'POST':
@@ -417,7 +424,32 @@ def add_sequence():
     if launchers == {}:
         return redirect('/settings/launchers/add')
 
-    return render_template('sequences/add.html', launchers=launchers, name=config.config['branding']['name'], page='Add Sequence')
+    return render_template('sequences/builder.html', launchers=launchers, name=config.config['branding']['name'], page='Sequence Builder')
+
+@app.route('/sequences/edit/<string:sequence>', methods=['GET', 'POST'])
+def sequence_edit(sequence):
+    """
+    Path to edit a sequence.
+    """
+
+    if request.method == 'POST':
+        sequence_name = request.form['sequence_name']
+        sequence_data = json.loads(request.form['sequence_data'])
+        config.config['sequences'][sequence_name] = sequence_data
+        config.save_config()
+        return redirect('/sequences')
+
+    launcher_counts = {}
+    launchers = {}
+    for launcher in launcher_io.launchers:
+        if launcher_io.launchers[launcher].sequences_supported:
+            launchers[launcher] = launcher_io.launchers[launcher].name
+            launcher_counts[launcher] = launcher_io.launchers[launcher].count
+    
+    if launchers == {}:
+        return redirect('/settings/launchers/add')
+
+    return render_template('sequences/builder.html', launchers=launchers, name=config.config['branding']['name'], page='Sequence Builder', edit=True, sequence=sequence)
 
 def secure_filename(filename):
     """
@@ -501,6 +533,147 @@ def run_sequence(sequence):
     sequence_status[sequence] = True
     threading.Thread(target=run_sequence_threaded, args=[sequence]).start()
 
+def parse_drawflow_export(save_data, name):
+    data = {
+        'nodes': [],
+        'connections': [],
+        'name': name
+    }
+    for node in save_data:
+        node = save_data[node]
+        data['nodes'].append({
+            'id': node['id'],
+            'name': node['name'],
+            'data': node['data']
+        })
+        if 'output_1' in node['outputs']:
+            for connection in node['outputs']['output_1']['connections']:
+                data['connections'].append([node['id'], int(connection['node'])])
+    return data
+
+
+def validate_full_path(G, data):
+    """
+    Validates that nodes either have a path to
+    both the start and end nodes, or they have
+    no path.
+    """
+
+    for node in data['nodes']:
+        id = node['id']
+        if node['name'] not in ['start', 'end']:
+            path_to_start = False
+            path_to_end = False
+            try:
+                path_to_start = nx.has_path(G, 1, id)
+            except nx.NodeNotFound:
+                pass
+            try:
+                path_to_end = nx.has_path(G, id, 2)
+            except nx.NodeNotFound:
+                pass
+            if path_to_start != path_to_end:
+                return False
+    return True
+
+
+def find_all_paths(data):
+    G = nx.DiGraph()
+    G.add_nodes_from([node['id'] for node in data['nodes']])
+    G.add_edges_from(data['connections'])
+    start_node = [node["id"] for node in data["nodes"] if node["name"] == "start"][0]
+    end_node = [node["id"] for node in data["nodes"] if node["name"] == "end"][0]
+    all_paths = list(nx.all_simple_paths(G, start_node, end_node))
+    return all_paths
+
+def parse_sequence(data):
+    paths = find_all_paths(data)
+    getNodeFromId = lambda id, data: next((node for node in data['nodes'] if node['id'] == id), None)
+
+    steps = {}
+    delay_times = []
+    for path in paths:
+        current_time = 0
+        for node in path:
+            node_data = getNodeFromId(node, data)
+            if node_data['name'] == 'delay':
+                current_time += node_data['data']['delay']
+            elif node_data['name'] == 'launch':
+                if not str(current_time) in steps:
+                    steps[str(current_time)] = []
+                    delay_times.append(current_time)
+                if not node in steps[str(current_time)]:
+                    steps[str(current_time)].append(node)
+    new_steps = {
+        data['name']: {}
+    }
+    x = 1
+
+    for step in steps:
+        new_steps[data['name']]['Step {}'.format(x)] = {}
+        new_steps[data['name']]['Step {}'.format(x)]['pins'] = {}
+        for node in steps[step]:
+            node_data = getNodeFromId(node, data)
+            if not node_data['data']['launcher'] in new_steps[data['name']]['Step {}'.format(x)]['pins']:
+                new_steps[data['name']]['Step {}'.format(x)]['pins'][node_data['data']['launcher']] = []
+            new_steps[data['name']]['Step {}'.format(x)]['pins'][node_data['data']['launcher']].append(node_data['data']['firework'])
+            if len(delay_times) == x:
+                delay = 1
+            else:
+                delay = delay_times[x]-delay_times[x-1]
+            new_steps[data['name']]['Step {}'.format(x)]['delay'] = delay
+        x += 1
+    return new_steps
+
+@socketio.on('sequencebuilder_save')
+def sequencebuilder_save(save_data):
+    """
+    Interprets drawflow's export data to build
+    the sequence.
+    """
+
+    socketio_id = copy.copy(save_data['socketio_id'])
+    name = copy.copy(save_data['name'])
+    original_save_data = copy.copy(save_data)
+    del original_save_data['socketio_id']
+    del original_save_data['name']
+    save_data = save_data['drawflow']['Home']['data']
+    data = parse_drawflow_export(save_data, name)
+    getNodeFromId = lambda id, data: next((node for node in data['nodes'] if node['id'] == id), None)
+    startNodeId = None
+    endNodeId = None
+    for node in data['nodes']:
+        if node['name'] == 'start':
+            startNodeId = node['id']
+        elif node['name'] == 'end':
+            endNodeId = node['id']
+    G = nx.DiGraph()
+    G.add_edges_from(data['connections'])
+
+    if not validate_full_path(G, data):
+        socketio.emit(socketio_id + '_save', {
+            'success': False,
+            'error': 'Some blocks have an incomplete path from start to end.'
+        })
+        return
+    for node in data['nodes']:
+        if node['name'] == 'launch':
+            if node['data']['launcher'] == None:
+                socketio.emit(socketio_id + '_save', {
+                    'success': False,
+                    'error': 'One or more launch blocks do not have a firework selected.'
+                })
+                return
+    sequence_data = parse_sequence(data)
+
+    config.config['sequences'][name] = copy.copy(sequence_data[name])
+    config.config['drawflow_sequences'][name] = original_save_data
+    config.save_config()
+
+    socketio.emit(socketio_id + '_save', {
+        'success': True
+    })
+
 def run_sequence_threaded(sequence):
     """
     Thread run_sequence() starts. This is a thread
@@ -513,7 +686,8 @@ def run_sequence_threaded(sequence):
     sequence_data = config.config['sequences'][sequence]
     pins_changed = []
     for step in sequence_data:
-        pins_changed.append([sequence_data[step]['launcher'], sequence_data[step]['pins']])
+        for launcher in sequence_data[step]['pins']:
+            pins_changed.append([launcher, sequence_data[step]['pins'][launcher]])
     global fireworks_launched
     for pin in pins_changed:
         fireworks_launched[pin[0]] += pin[1]
@@ -550,6 +724,7 @@ def delete_note(note):
     
     del config.config['notes'][launcher][firework]
     config.save_config()
+    socketio.emit('full_note_update', config.config['notes'])
     socketio.emit('delete_note', {
         'launcher': launcher,
         'firework': firework

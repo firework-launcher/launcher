@@ -26,6 +26,9 @@ RCLK - 96
 
 The pinout of the chip itself is explained more in the [datasheet](https://www.ti.com/lit/ds/symlink/sn74hc595.pdf).
 
+### ESP Nodes
+These launchers use the ESP32 code from [firework-launcher/esp32-node](https://github.com/firework-launcher/esp32-node). You can't really put this on a regular ESP32 board. This is meant for a custom board that has mosfets, a display board, and some other things like arm circuits.
+
 ## Software
 These are some features that the website has:
 
@@ -39,7 +42,7 @@ You can create notes for each channel that can be displayed in the sequences, ma
 
 * Sequences
 
-Sequences can be used to create a show. It is organized into steps, with each step having a list of channels that should go off, and a delay between when the fireworks for that step go off, and the next step. You can also stop a sequence between steps, and monitor the sequence as it is going off.
+Sequences can be used to create a show. The builder uses drawflow, which is similar to Node Red in that you have nodes and can make connections between them to build a show. After you save a sequence, the launcher organizes them into serial steps. It will also work if you were to make sequences branch off. 
 
 * Profiles
 

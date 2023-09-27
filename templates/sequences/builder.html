@@ -59,6 +59,13 @@
 <div class="firework_select" id="firework_select">
     <h1>Select a Firework <button class="firework_button" onclick="closeFireworkSelect()">Close</button></h1>
 </div>
+
+{% if edit %}
+<script>editing = true; sequence_name = "{{ sequence }}"</script>
+{% else %}
+<script>editing = false; </script>
+{% endif %}
+
 <script src="/static/js/fetchvars.js"></script>
 <script src="/static/js/drawflow.js"></script>
 <script>fetch_variables("/static/js/sequence_builder.js")</script>

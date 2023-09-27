@@ -32,6 +32,7 @@ sequence_status = {}
 config.load_file('firework_profiles.json')
 config.load_file('sequences.json')
 config.load_file('launchers.json')
+config.load_file('drawflow_sequences.json')
 config.load_file('notes.json')
 config.load_file('branding.json', placeholder_data={'name': 'Firework Launcher'})
 
@@ -74,6 +75,7 @@ def launcher_json_data():
         'launchers': launcher_ports,
         'notes': config.config['notes'],
         'sequences': config.config['sequences'],
+        'drawflow_sequences': config.config['drawflow_sequences']
     }
 
     root['launcher_data'] = {
@@ -163,7 +165,8 @@ def lfa_launcher_json_data():
         'firework_profiles': {'LFA': {'1': {'color': '#fc2339', 'fireworks': list(range(1, firework_count+1)), 'name': 'LFA'}}},
         'launchers': ['LFA'],
         'notes': config.config['notes'],
-        'sequences': config.config['sequences']
+        'sequences': config.config['sequences'],
+        'drawflow_sequences': config.config['drawflow_sequences']
     }
 
     root['launcher_data'] = {
@@ -419,9 +422,34 @@ def sequence_builder():
             launcher_counts[launcher] = launcher_io.launchers[launcher].count
     
     if launchers == {}:
-        return redirect('/settings/launchers/builder')
+        return redirect('/settings/launchers/add')
 
     return render_template('sequences/builder.html', launchers=launchers, name=config.config['branding']['name'], page='Sequence Builder')
+
+@app.route('/sequences/edit/<string:sequence>', methods=['GET', 'POST'])
+def sequence_edit(sequence):
+    """
+    Path to edit a sequence.
+    """
+
+    if request.method == 'POST':
+        sequence_name = request.form['sequence_name']
+        sequence_data = json.loads(request.form['sequence_data'])
+        config.config['sequences'][sequence_name] = sequence_data
+        config.save_config()
+        return redirect('/sequences')
+
+    launcher_counts = {}
+    launchers = {}
+    for launcher in launcher_io.launchers:
+        if launcher_io.launchers[launcher].sequences_supported:
+            launchers[launcher] = launcher_io.launchers[launcher].name
+            launcher_counts[launcher] = launcher_io.launchers[launcher].count
+    
+    if launchers == {}:
+        return redirect('/settings/launchers/add')
+
+    return render_template('sequences/builder.html', launchers=launchers, name=config.config['branding']['name'], page='Sequence Builder', edit=True, sequence=sequence)
 
 def secure_filename(filename):
     """
@@ -639,6 +667,7 @@ def sequencebuilder_save(save_data):
     sequence_data = parse_sequence(data)
 
     config.config['sequences'][name] = copy.copy(sequence_data[name])
+    config.config['drawflow_sequences'][name] = original_save_data
     config.save_config()
 
     socketio.emit(socketio_id + '_save', {

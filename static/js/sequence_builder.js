@@ -1,6 +1,8 @@
 launchers = root["launchers"]
 launcher_counts = root["launcher_data"]["counts"]
 notes = root["notes"];
+sequences = root["sequences"];
+drawflow_sequences = root["drawflow_sequences"];
 
 var id = document.getElementById("drawflow");
 const editor = new Drawflow(id);
@@ -34,7 +36,9 @@ function makeid(length) {
 socketio_id = makeid(16);
 socket = io()
 
-sequence_name = null;
+if (editing == false) {
+    sequence_name = null;
+}
 
 socket.on(socketio_id + "_save", (data) => {
     if (data["success"] == true) {
@@ -385,7 +389,7 @@ function editSelectedNode() {
 function save(name) {
     save_data = editor.export();
     save_data["socketio_id"] = socketio_id;
-    save_data["name"] = name
+    save_data["name"] = name;
     socket.emit("sequencebuilder_save", save_data);
 }
 
@@ -405,3 +409,18 @@ document.getElementById("launchmodal_launcher").addEventListener("change", funct
 });
 
 firework_select = document.getElementById("firework_select");
+
+if (editing == true) {
+    editor.import(drawflow_sequences[sequence_name]);
+    fireworks_used = [];
+    export_data = editor.export()["drawflow"]["Home"]["data"];
+    for (let i = 0; i < Object.keys(export_data).length; i++) {
+        node = export_data[Object.keys(export_data)[i]];
+        if (node["name"] == "launch") {
+            if (!(node["data"]["launcher"] == null)) {
+                fireworks_used.push(notes[node["data"]["launcher"]][node["data"]["firework"].toString()])
+            }
+        }
+    }
+    updateAllText();
+}

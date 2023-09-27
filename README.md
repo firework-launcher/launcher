@@ -42,7 +42,7 @@ You can create notes for each channel that can be displayed in the sequences, ma
 
 * Sequences
 
-Sequences can be used to create a show. The builder uses drawflow, which is similar to Node Red in that you have nodes and can make connections between them to build a show. After you save a sequence, the launcher organizes them into serial steps. It will also work if you were to make sequences branch off. 
+Sequences can be used to create a show. The builder uses [Drawflow](https://github.com/jerosoler/Drawflow), which is similar to Node Red in that you have nodes and can make connections between them to build a show. After you save a sequence, the launcher organizes them into serial steps. It will also work if you were to make sequences branch off. 
 
 * Profiles
 

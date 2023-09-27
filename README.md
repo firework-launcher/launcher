@@ -31,7 +31,7 @@ These are some features that the website has:
 
 * Multiple launchers
 
-You can control more than one launcher through the same controller. This makes it so you can also create sequences involving launching fireworks with multiple launchers. Through the LFA page, you can also launch fireworks at the same channel for every launcher connected.
+You can control more than one launcher through the same controller. This makes it so you can also create sequences involving launching fireworks with multiple launchers.
 
 * Notes
 

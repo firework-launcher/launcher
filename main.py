@@ -22,7 +22,7 @@ from collections import deque
 
 app = Flask(__name__)
 socketio = flask_socketio.SocketIO(app)
-fireworks_launched = {'LFA': []}
+fireworks_launched = {}
 auth = auth.Auth()
 terminals = terminal_mgmt.Terminals()
 config = config_mgmt.ConfigMGMT()
@@ -58,8 +58,6 @@ def home():
     return render_template('home.html', 
         launchers=launcher_io.get_ports(),
         launchers_armed=launchers_armed,
-        lfa_armed=check_lfa_armed(),
-        lfa=False,
         name=config.config['branding']['name']
     )
 
@@ -104,23 +102,6 @@ def branding_css():
     resp.headers['Content-Type'] = 'text/css'
     return resp
 
-def get_lfa_firework_launched(firework_count):
-    """
-    Used by the /lfa path to get information about which fireworks have
-    been launched.
-    """
-
-    lfa_list = []
-
-    for x in range(firework_count):
-        launched = False
-        for launcher in fireworks_launched:
-            if x+1 in fireworks_launched[launcher]:
-                launched = True
-        if launched:
-            lfa_list.append(x+1)
-    return {'LFA': lfa_list}
-
 @socketio.on("note_update")
 def note_update(note_data):
     if not note_data['launcher'] in config.config['notes']:
@@ -129,54 +110,6 @@ def note_update(note_data):
     config.save_config()
     socketio.emit('full_note_update', config.config['notes'])
     socketio.emit('note_update', note_data)
-
-def check_lfa_armed():
-    lfa_armed = False
-    for launcher in launcher_io.launchers:
-        if launcher_io.launchers[launcher].armed:
-            lfa_armed = True
-    return lfa_armed
-
-@app.route('/lfa')
-def lfa():
-    """
-    Renders the home template, but changes variables are being used.
-    When you launch a firework on this page, it will launch that
-    same firework on all the launchers.
-    """
-    
-    return render_template('home.html', 
-        launchers={'Launch For All': 'LFA'},
-        launchers_armed={'LFA': check_lfa_armed()},
-        lfa_armed=check_lfa_armed(),
-        lfa=True,
-        name=config.config['branding']['name']
-    )
-
-@app.route('/lfa/launcher_json_data')
-def lfa_launcher_json_data():
-    lfa_armed = check_lfa_armed()
-    firework_count = 0
-    for launcher in launcher_io.launchers:
-        if launcher_io.launchers[launcher].count > firework_count:
-            firework_count = launcher_io.launchers[launcher].count
-    root = {
-        'fireworks_launched': get_lfa_firework_launched(firework_count),
-        'firework_profiles': {'LFA': {'1': {'color': '#fc2339', 'fireworks': list(range(1, firework_count+1)), 'name': 'LFA'}}},
-        'launchers': ['LFA'],
-        'notes': config.config['notes'],
-        'sequences': config.config['sequences'],
-        'drawflow_sequences': config.config['drawflow_sequences']
-    }
-
-    root['launcher_data'] = {
-        'counts': {'LFA': firework_count},
-        'names': {'LFA': 'Launch For All'},
-        'armed': {'LFA': lfa_armed},
-        'channels_connected': {}
-    }
-    
-    return jsonify(root)
 
 @app.route('/update_connected_channels')
 def update_connected_channels():
@@ -336,13 +269,8 @@ def arm(launcher):
     Arms a launcher
     """
 
-    if launcher == 'LFA':
-        for launcher in launcher_io.launchers:
-            arm(launcher)
-        socketio.emit('arm', 'LFA')
-    else:
-        launcher_io.launchers[launcher].arm()
-        socketio.emit('arm', launcher)
+    launcher_io.launchers[launcher].arm()
+    socketio.emit('arm', launcher)
 
 @socketio.on("disarm")
 def disarm(launcher):
@@ -350,20 +278,8 @@ def disarm(launcher):
     Disarms a launcher
     """
     
-    if launcher == 'LFA':
-        for launcher in launcher_io.launchers:
-            launcher_io.launchers[launcher].disarm()
-            disarm(launcher)
-        socketio.emit('disarm', 'LFA')
-    else:
-        launcher_io.launchers[launcher].disarm()
-        socketio.emit('disarm', launcher)
-        all_disarmed = True
-        for launcher in launcher_io.launchers:
-            if launcher_io.launchers[launcher].armed:
-                all_disarmed = False
-        if all_disarmed:
-            socketio.emit('disarm', 'LFA')
+    launcher_io.launchers[launcher].disarm()
+    socketio.emit('disarm', launcher)
 
 @socketio.on('remove_launcher')
 def remove_launcher(launcher):
@@ -765,7 +681,7 @@ def beforerequest():
 def firework_serial_write(launcher):
     """
     This is the queue thread. There is a seperate queue for
-    each launcher. This way, the LFA page can work well.
+    each launcher.
     """
 
     global queue
@@ -798,20 +714,13 @@ def trigger_firework(data):
     firework = data['firework']
     ports = launcher_io.get_ports()
     launcher = data['launcher']
-    if launcher == 'LFA':
-        armed = check_lfa_armed()
-    else:
-        armed = launcher_io.launchers[launcher].armed
+    armed = launcher_io.launchers[launcher].armed
     if armed:
-        if launcher == 'LFA':
-            for launcher_ in ports:
-                trigger_firework({'launcher': ports[launcher_], 'firework': firework})
-        else:
-            global fireworks_launched
-            fireworks_launched[launcher].append(firework)
-            pin = str(int(firework)+1)
-            global queue
-            queue[launcher].append(pin)
+        global fireworks_launched
+        fireworks_launched[launcher].append(firework)
+        pin = str(int(firework)+1)
+        global queue
+        queue[launcher].append(pin)
         socketio.emit('firework_launch', {'firework': firework, 'launcher': launcher})
 
 def reset_queue():
@@ -837,11 +746,8 @@ def reset(data):
     SocketIO.
     """
 
-    if data['launcher'] == 'LFA':
-        reset_all()
-    else:
-        reset_launcher(data['launcher'])
-        socketio.emit('reset', data)
+    reset_launcher(data['launcher'])
+    socketio.emit('reset', data)
 
 @socketio.on('reset_all')
 def reset_all():
@@ -861,7 +767,6 @@ def arm_all():
     
     for launcher in launcher_io.launchers:
         arm(launcher)
-    arm('LFA')
     
 @socketio.on('disarm_all')
 def disarm_all():
@@ -871,7 +776,6 @@ def disarm_all():
     
     for launcher in launcher_io.launchers:
         disarm(launcher)
-    disarm('LFA')
 
 if __name__ == '__main__':
     for launcher in config.config['launchers']:

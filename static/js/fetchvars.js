@@ -1,10 +1,6 @@
 var root = {};
-async function fetch_variables(script, lfa = false) {
-    if (lfa == true) {
-        response = await fetch(window.origin + "/lfa/launcher_json_data");
-    } else {
-        response = await fetch(window.origin + "/home/launcher_json_data");
-    }
+async function fetch_variables(script) {
+    response = await fetch(window.origin + "/home/launcher_json_data");
     root = await response.json();
     socketio_script = document.createElement("script");
     main_script = document.createElement("script");

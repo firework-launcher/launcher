@@ -35,14 +35,10 @@ function update_channels_connected() {
 }
 
 function check_all_armed() {
-    if (lfa) {
-        all_armed = launchers_armed["LFA"];
-    } else {
-        all_armed = false;
-        for (i = 0; i < launchers.length; i++) {
-            if (launchers_armed[launchers[i]]) {
-                all_armed = true;
-            }
+    all_armed = false;
+    for (i = 0; i < launchers.length; i++) {
+        if (launchers_armed[launchers[i]]) {
+            all_armed = true;
         }
     }
 
@@ -118,10 +114,7 @@ socket.on('running_sequence', (sequence) => {
 });
 
 socket.on('arm', (launcher) => {
-    if (launchers.includes(launcher) || lfa) {
-        if (lfa) {
-            launcher = "LFA";
-        }
+    if (launchers.includes(launcher)) {
         armbutton = document.getElementById("armbutton_" + launcher);
         disarmbutton = document.getElementById("disarmbutton_" + launcher);
         armbutton.setAttribute("style", "display: none");
@@ -514,3 +507,5 @@ Object.entries(fireworks_launched).forEach(([launcher,launched]) => {
         set_btn_red(launcher, launched[index]);
     }
 })
+
+check_all_armed()

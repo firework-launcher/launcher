@@ -10,22 +10,20 @@
     <ul class="navbar">
       <li class="navbar-item-li"><a class="navtitle" href="/">{{ name }}</a></li>
         <li class="navbar-item-li"><a class="navbar-item" onclick="dev();" id="devbutton">Profiles</a></li>
-        <li class="navbar-item-li"><a class="navbar-item" onclick="arm_all()" {% if lfa_armed %}style="display: none"{% endif %} id="armbutton">Arm all</a></li>
-        <li class="navbar-item-li"><a class="navbar-item" onclick="disarm_all()" {% if not lfa_armed %}style="display: none"{% endif %} id="disarmbutton">Disarm all</a></li>
+        <li class="navbar-item-li"><a class="navbar-item" onclick="arm_all()" id="armbutton">Arm all</a></li>
+        <li class="navbar-item-li"><a class="navbar-item" onclick="disarm_all()" id="disarmbutton">Disarm all</a></li>
         <li class="navbar-item-li"><a class="navbar-item" onclick="manage_notes()" id="notesbutton">Notes</a></li>
         <li class="navbar-item-li"><a class="navbar-item" href="/settings">Settings</a></li>
-        <li class="navbar-item-li"><a class="navbar-item" href="/lfa">LFA</a></li>
         <li class="navbar-item-li"><a class="navbar-item" href="/sequences">Sequences</a></li>
       <li class="navbar-item-hamburger"><a class="hamburger-menu" onclick="expand_hamburger()"><img src="/static/svgs/bars.svg" width="20" class="hamburger-menu-svg" alt="Hamburger Menu"/></a></li>
     </ul>
     <div id="hamburgerExpandMenu">
         <a class="navbar-item-expanded" onclick="dev();" id="devbutton_">Profiles</a>
         <a class="navbar-item-expanded" onclick="reset_all()" id="resetbutton_">Reset all</a>
-        <a class="navbar-item-expanded" onclick="arm_all()" {% if lfa_armed %}style="display: none"{% endif %} id="armbutton_">Arm all</a>
-        <a class="navbar-item-expanded" onclick="disarm_all()" {% if not lfa_armed %}style="display: none"{% endif %} id="disarmbutton_">Disarm all</a>
+        <a class="navbar-item-expanded" onclick="arm_all()" id="armbutton_">Arm all</a>
+        <a class="navbar-item-expanded" onclick="disarm_all()" id="disarmbutton_">Disarm all</a>
         <a class="navbar-item-expanded" onclick="manage_notes()" id="notesbutton_">Notes</a>
         <a class="navbar-item-expanded" href="/settings">Settings</a>
-        <a class="navbar-item-expanded" href="/lfa">LFA</a>
         <a class="navbar-item-expanded" href="/sequences">Sequences</a>
     </div>
     <div class="content" id="content">
@@ -55,15 +53,7 @@
     </div>
     <script src="/static/js/fetchvars.js"></script>
     <script>
-      lfa = "{{ lfa }}";
-      bool_lfa = null;
-      if (lfa == "True") {
-        bool_lfa = true;
-      } else if (lfa == "False") {
-        bool_lfa = false;
-      }
-      lfa = bool_lfa;
-      fetch_variables("/static/js/main.js", lfa)
+      fetch_variables("/static/js/main.js")
     </script>
   </body>
 </html>

@@ -3,6 +3,7 @@ launcher_counts = root["launcher_data"]["counts"]
 notes = root["notes"];
 sequences = root["sequences"];
 drawflow_sequences = root["drawflow_sequences"];
+profiles = root["firework_profiles"];
 
 var id = document.getElementById("drawflow");
 const editor = new Drawflow(id);
@@ -53,6 +54,53 @@ socket.on(socketio_id + "_save", (data) => {
     }
 });
 
+function get_profile_id(launcher, btn_id) {
+    profile = null;
+    for (var key in profiles[launcher]) {
+        if (profiles[launcher].hasOwnProperty(key)) {
+            if (profiles[launcher][key]["fireworks"].indexOf(btn_id) !== -1) {
+                profile = key
+            }
+        }
+    }
+    return profile;
+}
+
+function getFireworkByNote(note) {
+    firework_ = null;
+    launcher_ = null;
+    for (let i = 0; i < Object.keys(notes).length; i++) {
+        launcher__ = Object.keys(notes)[i];
+        for (let x = 0; x < Object.keys(notes[launcher__]).length; x++) {
+            if (notes[launcher__][Object.keys(notes[launcher__])[x]] == note) {
+                firework_ = Object.keys(notes[launcher__])[x];
+                launcher_ = JSON.parse(JSON.stringify(launcher__));
+            }
+        }
+    }
+    return [launcher_, firework_];
+}
+
+function add_legend() {
+    document.getElementById("firework_select").innerHTML += `<div class="legend" id="legend"><h2>Legend</h2></div>`
+    legend_div = document.getElementById("legend");
+    fp_length = Object.keys(profiles[launchers[0]]).length;;
+    for (let i = 1; i < fp_length+1; i++) {
+        key = i.toString();
+        color = profiles[launchers[0]][key]["color"];
+        pname = profiles[launchers[0]][key]["name"];
+        text = document.createElement("p");
+        text_class = document.createAttribute("class");
+        text_style = document.createAttribute("style");
+        text.innerText = pname;
+        text_class.value = "legend-txt";
+        text_style.value = "color: "+color+";";
+        text.setAttributeNode(text_class);
+        text.setAttributeNode(text_style);
+        legend_div.appendChild(text);
+    }
+}
+
 function updateFireworkSelector() {
     firework_select = document.getElementById("firework_select");
     firework_select.innerHTML = `<h1>Select a Firework <button class="firework_button" onclick="closeFireworkSelect()">Close</button></h1>`;
@@ -62,16 +110,27 @@ function updateFireworkSelector() {
             if (!(fireworks_used.includes(notes[launcher][Object.keys(notes[launcher])[x]]))) {
                 firework_button = document.createElement("button");
                 firework_button.setAttribute("class", "firework_button");
+                launcherfirework = getFireworkByNote(notes[launcher][Object.keys(notes[launcher])[x]]);
+                profile = profiles[launcherfirework[0]][get_profile_id(launcherfirework[0], parseInt(launcherfirework[1]))];
+                firework_button.setAttribute("style", "color: " + profile["color"] + "; border-color: " + profile["color"])
                 firework_button.setAttribute("onclick", "selectFirework('" + notes[launcher][Object.keys(notes[launcher])[x]] + "')");
                 firework_button.innerText = notes[launcher][Object.keys(notes[launcher])[x]];
                 firework_select.appendChild(firework_button);
             }
         }
     }
+    add_legend();
 }
 
 socket.on("full_note_update", (data) => {
     notes = JSON.parse(JSON.stringify(data));
+    updateFireworkSelector();
+});
+
+
+socket.on("fp_update", (data) => {
+    profiles = JSON.parse(JSON.stringify(data));
+    updateFireworkSelector();
 });
 
 possibleConnections = {

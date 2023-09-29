@@ -436,6 +436,7 @@ def save_fp(firework_profiles):
     """
 
     config.config['firework_profiles'] = firework_profiles
+    socketio.emit('fp_update', firework_profiles);
     config.save_config()
 
 @socketio.on('run_sequence')

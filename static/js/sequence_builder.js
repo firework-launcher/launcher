@@ -220,20 +220,6 @@ function getPossibleConnectionPrettyNames(nodename) {
     return result;
 }
 
-function get_note_from_data(launcher, firework) {
-    firework = parseInt(firework);
-    note = null;
-    for (let i = 0; i < Object.keys(notes).length; i++) {
-        launcher_ = Object.keys(notes)[i];
-        for (let x = 0; x < Object.keys(notes[launcher_]).length; x++) {
-            if (launcher_ == launcher && firework == parseInt(Object.keys(notes[launcher_])[x])) {
-                note = notes[launcher][Object.keys(notes[launcher])[x]];
-            }
-        }
-    }
-    return note;
-}
-
 editor.on('connectionCreated', function(connection) {
     console.log('Connection created');
     fromNode = editor.getNodeFromId(connection["output_id"]);
@@ -333,7 +319,7 @@ function save_launchmodal() {
     updateNodeData(nodeId, "firework", parseInt(modal_firework.value));
     updateNodeData(nodeId, "launcher", modal_launcher.value);
     close_modal("launchmodal");
-    document.getElementById("node-" + nodeId).children[1].children[0].children[0].children[0].innerText = get_note_from_data(modal_launcher.value, modal_firework.value);
+    document.getElementById("node-" + nodeId).children[1].children[0].children[0].children[0].innerText = notes[modal_launcher.value][modal_firework.value];
 }
 
 function save_delaymodal() {
@@ -356,7 +342,7 @@ function updateAllText() {
     delay_nodes = editor.getNodesFromName("delay")
     for (let i = 0; i < launch_nodes.length; i++) {
         node_data = editor.getNodeFromId(launch_nodes[i])["data"]
-        document.getElementById("node-" + launch_nodes[i]).children[1].children[0].children[0].children[0].innerText = get_note_from_data(node_data["launcher"], node_data["firework"]);
+        document.getElementById("node-" + launch_nodes[i]).children[1].children[0].children[0].children[0].innerText = notes[node_data["launcher"]][node_data["firework"]];
     }
     for (let i = 0; i < delay_nodes.length; i++) {
         node_data = editor.getNodeFromId(delay_nodes[i])["data"]

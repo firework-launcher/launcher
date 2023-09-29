@@ -1,6 +1,6 @@
 launchers = root["launchers"]
 launcher_counts = root["launcher_data"]["counts"]
-notes = root["notes"];
+labels = root["labels"];
 sequences = root["sequences"];
 drawflow_sequences = root["drawflow_sequences"];
 profiles = root["firework_profiles"];
@@ -66,14 +66,14 @@ function get_profile_id(launcher, btn_id) {
     return profile;
 }
 
-function getFireworkByNote(note) {
+function getFireworkByLabel(label) {
     firework_ = null;
     launcher_ = null;
-    for (let i = 0; i < Object.keys(notes).length; i++) {
-        launcher__ = Object.keys(notes)[i];
-        for (let x = 0; x < Object.keys(notes[launcher__]).length; x++) {
-            if (notes[launcher__][Object.keys(notes[launcher__])[x]] == note) {
-                firework_ = Object.keys(notes[launcher__])[x];
+    for (let i = 0; i < Object.keys(labels).length; i++) {
+        launcher__ = Object.keys(labels)[i];
+        for (let x = 0; x < Object.keys(labels[launcher__]).length; x++) {
+            if (labels[launcher__][Object.keys(labels[launcher__])[x]] == label) {
+                firework_ = Object.keys(labels[launcher__])[x];
                 launcher_ = JSON.parse(JSON.stringify(launcher__));
             }
         }
@@ -104,17 +104,17 @@ function add_legend() {
 function updateFireworkSelector() {
     firework_select = document.getElementById("firework_select");
     firework_select.innerHTML = `<h1>Select a Firework <button class="firework_button" onclick="closeFireworkSelect()">Close</button></h1>`;
-    for (let i = 0; i < Object.keys(notes).length; i++) {
-        launcher = Object.keys(notes)[i];
-        for (let x = 0; x < Object.keys(notes[launcher]).length; x++) {
-            if (!(fireworks_used.includes(notes[launcher][Object.keys(notes[launcher])[x]]))) {
+    for (let i = 0; i < Object.keys(labels).length; i++) {
+        launcher = Object.keys(labels)[i];
+        for (let x = 0; x < Object.keys(labels[launcher]).length; x++) {
+            if (!(fireworks_used.includes(labels[launcher][Object.keys(labels[launcher])[x]]))) {
                 firework_button = document.createElement("button");
                 firework_button.setAttribute("class", "firework_button");
-                launcherfirework = getFireworkByNote(notes[launcher][Object.keys(notes[launcher])[x]]);
+                launcherfirework = getFireworkByLabel(labels[launcher][Object.keys(labels[launcher])[x]]);
                 profile = profiles[launcherfirework[0]][get_profile_id(launcherfirework[0], parseInt(launcherfirework[1]))];
                 firework_button.setAttribute("style", "color: " + profile["color"] + "; border-color: " + profile["color"])
-                firework_button.setAttribute("onclick", "selectFirework('" + notes[launcher][Object.keys(notes[launcher])[x]] + "')");
-                firework_button.innerText = notes[launcher][Object.keys(notes[launcher])[x]];
+                firework_button.setAttribute("onclick", "selectFirework('" + labels[launcher][Object.keys(labels[launcher])[x]] + "')");
+                firework_button.innerText = labels[launcher][Object.keys(labels[launcher])[x]];
                 firework_select.appendChild(firework_button);
             }
         }
@@ -122,8 +122,8 @@ function updateFireworkSelector() {
     add_legend();
 }
 
-socket.on("full_note_update", (data) => {
-    notes = JSON.parse(JSON.stringify(data));
+socket.on("full_label_update", (data) => {
+    labels = JSON.parse(JSON.stringify(data));
     updateFireworkSelector();
 });
 
@@ -191,7 +191,7 @@ editor.on('nodeRemoved', function(id) {
         node = export_data[Object.keys(export_data)[i]];
         if (node["name"] == "launch") {
             if (!(node["data"]["launcher"] == null)) {
-                fireworks_used.push(notes[node["data"]["launcher"]][node["data"]["firework"].toString()])
+                fireworks_used.push(labels[node["data"]["launcher"]][node["data"]["firework"].toString()])
             }
         }
     }
@@ -319,7 +319,7 @@ function save_launchmodal() {
     updateNodeData(nodeId, "firework", parseInt(modal_firework.value));
     updateNodeData(nodeId, "launcher", modal_launcher.value);
     close_modal("launchmodal");
-    document.getElementById("node-" + nodeId).children[1].children[0].children[0].children[0].innerText = notes[modal_launcher.value][modal_firework.value];
+    document.getElementById("node-" + nodeId).children[1].children[0].children[0].children[0].innerText = labels[modal_launcher.value][modal_firework.value];
 }
 
 function save_delaymodal() {
@@ -342,7 +342,7 @@ function updateAllText() {
     delay_nodes = editor.getNodesFromName("delay")
     for (let i = 0; i < launch_nodes.length; i++) {
         node_data = editor.getNodeFromId(launch_nodes[i])["data"]
-        document.getElementById("node-" + launch_nodes[i]).children[1].children[0].children[0].children[0].innerText = notes[node_data["launcher"]][node_data["firework"]];
+        document.getElementById("node-" + launch_nodes[i]).children[1].children[0].children[0].children[0].innerText = labels[node_data["launcher"]][node_data["firework"]];
     }
     for (let i = 0; i < delay_nodes.length; i++) {
         node_data = editor.getNodeFromId(delay_nodes[i])["data"]
@@ -374,8 +374,8 @@ function openmodal(modal, nodeId, dont_set_data) {
 function set_modal_firework() {
     current_nodeId = document.getElementById("launchmodal_nodeId").value;
     if (!(modal_launcher.value == "")) {
-        firework_note = notes[modal_launcher.value][modal_firework.value];
-        fireworks_used.splice(fireworks_used.indexOf(firework_note), 1);
+        firework_label = labels[modal_launcher.value][modal_firework.value];
+        fireworks_used.splice(fireworks_used.indexOf(firework_label), 1);
     }
     updateFireworkSelector();
     close_modal("launchmodal");
@@ -387,11 +387,11 @@ function selectFirework(firework) {
     fireworks_used.push(firework);
     correct_firework = null;
     correct_launcher = null;
-    for (let i = 0; i < Object.keys(notes).length; i++) {
-        launcher = Object.keys(notes)[i];
-        for (let x = 0; x < Object.keys(notes[launcher]).length; x++) {
-            if (notes[launcher][Object.keys(notes[launcher])[x]] == firework) {
-                correct_firework = Object.keys(notes[launcher])[x];
+    for (let i = 0; i < Object.keys(labels).length; i++) {
+        launcher = Object.keys(labels)[i];
+        for (let x = 0; x < Object.keys(labels[launcher]).length; x++) {
+            if (labels[launcher][Object.keys(labels[launcher])[x]] == firework) {
+                correct_firework = Object.keys(labels[launcher])[x];
                 correct_launcher = JSON.parse(JSON.stringify(launcher));
             }
         }
@@ -463,7 +463,7 @@ if (editing == true) {
         node = export_data[Object.keys(export_data)[i]];
         if (node["name"] == "launch") {
             if (!(node["data"]["launcher"] == null)) {
-                fireworks_used.push(notes[node["data"]["launcher"]][node["data"]["firework"].toString()])
+                fireworks_used.push(labels[node["data"]["launcher"]][node["data"]["firework"].toString()])
             }
         }
     }

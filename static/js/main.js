@@ -5,16 +5,16 @@ var launcher_counts = root["launcher_data"]["counts"];
 var launchers_armed = root["launcher_data"]["armed"];
 var launcher_channels_connected = root["launcher_data"]["channels_connected"];
 var launchers = root["launchers"];
-var notes = root["notes"];
+var labels = root["labels"];
 var sequences = root["sequences"];
 
 const socket = io();
 
-managing_notes = false;
+managing_labels = false;
 devmode = false;
 
 function update_channels_connected() {
-    if (!(managing_notes) && !(devmode)) {
+    if (!(managing_labels) && !(devmode)) {
         for (i = 0; i < Object.keys(launcher_channels_connected).length; i++) {
             launcher = Object.keys(launcher_channels_connected)[i];
 
@@ -183,9 +183,9 @@ function add_btns(rows, launcher) {
         button_id.value = "fb_" + launcher + "_" + i;
         button_fp.value = profile_id;
         button.innerText = "#"+i;
-        if (notes[launcher] != null) {
-            if (notes[launcher][i.toString()] != null) {
-                button.innerHTML += "<br/>" + notes[launcher][i.toString()];
+        if (labels[launcher] != null) {
+            if (labels[launcher][i.toString()] != null) {
+                button.innerHTML += "<br/>" + labels[launcher][i.toString()];
             }
         }
         button_style.value = "color: "+profile["color"]+"; border-color: "+profile["color"]+";";
@@ -288,10 +288,10 @@ function dev() {
     devbutton_js_onclick = document.createAttribute("onclick");
     devbutton_js_onclick.value = "save_fp();";
     devbutton.setAttributeNode(devbutton_js_onclick);
-    notes_button = document.getElementById("notesbutton");
-    notes_button_2 = document.getElementById("notesbutton_");
-    notes_button.setAttribute("onclick", "");
-    notes_button_2.setAttribute("onclick", "");
+    labels_button = document.getElementById("labelsbutton");
+    labels_button_2 = document.getElementById("labelsbutton_");
+    labels_button.setAttribute("onclick", "");
+    labels_button_2.setAttribute("onclick", "");
     devmode = true;
     for (let index = 0; index < launchers.length; ++index) {
         for (let i = 1; i < launcher_counts[launchers[index]]+1; i++) {
@@ -321,10 +321,10 @@ function save_fp() {
     devbutton_js_onclick = document.createAttribute("onclick");
     devbutton_js_onclick.value = "dev();";
     devbutton.setAttributeNode(devbutton_js_onclick);
-    notes_button = document.getElementById("notesbutton");
-    notes_button_2 = document.getElementById("notesbutton_");
-    notes_button.setAttribute("onclick", "manage_notes()");
-    notes_button_2.setAttribute("onclick", "manage_notes()");
+    labels_button = document.getElementById("labelsbutton");
+    labels_button_2 = document.getElementById("labelsbutton_");
+    labels_button.setAttribute("onclick", "manage_labels()");
+    labels_button_2.setAttribute("onclick", "manage_labels()");
     for (let li = 0; li < launchers.length; li++) {
         launcher = li
         for (let i = 1; i < launcher_counts[launchers[launcher]]+1; i++) {
@@ -374,18 +374,18 @@ function change_profile(launcher, btn_id) {
     firework_profiles[launcher][profile_id]["fireworks"].push(btn_id)
 }
 
-function set_note(firework, launcher) {
+function set_label(firework, launcher) {
     launcher_indicator = document.getElementById("launcher-indicator");
     firework_indicator = document.getElementById("firework-indicator");
-    note = document.getElementById("note_content");
-    if (notes[launcher] != null) {
-        if (notes[launcher][firework] == null) {
-            note.value = "";
+    label = document.getElementById("label_content");
+    if (labels[launcher] != null) {
+        if (labels[launcher][firework] == null) {
+            label.value = "";
         } else {
-            note.value = notes[launcher][firework];
+            label.value = labels[launcher][firework];
         }
     } else {
-        note.value = "";
+        label.value = "";
     }
     modal_launcher = launcher;
     modal_firework = firework;
@@ -400,16 +400,16 @@ function set_note(firework, launcher) {
     content.classList.add("blur");
 }
 
-function add_note() {
-    note = document.getElementById("note_content");
-    if (/^[a-zA-Z 0-9\.\,\+\-]*$/g.test(note.value)) {
-        if (note.value == "") {
-            socket.emit("delete_note", modal_launcher + "_" + modal_firework);
+function add_label() {
+    label = document.getElementById("label_content");
+    if (/^[a-zA-Z 0-9\.\,\+\-]*$/g.test(label.value)) {
+        if (label.value == "") {
+            socket.emit("delete_label", modal_launcher + "_" + modal_firework);
         } else {
-            socket.emit("note_update", {
+            socket.emit("label_update", {
                 "launcher": modal_launcher,
                 "firework": modal_firework,
-                "note": note.value
+                "label": label.value
             });
         }
         close_modal();
@@ -419,19 +419,19 @@ function add_note() {
     }
 }
 
-socket.on("note_update", (note) => {
-    button = document.getElementById("fb_" + note["launcher"] + "_" + note["firework"]);
-    button.innerHTML = "#" + note["firework"] + "<br/>" + note["note"];
-    if (notes[note["launcher"]] == null) {
-        notes[note["launcher"]] = {};
+socket.on("label_update", (label) => {
+    button = document.getElementById("fb_" + label["launcher"] + "_" + label["firework"]);
+    button.innerHTML = "#" + label["firework"] + "<br/>" + label["label"];
+    if (labels[label["launcher"]] == null) {
+        labels[label["launcher"]] = {};
     }
-    notes[note["launcher"]][note["firework"]] = note["note"];
+    labels[label["launcher"]][label["firework"]] = label["label"];
 });
 
-socket.on("delete_note", (note) => {
-    button = document.getElementById("fb_" + note["launcher"] + "_" + note["firework"]);
-    button.innerHTML = "#" + note["firework"];
-    delete notes[note["launcher"]][note["firework"]]
+socket.on("delete_label", (label) => {
+    button = document.getElementById("fb_" + label["launcher"] + "_" + label["firework"]);
+    button.innerHTML = "#" + label["firework"];
+    delete labels[label["launcher"]][label["firework"]]
 });
 
 function close_modal() {
@@ -451,17 +451,17 @@ function disarm(launcher) {
     
 }
 
-function manage_notes() {
-    notes_button = document.getElementById("notesbutton");
-    notes_button_2 = document.getElementById("notesbutton_");
+function manage_labels() {
+    labels_button = document.getElementById("labelsbutton");
+    labels_button_2 = document.getElementById("labelsbutton_");
     devbutton = document.getElementById("devbutton");
     devbutton_2 = document.getElementById("devbutton_");
-    if (managing_notes) {
+    if (managing_labels) {
         devbutton.setAttribute("onclick", "dev();");
         devbutton_2.setAttribute("onclick", "dev();");
-        notes_button.innerText = "Notes";
-        notes_button_2.innerText = "Notes";
-        managing_notes = false;
+        labels_button.innerText = "Labels";
+        labels_button_2.innerText = "Labels";
+        managing_labels = false;
         for (let li = 0; li < launchers.length; li++) {
             launcher = li
             for (let i = 1; i < launcher_counts[launchers[launcher]]+1; i++) {
@@ -475,18 +475,18 @@ function manage_notes() {
         }
         update_channels_connected();
     } else {
-        notes_button.innerText = "Finish";
-        notes_button_2.innerText = "Finish";
+        labels_button.innerText = "Finish";
+        labels_button_2.innerText = "Finish";
         devbutton.setAttribute("onclick", "");
         devbutton_2.setAttribute("onclick", "");
-        managing_notes = true;
+        managing_labels = true;
         for (let li = 0; li < launchers.length; li++) {
             launcher = li
             for (let i = 1; i < launcher_counts[launchers[launcher]]+1; i++) {
                 button = document.getElementById("fb_" + launchers[launcher] + "_" + i);
                 if (button != null) {
                     button.classList.remove("disconnected");
-                    button.setAttribute("onclick", "set_note(" + i + ", '" + launchers[launcher] + "');");
+                    button.setAttribute("onclick", "set_label(" + i + ", '" + launchers[launcher] + "');");
                 } else {
                     console.warn("Tried to change non-existant button, fb_" + launchers[launcher] + "_" + i)
                 }

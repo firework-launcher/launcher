@@ -33,7 +33,7 @@ config.load_file('firework_profiles.json')
 config.load_file('sequences.json')
 config.load_file('launchers.json')
 config.load_file('drawflow_sequences.json')
-config.load_file('notes.json')
+config.load_file('labels.json')
 config.load_file('branding.json', placeholder_data={'name': 'Firework Launcher'})
 
 if not os.path.exists('config/branding.css'):
@@ -71,7 +71,7 @@ def launcher_json_data():
         'fireworks_launched': fireworks_launched,
         'firework_profiles': config.config['firework_profiles'],
         'launchers': launcher_ports,
-        'notes': config.config['notes'],
+        'labels': config.config['labels'],
         'sequences': config.config['sequences'],
         'drawflow_sequences': config.config['drawflow_sequences']
     }
@@ -102,14 +102,14 @@ def branding_css():
     resp.headers['Content-Type'] = 'text/css'
     return resp
 
-@socketio.on("note_update")
-def note_update(note_data):
-    if not note_data['launcher'] in config.config['notes']:
-        config.config['notes'][note_data['launcher']] = {}
-    config.config['notes'][note_data['launcher']][str(note_data['firework'])] = note_data['note']
+@socketio.on("label_update")
+def label_update(label_data):
+    if not label_data['launcher'] in config.config['labels']:
+        config.config['labels'][label_data['launcher']] = {}
+    config.config['labels'][label_data['launcher']][str(label_data['firework'])] = label_data['label']
     config.save_config()
-    socketio.emit('full_note_update', config.config['notes'])
-    socketio.emit('note_update', note_data)
+    socketio.emit('full_label_update', config.config['labels'])
+    socketio.emit('label_update', label_data)
 
 @app.route('/update_connected_channels')
 def update_connected_channels():
@@ -624,25 +624,25 @@ def delete_sequence(sequence):
     del config.config['sequences'][sequence]
     config.save_config()
 
-@socketio.on('delete_note')
-def delete_note(note):
+@socketio.on('delete_label')
+def delete_label(label):
     """
-    Deletes a note, called from the notes
+    Deletes a label, called from the labels
     js file.
     """
 
-    launcher = note.split('_')[0]
-    firework = note.split('_')[1]
-    if launcher in config.config['notes']:
-        if firework in config.config['notes'][launcher]:
+    launcher = label.split('_')[0]
+    firework = label.split('_')[1]
+    if launcher in config.config['labels']:
+        if firework in config.config['labels'][launcher]:
             exists = True
     if not exists:
         return None
     
-    del config.config['notes'][launcher][firework]
+    del config.config['labels'][launcher][firework]
     config.save_config()
-    socketio.emit('full_note_update', config.config['notes'])
-    socketio.emit('delete_note', {
+    socketio.emit('full_label_update', config.config['labels'])
+    socketio.emit('delete_label', {
         'launcher': launcher,
         'firework': firework
     })

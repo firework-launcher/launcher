@@ -36,9 +36,9 @@ These are some features that the website has:
 
 You can control more than one launcher through the same controller. This makes it so you can also create sequences involving launching fireworks with multiple launchers.
 
-* Notes
+* Labels
 
-You can create notes for each channel that can be displayed in the sequences, making it easier to know which fireworks are which while creating a show. This can also be useful when launching the fireworks manually.
+You can create labels for each channel that can be displayed in the sequences, making it easier to know which fireworks are which while creating a show. This can also be useful when launching the fireworks manually.
 
 * Sequences
 

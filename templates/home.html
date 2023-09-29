@@ -12,7 +12,7 @@
         <li class="navbar-item-li"><a class="navbar-item" onclick="dev();" id="devbutton">Profiles</a></li>
         <li class="navbar-item-li"><a class="navbar-item" onclick="arm_all()" id="armbutton">Arm all</a></li>
         <li class="navbar-item-li"><a class="navbar-item" onclick="disarm_all()" id="disarmbutton">Disarm all</a></li>
-        <li class="navbar-item-li"><a class="navbar-item" onclick="manage_notes()" id="notesbutton">Notes</a></li>
+        <li class="navbar-item-li"><a class="navbar-item" onclick="manage_labels()" id="labelsbutton">Labels</a></li>
         <li class="navbar-item-li"><a class="navbar-item" href="/settings">Settings</a></li>
         <li class="navbar-item-li"><a class="navbar-item" href="/sequences">Sequences</a></li>
       <li class="navbar-item-hamburger"><a class="hamburger-menu" onclick="expand_hamburger()"><img src="/static/svgs/bars.svg" width="20" class="hamburger-menu-svg" alt="Hamburger Menu"/></a></li>
@@ -22,7 +22,7 @@
         <a class="navbar-item-expanded" onclick="reset_all()" id="resetbutton_">Reset all</a>
         <a class="navbar-item-expanded" onclick="arm_all()" id="armbutton_">Arm all</a>
         <a class="navbar-item-expanded" onclick="disarm_all()" id="disarmbutton_">Disarm all</a>
-        <a class="navbar-item-expanded" onclick="manage_notes()" id="notesbutton_">Notes</a>
+        <a class="navbar-item-expanded" onclick="manage_labels()" id="labelsbutton_">Labels</a>
         <a class="navbar-item-expanded" href="/settings">Settings</a>
         <a class="navbar-item-expanded" href="/sequences">Sequences</a>
     </div>
@@ -44,9 +44,9 @@
         <h3 style="margin-top: 0;" id="launcher-indicator"></h3>
         <h3 id="firework-indicator"></h3>
         <p id="special_characters" style="display: none">Please do not use special characters</p>
-        <input placeholder="Note" class="note_box" type="text" id="note_content">
+        <input placeholder="Label" class="label_box" type="text" id="label_content">
         <div class="modal-button">
-          <button class="firework_button" onclick="add_note()">Add</button>
+          <button class="firework_button" onclick="add_label()">Add</button>
           <button class="firework_button" onclick="close_modal()">Close</button>
         </div>
       </div>

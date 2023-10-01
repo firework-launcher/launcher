@@ -1,4 +1,3 @@
-socket = io();
 
 function remove_terminal(terminal) {
     remove = document.getElementById("remove_" + terminal);

@@ -105,7 +105,7 @@ class Launcher:
                     'payload': [firework, self.find_pwm(firework)]
                 }).encode())
                 self.launcher_io.logging.debug('Triggered firework {} on launcher {}'.format(firework, self.port))
-            time.sleep(0.5)
+            time.sleep(1)
     
     def run_step(self, step):
         """
@@ -119,7 +119,7 @@ class Launcher:
         data = {'code': 4, 'payload': [step['pins'], pin_pwm]}
         self.send_obj.send(json.dumps(data).encode())
         self.launcher_io.logging.debug('Sent step to ESP Node: {} ({})'.format(self.name, self.port))
-        time.sleep(0.5)
+        time.sleep(1)
         time.sleep(int(step['delay']))
 
     def arm(self):

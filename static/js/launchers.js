@@ -1,4 +1,3 @@
-socket = io();
 
 function remove_launcher(launcher) {
     remove = document.getElementById("remove_" + launcher);

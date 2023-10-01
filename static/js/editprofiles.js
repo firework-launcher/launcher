@@ -1,7 +1,5 @@
 var profiles = root["firework_profiles"][launcher];
 
-socket = io();
-
 function remove_profile(profile) {
     profile_button = document.getElementById("remove_" + profile);
     profile_button.setAttribute("class", "sequence_delete_confirm");

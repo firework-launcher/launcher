@@ -35,7 +35,6 @@ function makeid(length) {
 }
 
 socketio_id = makeid(16);
-socket = io()
 
 if (editing == false) {
     sequence_name = null;

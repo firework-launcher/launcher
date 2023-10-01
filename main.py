@@ -17,6 +17,7 @@ import copy
 import socket
 import random
 import config_mgmt
+import auto_discovery
 import networkx as nx
 from collections import deque
 
@@ -44,6 +45,8 @@ update_filename = None
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 
 launcher_io = launcher_mgmt.LauncherIOMGMT(config, logging)
+discovery = auto_discovery.AutoDiscovery(launcher_io, config)
+threading.Thread(target=discovery.discover).start()
 
 @app.route('/')
 def home():
@@ -223,6 +226,44 @@ def launcher_settings():
     """
 
     return render_template('settings/launchers/launchers.html', launchers=launcher_io.get_ports(), add_on_start=config.config['launchers'], urlencode=urllib.parse.quote, name=config.config['branding']['name'], page='Launchers')
+
+@app.route('/add_node_discover', methods=['POST'])
+def add_node_discover():
+    node = request.form['node']
+    crashed = node in launcher_io.launchers
+    if node in launcher_io.launchers:
+        node_name = launcher_io.launchers[node].name
+        remove_launcher(node)
+        socketio.emit("node_crash_warning", [node, node_name])
+    else:
+        node_name = 'Node ' + node.split('.')[3]
+    launcher_data = {
+        'type': 'espnode',
+        'name': node_name,
+        'count': 16,
+        'port':  node
+    }
+    launcher = node
+    launcher_io.launcher_types[launcher_data['type']](launcher_io, launcher_data['name'], launcher, launcher_data['count'])
+
+    fireworks_launched[launcher] = []
+    if not launcher in config.config['firework_profiles']:
+        config.config['firework_profiles'][launcher] = {'1': {'color': '#177bed', 'fireworks': list(range(1, launcher_data['count']+1)), 'name': 'One Shot', 'pwm': 1875}, '2': {'color': '#5df482', 'fireworks': [], 'name': 'Two Shot', 'pwm': 3750}, '3': {'color': '#f4ff5e', 'fireworks': [], 'name': 'Three Shot', 'pwm': 5625}, '4': {'color': '#ff2667', 'fireworks': [], 'name': 'Finale', 'pwm': 3750}}
+    else:
+        for channel in range(1, launcher_data['count']+1):
+            found = False
+            for profile in config.config['firework_profiles'][launcher]:
+                if channel in config.config['firework_profiles'][launcher][profile]['fireworks']:
+                    found = True
+            if not found:
+                for profile in config.config['firework_profiles'][launcher]:
+                    break
+                config.config['firework_profiles'][launcher][profile]['fireworks'].append(channel)
+    config.save_config()
+    threading.Thread(target=firework_serial_write, args=[launcher]).start()
+    if not crashed:
+        socketio.emit('add_node_discover', launcher_data)
+    return 'OK'
 
 @app.route('/settings/launchers/edit_fp/<path:launcher>')
 def launcher_edit_fp(launcher):
@@ -664,20 +705,22 @@ def beforerequest():
     redirects anyone not logged in to the login page
     if they are on a private network.
     """
-
-    if not request.path == '/update_connected_channels':
-        if not request.remote_addr.startswith('192.168.') and not request.remote_addr.startswith('172.16.') and not request.remote_addr.startswith('10.'):
-            return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
-        else:
-            if not request.path.startswith('/static') and not request.path == '/login':
-                if 'token' in request.cookies:
-                    if auth.verify_token(request.remote_addr, request.cookies['token']) == False:
+    if request.path == '/add_node_discover' and request.remote_addr.startswith('127.'):
+        pass
+    else:
+        if not request.path == '/update_connected_channels':
+            if not request.remote_addr.startswith('192.168.') and not request.remote_addr.startswith('172.16.') and not request.remote_addr.startswith('10.') and not request.remote_addr.startswith('127.'):
+                return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
+            else:
+                if not request.path.startswith('/static') and not request.path == '/login' and not request.path == '/home/launcher_json_data':
+                    if 'token' in request.cookies:
+                        if auth.verify_token(request.remote_addr, request.cookies['token']) == False:
+                            return redirect('/login')
+                    else:
                         return redirect('/login')
-                else:
-                    return redirect('/login')
 
-                if launcher_io.launchers == {} and not request.path.startswith('/settings'):
-                    return redirect('/settings/launchers/add')
+                    if launcher_io.launchers == {} and not request.path.startswith('/settings'):
+                        return redirect('/settings/launchers/add')
 
 def firework_serial_write(launcher):
     """
@@ -691,6 +734,8 @@ def firework_serial_write(launcher):
     queue_for_thread = []
     while True:
         try:
+            if not launcher in launcher_io.launchers:
+                break
             i = 0
             for pin in queue[launcher]:
                 launcher_io.write_to_launcher(launcher, int(pin), 0)

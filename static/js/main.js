@@ -1,12 +1,12 @@
-var fireworks_launched = root["fireworks_launched"];
-var firework_profiles = root["firework_profiles"];
-var launcher_names = root["launcher_data"]["names"];
-var launcher_counts = root["launcher_data"]["counts"];
-var launchers_armed = root["launcher_data"]["armed"];
-var launcher_channels_connected = root["launcher_data"]["channels_connected"];
-var launchers = root["launchers"];
-var labels = root["labels"];
-var sequences = root["sequences"];
+fireworks_launched = root["fireworks_launched"];
+firework_profiles = root["firework_profiles"];
+launcher_names = root["launcher_data"]["names"];
+launcher_counts = root["launcher_data"]["counts"];
+launchers_armed = root["launcher_data"]["armed"];
+launcher_channels_connected = root["launcher_data"]["channels_connected"];
+launchers = root["launchers"];
+labels = root["labels"];
+sequences = root["sequences"];
 
 const socket = io();
 
@@ -494,18 +494,53 @@ function manage_labels() {
         }
     }
 }
+function reload_all() {
+    document.getElementById("legend").innerHTML = "<h2>Legend</h2>";
+    
+    for (let index = 0; index < launchers.length; ++index) {
+        document.getElementById("firework_buttons_" + launchers[index]).innerHTML = "";
+        add_btns(launcher_counts[launchers[index]], launchers[index]);
+    }
 
-for (let index = 0; index < launchers.length; ++index) {
-    add_btns(launcher_counts[launchers[index]], launchers[index]);
+    add_legend();
+    update_channels_connected();
+
+    Object.entries(fireworks_launched).forEach(([launcher,launched]) => {
+        for (let index = 0; index < launched.length; ++index) {
+            set_btn_red(launcher, launched[index]);
+        }
+    })
+
+    check_all_armed();
 }
 
-add_legend();
-update_channels_connected();
+socket.on("add_node_discover", async (data) => {
+    console.log(data);
+    response = await fetch(window.origin + "/home/launcher_json_data");
+    root = await response.json();
+    document.getElementById("launchers").innerHTML += `
+    <h2 style="text-align: center;">` + data["name"] + ` (` + data["port"] + `)<br/>
+    <span><a class="resetbutton" id="armbutton_` + data["port"] + `" onclick="arm('` + data["port"] + `')">Arm</a></span>
+    <span><a class="resetbutton" id="disarmbutton_` + data["port"] + `" style="display: none" onclick="disarm('` + data["port"] + `')">Disarm</a></span>
+    <span><a class="resetbutton" onclick="reset('` + data["port"] + `');">Reset</a></span>
+    </h2>
+    <div class="firework_buttons" id="firework_buttons_` + data["port"] + `"></div>
+    `;
+    fireworks_launched = root["fireworks_launched"];
+    firework_profiles = root["firework_profiles"];
+    launcher_names = root["launcher_data"]["names"];
+    launcher_counts = root["launcher_data"]["counts"];
+    launchers_armed = root["launcher_data"]["armed"];
+    launcher_channels_connected = root["launcher_data"]["channels_connected"];
+    launchers = root["launchers"];
+    labels = root["labels"];
+    sequences = root["sequences"];
+    reload_all();
+});
 
-Object.entries(fireworks_launched).forEach(([launcher,launched]) => {
-    for (let index = 0; index < launched.length; ++index) {
-        set_btn_red(launcher, launched[index]);
-    }
-})
+socket.on("node_crash_warning", (data) => {
+    document.getElementById("node_warn_crash_txt").innerText = data[1] + " (" + data[0] + ") restarted. Some fireworks may have not been lit.";
+    document.getElementById("node_warn_crash").setAttribute("style", "display: block")
+});
 
-check_all_armed()
+reload_all()

@@ -1,4 +1,3 @@
-socket = io();
 
 interval_ids = {};
 

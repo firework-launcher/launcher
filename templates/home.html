@@ -26,7 +26,11 @@
         <a class="navbar-item-expanded" href="/settings">Settings</a>
         <a class="navbar-item-expanded" href="/sequences">Sequences</a>
     </div>
+    <div id="node_warn_crash" class="warn_msg">
+      <p id="node_warn_crash_txt" style="margin: 0; color: black;"></p>
+    </div>
     <div class="content" id="content">
+      <div id="launchers">
       {% for launcher in launchers %}
         <h2 style="text-align: center;">{{ launcher }} ({{ launchers[launcher] }})<br/>
         <span><a class="resetbutton" id="armbutton_{{ launchers[launcher] }}" {% if launchers_armed[launchers[launcher]] %}style="display: none"{% endif %} onclick="arm('{{ launchers[launcher] }}')">Arm</a></span>
@@ -35,6 +39,7 @@
         </h2>
         <div class="firework_buttons" id="firework_buttons_{{ launchers[launcher] }}"></div>
       {% endfor %}
+      </div>
       <div class="legend" id="legend">
         <h2>Legend</h2>
       </div>
@@ -51,6 +56,7 @@
         </div>
       </div>
     </div>
+    <script src="/static/js/socketio.js"></script>
     <script src="/static/js/fetchvars.js"></script>
     <script>
       fetch_variables("/static/js/main.js")

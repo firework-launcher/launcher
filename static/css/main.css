@@ -16,6 +16,8 @@
     --error-color: red;
     --error-color-secondary: #a8100d;
 
+    --warn-color: #e8bf0b;
+
 }
 
 body {
@@ -54,6 +56,11 @@ h4 {
 }
 
 h5 {
+    font-family: var(--font);
+    color: var(--fg);
+}
+
+li {
     font-family: var(--font);
     color: var(--fg);
 }
@@ -275,6 +282,14 @@ h5 {
     display: none;
     width: 100%;
     background-color: var(--error-color-secondary);
+    text-align: center;
+    padding: 8px;
+}
+
+.warn_msg {
+    display: none;
+    width: 100%;
+    background-color: var(--warn-color);
     text-align: center;
     padding: 8px;
 }

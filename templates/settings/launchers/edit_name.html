@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="settings_content">
+    <h1>Change Launcher Name</h1>
+    <form method="POST">
+        <input type="text" name="name" placeholder="Name" value="{{ launcher_name }}"><br/><br/>
+        <button type="submit" class="firework_button">Change</button>
+    </form>
+</div>
+{% endblock %}

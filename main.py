@@ -280,6 +280,16 @@ def launcher_edit_fp(launcher):
         page='Edit Profiles',
     )
 
+@app.route('/settings/launchers/edit_name/<path:launcher>', methods=['GET', 'POST'])
+def launcher_edit_name(launcher):
+    launcher = launcher[5:]
+    if request.method == 'POST':
+        launcher_io.launchers[launcher].name = request.form['name']
+        return redirect('/settings/launchers')
+    if not launcher in launcher_io.launchers:
+        abort(404)
+    return render_template('settings/launchers/edit_name.html', page='Change Name', name=config.config['branding']['name'], launcher_name=launcher_io.launchers[launcher].name)
+
 @socketio.on('update_fp')
 def update_fp(data):
     launcher = data['launcher']

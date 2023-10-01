@@ -8,6 +8,7 @@
       <button id="remove_{{ launchers[launcher] }}" class="firework_button" onclick="remove_launcher('{{ launchers[launcher] }}')">Remove</button>
       <button id="addonstart_{{ launchers[launcher] }}" class="firework_button {% if launchers[launcher] in add_on_start %}addonstart_on{% else %}addonstart_off{% endif %}" onclick="launcher_addonstart('{{ launchers[launcher] }}')">Add on start</button>
       <a class="firework_button" href="/settings/launchers/edit_fp/start{{ urlencode(launchers[launcher], safe='') }}">Edit Profiles</a>
+      <a class="firework_button" href="/settings/launchers/edit_name/start{{ urlencode(launchers[launcher], safe='') }}">Change Name</a>
     </h2>
   {% endfor %}
   <a class="firework_button" href="/settings/launchers/add">Add Launcher</a>

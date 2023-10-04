@@ -362,6 +362,24 @@ li {
     text-align: center;
 }
 
+.yellow_close_button {
+    border: 2px black solid;
+    background-color: var(--warn-color);
+    color: black;
+    padding: 2px 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5px;
+    margin: 10px;
+    font-family: var(--font);
+}
+
+.inline {
+    display: inline-block;
+}
+
 @media screen and (max-width: 720px) {
     .navbar-item {
         display: none;

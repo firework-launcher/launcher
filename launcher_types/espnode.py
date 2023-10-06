@@ -91,20 +91,17 @@ class Launcher:
                                 pass
         self.recv_obj.close()
     
-    def write_to_launcher(self, firework, state):
+    def write_to_launcher(self, firework):
         """
         Writes to the launcher
         """
 
-        firework -= 1
-
         if self.armed:
-            if state == 1:
-                self.send_obj.send(json.dumps({
-                    'code': 1,
-                    'payload': [firework, self.find_pwm(firework)]
-                }).encode())
-                self.launcher_io.logging.debug('Triggered firework {} on launcher {}'.format(firework, self.port))
+            self.send_obj.send(json.dumps({
+                'code': 1,
+                'payload': [firework, self.find_pwm(firework)]
+            }).encode())
+            self.launcher_io.logging.debug('Triggered firework {} on launcher {}'.format(firework, self.port))
             time.sleep(1)
     
     def run_step(self, step):

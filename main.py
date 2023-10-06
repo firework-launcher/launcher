@@ -182,50 +182,25 @@ def login():
     else:
         return render_template('login.html', name=config.config['branding']['name'])
 
-@app.route('/settings/launchers/add', methods=['GET', 'POST'])
-def add_launcher():
-    """
-    Path for adding new launchers. There is a form on the
-    settings/launchers/add.html template that is used to
-    connect to launchers. It makes a new object for each
-    launcher that is used for communicating to that launcher.
-    """
-
-    cookies = dict(request.cookies)
-    if request.method == 'POST':
-        form = dict(request.form)
-
-        try:
-            launcher_io.launcher_types[form['type']](launcher_io, form['launcher_name'], form['port'], int(form['count']))
-        except launcher_mgmt.LauncherNotFound:
-            return render_template('settings/launchers/add.html', error=True, type_metadata=launcher_io.launcher_type_metadata, name=config.config['branding']['name'], page='Add Launcher')
-
-        fireworks_launched[form['port']] = []
-        if not form['port'] in config.config['firework_profiles']:
-            config.config['firework_profiles'][form['port']] = {'1': {'color': '#177bed', 'fireworks': list(range(1, int(form['count'])+1)), 'name': 'One Shot', 'pwm': 1875}, '2': {'color': '#5df482', 'fireworks': [], 'name': 'Two Shot', 'pwm': 3750}, '3': {'color': '#f4ff5e', 'fireworks': [], 'name': 'Three Shot', 'pwm': 5625}, '4': {'color': '#ff2667', 'fireworks': [], 'name': 'Finale', 'pwm': 3750}}
-        else:
-            for channel in range(1, int(form['count'])+1):
-                found = False
-                for profile in config.config['firework_profiles'][form['port']]:
-                    if channel in config.config['firework_profiles'][form['port']][profile]['fireworks']:
-                        found = True
-                if not found:
-                    for profile in config.config['firework_profiles'][form['port']]:
-                        break
-                    config.config['firework_profiles'][form['port']][profile]['fireworks'].append(channel)
-        config.save_config()
-        threading.Thread(target=firework_serial_write, args=[form['port']]).start()
-        return redirect('/')
-    else:
-        return render_template('settings/launchers/add.html', error=False, type_metadata=launcher_io.launcher_type_metadata, name=config.config['branding']['name'], page='Add Launcher')
-
 @app.route('/settings/launchers')
 def launcher_settings():
     """
     Path for adding and removing launchers.
     """
 
+    if launcher_io.launchers == {}:
+        return redirect('/settings/launchers/none')
+
     return render_template('settings/launchers/launchers.html', launchers=launcher_io.get_ports(), add_on_start=config.config['launchers'], urlencode=urllib.parse.quote, name=config.config['branding']['name'], page='Launchers')
+
+@app.route('/settings/launchers/none')
+def no_launchers():
+    """
+    Path for showing a message saying that
+    there are no launchers
+    """
+
+    return render_template('settings/launchers/none.html', page='No Launchers', name=config.config['branding']['name'])
 
 @app.route('/add_node_discover', methods=['POST'])
 def add_node_discover():
@@ -389,7 +364,7 @@ def sequence_builder():
             launcher_counts[launcher] = launcher_io.launchers[launcher].count
     
     if launchers == {}:
-        return redirect('/settings/launchers/add')
+        return redirect('/settings/launchers/none')
 
     return render_template('sequences/builder.html', launchers=launchers, name=config.config['branding']['name'], page='Sequence Builder')
 
@@ -414,7 +389,7 @@ def sequence_edit(sequence):
             launcher_counts[launcher] = launcher_io.launchers[launcher].count
     
     if launchers == {}:
-        return redirect('/settings/launchers/add')
+        return redirect('/settings/launchers/none')
 
     return render_template('sequences/builder.html', launchers=launchers, name=config.config['branding']['name'], page='Sequence Builder', edit=True, sequence=sequence)
 
@@ -730,7 +705,7 @@ def beforerequest():
                         return redirect('/login')
 
                     if launcher_io.launchers == {} and not request.path.startswith('/settings'):
-                        return redirect('/settings/launchers/add')
+                        return redirect('/settings/launchers/none')
 
 def firework_serial_write(launcher):
     """
@@ -748,8 +723,7 @@ def firework_serial_write(launcher):
                 break
             i = 0
             for pin in queue[launcher]:
-                launcher_io.write_to_launcher(launcher, int(pin), 0)
-                launcher_io.write_to_launcher(launcher, int(pin), 1)
+                launcher_io.trigger_firework(launcher, int(pin))
                 del queue[launcher][i]
                 i = i + 1
                 logging.info('{} Queue update: {}'.format(launcher, queue))
@@ -774,9 +748,8 @@ def trigger_firework(data):
     if armed:
         global fireworks_launched
         fireworks_launched[launcher].append(firework)
-        pin = str(int(firework)+1)
         global queue
-        queue[launcher].append(pin)
+        queue[launcher].append(firework)
         socketio.emit('firework_launch', {'firework': firework, 'launcher': launcher})
 
 def reset_queue():

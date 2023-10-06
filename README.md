@@ -9,7 +9,7 @@ The launchers use the ESP32 code from [firework-launcher/esp32-node](https://git
 
 ### Custom launchers
 
-You can create a custom launcher type by going into the launcher_types folder and using the ESP node as a template. Just know that there is not a way to add a launcher manually through the website. You would need to add it to the launchers.json config file, or modify the auto discovery. This could mean accepting another UDP broadcast other than NODE_RESPONSE. This is the how an entry in the launchers.json config file would look:
+You can create a custom launcher type by going into the launcher_types folder and using example.py.example as a template. Just know that there is not a way to add a launcher manually through the website. You would need to add it to the launchers.json config file, or modify the auto discovery. This could mean accepting another UDP broadcast other than NODE_RESPONSE. This is the how an entry in the launchers.json config file would look:
 
 ```js
 {

@@ -1,0 +1,65 @@
+import socket
+import time
+import launcher_mgmt
+import threading
+import json
+import requests
+import copy
+
+launcher_type = 'example'
+type_pretty_name = 'Example Type'
+
+class Launcher:
+    def __init__(self, launcher_io, name, port, count):
+        """
+        Initializes the launcher
+        """
+        
+        self.launcher_io = launcher_io
+        self.name = name
+        self.port = port
+        self.type = copy.copy(launcher_type)
+        self.armed = False
+        self.count = count
+        self.sequences_supported = True # Tells if the run_step function works.
+        self.launcher_io.add_launcher(self)
+    
+    def write_to_launcher(self, firework):
+        """
+        Triggers a channel
+        """
+
+        if self.armed:
+            self.launcher_io.logging.debug('Triggered firework {} on launcher {}'.format(firework, self.port))
+            time.sleep(1)
+    
+    def run_step(self, step):
+        """
+        Runs a step in a sequence. Just a list of fireworks to trigger at the same time.
+        The step dictionary looks something like this:
+        {"pins": [1, 2, 3], "delay": 1}
+        The delay is in seconds.
+        """
+
+        if self.armed:
+            self.launcher_io.logging.debug('Launcher {} ({}) should now launch these fireworks: '.format(self.name, self.port, step['pins']))
+            time.sleep(1)
+            time.sleep(int(step['delay']))
+
+    def arm(self):
+        """
+        If there is some sort of hardware arm circuit, arm it here
+        """
+        self.armed = True
+    
+    def disarm(self):
+        """
+        If there is some sort of hardware arm circuit, disarm it here
+        """
+        self.armed = False
+
+    def remove(self):
+        """
+        Called when the launcher is removed, close anything here.
+        """
+        pass

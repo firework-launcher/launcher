@@ -33,7 +33,7 @@ class Launcher:
         Writes to the launcher
         """
         if self.armed:
-            pin -= -1
+            pin -= 1
             if value == 1:
                 self.obj.set_output([pin])
                 self.launcher_io.logging.debug('Triggered firework {} on shift register {}'.format(pin, self.port))

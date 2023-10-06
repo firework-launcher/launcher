@@ -11,7 +11,6 @@ import launcher_mgmt
 import terminal_mgmt
 import argparse
 import logging
-import auth
 import subprocess
 import copy
 import socket
@@ -24,7 +23,6 @@ from collections import deque
 app = Flask(__name__)
 socketio = flask_socketio.SocketIO(app)
 fireworks_launched = {}
-auth = auth.Auth()
 terminals = terminal_mgmt.Terminals()
 config = config_mgmt.ConfigMGMT()
 queue = {}
@@ -163,24 +161,6 @@ def terminal_client(port):
         abort(404)
     
     return render_template('settings/terminals/client.html', url='http://' + socket.gethostbyname(socket.gethostname()) + ':' + port + '/s/local/.', name=config.config['branding']['name'], page='Terminal')
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    """
-    Path for logging in, in the beforerequest function,
-    it redirects anyone not logged in to this page.
-    """
-
-    if request.method == 'POST':
-        if auth.login(request.form['username'], request.form['passwd']):
-            token = auth.create_token(request.form['username'], request.remote_addr)
-            resp = redirect('/')
-            resp.set_cookie('token', token)
-            return resp
-        else:
-            return render_template('login.html', name=config.config['branding']['name'])
-    else:
-        return render_template('login.html', name=config.config['branding']['name'])
 
 @app.route('/settings/launchers')
 def launcher_settings():
@@ -697,12 +677,7 @@ def beforerequest():
             if not request.remote_addr.startswith('192.168.') and not request.remote_addr.startswith('172.16.') and not request.remote_addr.startswith('10.') and not request.remote_addr.startswith('127.'):
                 return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
             else:
-                if not request.path.startswith('/static') and not request.path == '/login' and not request.path == '/home/launcher_json_data':
-                    if 'token' in request.cookies:
-                        if auth.verify_token(request.remote_addr, request.cookies['token']) == False:
-                            return redirect('/login')
-                    else:
-                        return redirect('/login')
+                if not request.path.startswith('/static') and not request.path == '/home/launcher_json_data':
 
                     if launcher_io.launchers == {} and not request.path.startswith('/settings'):
                         return redirect('/settings/launchers/none')

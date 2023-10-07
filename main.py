@@ -44,6 +44,8 @@ update_filename = None
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 
+logging.disable(logging.CRITICAL)
+
 launcher_io = launcher_mgmt.LauncherIOMGMT(config, logging)
 discovery = auto_discovery.AutoDiscovery(launcher_io, config)
 threading.Thread(target=discovery.discover).start()
@@ -355,6 +357,7 @@ def sequence_status_checker(sequence):
             del response['error']
         
         response['next_step_in'] = launcher_io.running_sequence_data[sequence]['next_step_epoch_est'] - int(time.time())
+        print(response)
         return jsonify(response)
     else:
         return jsonify({'running': False})

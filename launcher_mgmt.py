@@ -2,6 +2,7 @@ import time
 import traceback
 import sys
 import os
+import random
 import threading
 
 class LauncherNotFound(Exception):
@@ -69,9 +70,13 @@ class LauncherIOMGMT:
         pins on.
         """
 
-        self.running_sequence_data[sequence_name] = {'stop': False, 'error': False, 'next_step_epoch_est': 0}
+        thread_id = random.randrange(1, 1000000)
+        self.running_sequence_data[sequence_name] = {'stop': False, 'error': False, 'next_step_epoch_est': 0, 'runthread_id': thread_id}
         for step in sequence_data:
+            if not self.running_sequence_data[sequence_name]['runthread_id'] == thread_id:
+                break
             try:
+                print(self.running_sequence_data)
                 if self.running_sequence_data[sequence_name]['stop']:
                     break
                 self.running_sequence_data[sequence_name]['step'] = step

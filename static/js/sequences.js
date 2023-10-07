@@ -10,6 +10,7 @@ function finish_sequence(sequence) {
 
 socket.on("running_sequence", (sequence) => {
     run = document.getElementById("run_" + sequence);
+    run.setAttribute("onclick", "");
     run.innerText = "Running";
     id = setInterval(async function () { await check_sequence(sequence) }, 500); 
     interval_ids[sequence] = id;

@@ -347,10 +347,14 @@ def sequence_status_checker(sequence):
         response = {'running': sequence_status[sequence], 'error': False}
         if response['running']:
             response.update(launcher_io.running_sequence_data[sequence])
-        if response['error']:
+        if response['error'] == 'failed':
             logging.error('sequence "{}" failed to run'.format(sequence))
             sequence_status[sequence] = False
-            return jsonify({'error': 'sequence failed to run'})
+            return jsonify({'error': 'failed', 'next_step_in': 0})
+        elif response['error'] == 'unarmed':
+            logging.error('sequence "{}" tried to run with launchers unarmed'.format(sequence))
+            sequence_status[sequence] = False
+            return jsonify({'error': 'unarmed', 'next_step_in': 0})
         else:
             del response['error']
         

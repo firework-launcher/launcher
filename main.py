@@ -355,7 +355,6 @@ def sequence_status_checker(sequence):
             del response['error']
         
         response['next_step_in'] = launcher_io.running_sequence_data[sequence]['next_step_epoch_est'] - int(time.time())
-        print(response)
         return jsonify(response)
     else:
         return jsonify({'running': False})

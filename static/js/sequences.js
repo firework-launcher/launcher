@@ -58,6 +58,8 @@ async function check_sequence(sequence) {
             error_text_element.innerText = "Sequence \"" + sequence + "\" failed to run. Check logs for more info.";
         } else if (data["error"] == "unarmed") {
             error_text_element.innerText = "Sequence \"" + sequence + "\" failed to run. One or more launchers is unarmed.";
+        } else if (data["error"] == "notadded") {
+            error_text_element.innerText = "Sequence \"" + sequence + "\" failed to run. One or more launchers is not added.";
         }
         error_element = document.getElementById("error");
         error_element.setAttribute("style", "display: block");

@@ -4,6 +4,7 @@ interval_ids = {};
 function finish_sequence(sequence) {
     run = document.getElementById("run_" + sequence);
     run.innerText = "Run";
+    run.setAttribute("onclick", "run_sequence('" + sequence + "')");
     stop_sequence_element = document.getElementById("stop_" + sequence);
     stop_sequence_element.remove();
 };

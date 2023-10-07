@@ -43,7 +43,8 @@ class Launcher:
         Runs a step in a sequence
         """
         
-        self.obj.set_output_sequence({'Step': step})
+        if self.armed:
+            self.obj.set_output_sequence({'Step': step})
     
     def arm(self):
         self.armed = True

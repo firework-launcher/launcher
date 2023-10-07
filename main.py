@@ -44,8 +44,6 @@ update_filename = None
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 
-logging.disable(logging.CRITICAL)
-
 launcher_io = launcher_mgmt.LauncherIOMGMT(config, logging)
 discovery = auto_discovery.AutoDiscovery(launcher_io, config)
 threading.Thread(target=discovery.discover).start()

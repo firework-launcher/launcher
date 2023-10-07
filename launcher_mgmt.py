@@ -76,7 +76,6 @@ class LauncherIOMGMT:
             if not self.running_sequence_data[sequence_name]['runthread_id'] == thread_id:
                 break
             try:
-                print(self.running_sequence_data)
                 if self.running_sequence_data[sequence_name]['stop']:
                     break
                 self.running_sequence_data[sequence_name]['step'] = step

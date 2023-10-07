@@ -109,15 +109,16 @@ class Launcher:
         Creates a dictionary to send to the ESP that has the correct format
         """
 
-        pin_pwm = []
-        for pin in step['pins']:
-            pin_pwm.append(self.find_pwm(pin))
+        if self.armed:
+            pin_pwm = []
+            for pin in step['pins']:
+                pin_pwm.append(self.find_pwm(pin))
 
-        data = {'code': 4, 'payload': [step['pins'], pin_pwm]}
-        self.send_obj.send(json.dumps(data).encode())
-        self.launcher_io.logging.debug('Sent step to ESP Node: {} ({})'.format(self.name, self.port))
-        time.sleep(1)
-        time.sleep(int(step['delay']))
+            data = {'code': 4, 'payload': [step['pins'], pin_pwm]}
+            self.send_obj.send(json.dumps(data).encode())
+            self.launcher_io.logging.debug('Sent step to ESP Node: {} ({})'.format(self.name, self.port))
+            time.sleep(1)
+            time.sleep(int(step['delay']))
 
     def arm(self):
         self.send_obj.send(json.dumps({

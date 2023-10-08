@@ -302,10 +302,18 @@ def sequence_status_checker(sequence):
         response = {'running': sequence_status[sequence], 'error': False}
         if response['running']:
             response.update(launcher_io.running_sequence_data[sequence])
-        if response['error']:
+        if response['error'] == 'failed':
             logging.error('sequence "{}" failed to run'.format(sequence))
             sequence_status[sequence] = False
-            return jsonify({'error': 'sequence failed to run'})
+            return jsonify({'error': 'failed', 'next_step_in': 0, 'step': 'Failed'})
+        elif response['error'] == 'notadded':
+            logging.error('sequence "{}" tried to run with launchers not added'.format(sequence))
+            sequence_status[sequence] = False
+            return jsonify({'error': 'notadded', 'next_step_in': 0, 'step': 'Failed'})
+        elif response['error'] == 'unarmed':
+            logging.error('sequence "{}" tried to run with launchers unarmed'.format(sequence))
+            sequence_status[sequence] = False
+            return jsonify({'error': 'unarmed', 'next_step_in': 0, 'step': 'Failed'})
         else:
             del response['error']
         
@@ -609,14 +617,21 @@ def run_sequence_threaded(sequence):
     sequence_data = config.config['sequences'][sequence]
     pins_changed = []
     for step in sequence_data:
+        launchers_added = True
         for launcher in sequence_data[step]['pins']:
+            if not launcher in launcher_io.launchers:
+                launchers_added = False
+                break
             pins_changed.append([launcher, sequence_data[step]['pins'][launcher]])
-    global fireworks_launched
-    for pin in pins_changed:
-        fireworks_launched[pin[0]] += pin[1]
-    launcher_io.run_sequence(sequence, sequence_data)
-    if not launcher_io.running_sequence_data[sequence]['error']:
-        sequence_status[sequence] = False
+    if not launchers_added:
+        launcher_io.running_sequence_data[sequence] = {'error': 'notadded', 'next_step_epoch_est': 0}
+    else:
+        global fireworks_launched
+        for pin in pins_changed:
+            fireworks_launched[pin[0]] += pin[1]
+        launcher_io.run_sequence(sequence, sequence_data)
+        if not launcher_io.running_sequence_data[sequence]['error']:
+            sequence_status[sequence] = False
 
 @socketio.on('delete_sequence')
 def delete_sequence(sequence):

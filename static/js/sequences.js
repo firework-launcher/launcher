@@ -4,12 +4,14 @@ interval_ids = {};
 function finish_sequence(sequence) {
     run = document.getElementById("run_" + sequence);
     run.innerText = "Run";
+    run.setAttribute("onclick", "run_sequence('" + sequence + "')");
     stop_sequence_element = document.getElementById("stop_" + sequence);
     stop_sequence_element.remove();
 };
 
 socket.on("running_sequence", (sequence) => {
     run = document.getElementById("run_" + sequence);
+    run.setAttribute("onclick", "");
     run.innerText = "Running";
     id = setInterval(async function () { await check_sequence(sequence) }, 500); 
     interval_ids[sequence] = id;
@@ -52,7 +54,13 @@ async function check_sequence(sequence) {
     data = await request.json();
     if (data["error"] != undefined) {
         error_text_element = document.getElementById("error_text");
-        error_text_element.innerText = "Sequence \"" + sequence + "\" failed to run. Check logs for more info.";
+        if (data["error"] == "failed") {
+            error_text_element.innerText = "Sequence \"" + sequence + "\" failed to run. Check logs for more info.";
+        } else if (data["error"] == "unarmed") {
+            error_text_element.innerText = "Sequence \"" + sequence + "\" failed to run. One or more launchers is unarmed.";
+        } else if (data["error"] == "notadded") {
+            error_text_element.innerText = "Sequence \"" + sequence + "\" failed to run. One or more launchers is not added.";
+        }
         error_element = document.getElementById("error");
         error_element.setAttribute("style", "display: block");
     }

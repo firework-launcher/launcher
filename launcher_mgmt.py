@@ -2,6 +2,7 @@ import time
 import traceback
 import sys
 import os
+import random
 import threading
 
 class LauncherNotFound(Exception):
@@ -58,6 +59,19 @@ class LauncherIOMGMT:
             port_list[self.launchers[launcher].name] = launcher
         return port_list
     
+    def get_launchers_in_sequence(self, sequence_data):
+        """
+        Takes all launchers being used in a sequence. This is used to find out
+        if all launchers are armed in the sequence.
+        """
+
+        launchers = []
+        for step in sequence_data:
+            for launcher in sequence_data[step]['pins']:
+                if not launcher in launchers:
+                    launchers.append(launcher)
+        return launchers
+
     def run_sequence(self, sequence_name, sequence_data):
         """
         This runs a sequence. The sequence data variable is a dictionary. The keys
@@ -69,22 +83,33 @@ class LauncherIOMGMT:
         pins on.
         """
 
-        self.running_sequence_data[sequence_name] = {'stop': False, 'error': False, 'next_step_epoch_est': 0}
-        for step in sequence_data:
-            try:
-                if self.running_sequence_data[sequence_name]['stop']:
+        thread_id = random.randrange(1, 1000000)
+        self.running_sequence_data[sequence_name] = {'stop': False, 'error': False, 'next_step_epoch_est': 0, 'runthread_id': thread_id}
+        all_launchers = self.get_launchers_in_sequence(sequence_data)
+        all_armed = True
+        for launcher in all_launchers:
+            if not self.launchers[launcher].armed:
+                all_armed = False
+        if not all_armed:
+            self.running_sequence_data[sequence_name]['error'] = 'unarmed'
+        else:
+            for step in sequence_data:
+                if not self.running_sequence_data[sequence_name]['runthread_id'] == thread_id:
                     break
-                self.running_sequence_data[sequence_name]['step'] = step
-                self.running_sequence_data[sequence_name]['next_step_epoch_est'] = int(time.time())+int(sequence_data[step]['delay'])+1
-                x = len(sequence_data[step]['pins'])
-                for launcher in sequence_data[step]['pins']:
-                    x -= 1
-                    if x == 0:
+                try:
+                    if self.running_sequence_data[sequence_name]['stop']:
                         break
-                    threading.Thread(target=self.launchers[launcher].run_step, args=[{'pins': sequence_data[step]['pins'][launcher], 'delay': sequence_data[step]['delay']}]).start()
-                self.launchers[launcher].run_step({'pins': sequence_data[step]['pins'][launcher], 'delay': sequence_data[step]['delay']})
-            except:
-                print(traceback.format_exc())
-                self.running_sequence_data[sequence_name]['error'] = True
-                self.running_sequence_data[sequence_name]['next_step_epoch_est'] = 0
-                break
+                    self.running_sequence_data[sequence_name]['step'] = step
+                    self.running_sequence_data[sequence_name]['next_step_epoch_est'] = int(time.time())+int(sequence_data[step]['delay'])+1
+                    x = len(sequence_data[step]['pins'])
+                    for launcher in sequence_data[step]['pins']:
+                        x -= 1
+                        if x == 0:
+                            break
+                        threading.Thread(target=self.launchers[launcher].run_step, args=[{'pins': sequence_data[step]['pins'][launcher], 'delay': sequence_data[step]['delay']}]).start()
+                    self.launchers[launcher].run_step({'pins': sequence_data[step]['pins'][launcher], 'delay': sequence_data[step]['delay']})
+                except:
+                    print(traceback.format_exc())
+                    self.running_sequence_data[sequence_name]['error'] = 'failed'
+                    self.running_sequence_data[sequence_name]['next_step_epoch_est'] = 0
+                    break

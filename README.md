@@ -3,31 +3,23 @@
 This is the source code for a firework launcher.
 
 ## Hardware
-### Serial and IP Launchers
-These launchers are controlled using the same protocol of [aRest](https://github.com/marcoschwartz/aREST). If you want to implement this yourself, the only commands it is using, go like this:
-```
-/digital/<pin>/<state>
-```
-An example of a command to set pin 2 to LOW, would look something like this:
-```
-/digital/2/0
-```
-
-These commands are seperated by a newline.
-
-### Shift Register Launchers
-These launchers use the gpioset command to control SN74HC595N shift registers. The GPIO lines that it uses are set in the `shift_register_mgmt.py` file.
-
-SRCLK - 84\
-OE - 86\
-SER - 85\
-SRCLR - 97\
-RCLK - 96
-
-The pinout of the chip itself is explained more in the [datasheet](https://www.ti.com/lit/ds/symlink/sn74hc595.pdf).
-
 ### ESP Nodes
-These launchers use the ESP32 code from [firework-launcher/esp32-node](https://github.com/firework-launcher/esp32-node). You can't really put this on a regular ESP32 board. This is meant for a custom board that has mosfets, a display board, and some other things like arm circuits.
+
+The launchers use the ESP32 code from [firework-launcher/esp32-node](https://github.com/firework-launcher/esp32-node). You can't really put this on a regular ESP32 board. This is meant for a custom board that has mosfets, a display board, and some other things like arm circuits.
+
+### Custom launchers
+
+You can create a custom launcher type by going into the launcher_types folder and using example.py.example as a template. Just know that there is not a way to add a launcher manually through the website. You would need to add it to the launchers.json config file, or modify the auto discovery. This could mean accepting another UDP broadcast other than NODE_RESPONSE. This is the how an entry in the launchers.json config file would look:
+
+```js
+{
+    "port/id of launcher": {
+        "type": "your launcher type",
+        "name": "launcher name",
+        "count": "how many channels"
+    }
+}
+```
 
 ## Software
 These are some features that the website has:

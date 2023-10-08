@@ -95,28 +95,23 @@ class ShiftRegisterMGMT:
         if set_oe:
             self.write_to_gpio([[OE_PIN, 1]])
 
-    def set_output_sequence(self, sequence, set_oe=True):
+    def set_output_sequence(self, step):
         """
         Accepts a dictionary containing steps for a sequence
         with the fireworks that need to be launched, and the
-        delays. The set_oe parameter is explained in the
-        load_shift_sequence() function.
+        delays.
         """
 
-        shifts = []
-        delays = []
-        for stage in sequence:
-            pins = sequence[stage]['pins']
-            current_shift_split = []
-            for x in range(self.shift_size):
-                current_shift_split.append('0')
-            for pin in pins:
-                current_shift_split[(self.shift_size-1)-(pin-1)] = '1'
-                current_shift = ''.join(current_shift_split)
-            shifts.append(current_shift)
-            delays.append(sequence[stage]['delay'])
-        self.load_shift_sequence(shifts, delays, set_oe)
+        pins = step['pins']
+        current_shift_split = []
+        for x in range(self.shift_size):
+            current_shift_split.append('0')
+        for pin in pins:
+            current_shift_split[(self.shift_size-1)-(pin-1)] = '1'
+            current_shift = ''.join(current_shift_split)
+        self.load_shift(current_shift)
         self.clear()
+        time.sleep(step['delay'])
 
     def set_output(self, pins):
         """
@@ -180,8 +175,7 @@ class Launcher:
         """
         
         if self.armed:
-            self.obj.set_output_sequence({'Step': step})
-    
+            self.obj.set_output_sequence(step)
     def arm(self):
         self.armed = True
     

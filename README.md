@@ -1,6 +1,6 @@
 # Firework Launcher
 ## About
-This is the source code for a firework launcher. Another test
+This is the source code for a firework launcher.
 
 ## Hardware
 ### ESP Nodes

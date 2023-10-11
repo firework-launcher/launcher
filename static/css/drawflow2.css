@@ -220,8 +220,8 @@ cursor: pointer;
 }
 
 .drawflow-node .title-box {
-  height: 50px;
-  line-height: 50px;
+  height: 70px;
+  line-height: 70px;
   background: var(--background-box-title);
   border-radius: 4px 4px 0px 0px;
   padding-left: 10px;

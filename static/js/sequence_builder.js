@@ -65,6 +65,11 @@ function get_profile_id(launcher, btn_id) {
     return profile;
 }
 
+function updateNodeWithFirework(nodeId, launcher, firework) {
+
+    document.getElementById("node-" + nodeId).children[1].children[0].children[0].children[0].innerHTML = labels[launcher][firework] + "<br/>" + launcher + ", " + firework; // Using innerHTML is safe here since special characters are filtered out
+}
+
 function getFireworkByLabel(label) {
     firework_ = null;
     launcher_ = null;
@@ -318,7 +323,7 @@ function save_launchmodal() {
     updateNodeData(nodeId, "firework", parseInt(modal_firework.value));
     updateNodeData(nodeId, "launcher", modal_launcher.value);
     close_modal("launchmodal");
-    document.getElementById("node-" + nodeId).children[1].children[0].children[0].children[0].innerText = labels[modal_launcher.value][modal_firework.value];
+    updateNodeWithFirework(nodeId, modal_launcher.value, modal_firework.value);
 }
 
 function save_delaymodal() {
@@ -341,7 +346,7 @@ function updateAllText() {
     delay_nodes = editor.getNodesFromName("delay")
     for (let i = 0; i < launch_nodes.length; i++) {
         node_data = editor.getNodeFromId(launch_nodes[i])["data"]
-        document.getElementById("node-" + launch_nodes[i]).children[1].children[0].children[0].children[0].innerText = labels[node_data["launcher"]][node_data["firework"]];
+        updateNodeWithFirework(launch_nodes[i], node_data["launcher"], node_data["firework"])
     }
     for (let i = 0; i < delay_nodes.length; i++) {
         node_data = editor.getNodeFromId(delay_nodes[i])["data"]

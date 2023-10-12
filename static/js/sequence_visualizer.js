@@ -15,6 +15,8 @@ selectedNode = null;
 startId = 1;
 endId = 2;
 fireworks_used = [];
+current_step = null;
+time_step_changed = null;
 
 function makeid(length) {
     let result = '';
@@ -120,6 +122,14 @@ function resetFiredColors() {
     for (let i = 0; i < launch_nodes.length; i++) {
         document.getElementById("node-" + launch_nodes[i]).classList.remove("node-running");
     }
+    delay_nodes = editor.getNodesFromName("delay");
+    for (let i = 0; i < delay_nodes.length; i++) {
+        document.getElementById("node-" + delay_nodes[i]).classList.remove("node-running");
+    }
+    end_nodes = editor.getNodesFromName("end");
+    for (let i = 0; i < end_nodes.length; i++) {
+        document.getElementById("node-" + end_nodes[i]).classList.remove("node-running");
+    }
 }
 
 function finish_sequence(sequence) {
@@ -179,15 +189,35 @@ async function check_sequence() {
         run = document.getElementById("run_button");
         run.innerText = "Running - " + data["step"] + " - Next step in " + data["next_step_in"] + " sec.";
         step = sequences[sequence][data["step"]];
+    
         if (step != undefined) {
             resetFiredColors();
-            for (let i = 0; i < Object.keys(step["pins"]).length; i++) {
-                fireworks = step["pins"][Object.keys(step["pins"])[i]];
-                launcher = Object.keys(step["pins"])[i];
-                for (let x = 0; x < fireworks.length; x++) {
-                    firework = fireworks[x];
-                    node = getNodeFromFirework(launcher, firework);
-                    document.getElementById("node-" + node).classList.add("node-running");
+            console.log(current_step)
+            if (current_step != data["step"]) {
+                current_step = JSON.parse(JSON.stringify(data["step"]));
+                time_step_changed = Date.now();
+            }
+            if (Date.now() - time_step_changed >= 1) {
+                for (let i = 0; i < Object.keys(step["pins"]).length; i++) {
+                    fireworks = step["pins"][Object.keys(step["pins"])[i]];
+                    launcher = Object.keys(step["pins"])[i];
+                    for (let x = 0; x < fireworks.length; x++) {
+                        firework = fireworks[x];
+                        node = getNodeFromFirework(launcher, firework);
+                        node = editor.getNodeFromId(node);
+                        delay_node = parseInt(node["outputs"]["output_1"]["connections"][0]["node"]);
+                        document.getElementById("node-" + delay_node).classList.add("node-running");
+                    }
+                }
+            } else {
+                for (let i = 0; i < Object.keys(step["pins"]).length; i++) {
+                    fireworks = step["pins"][Object.keys(step["pins"])[i]];
+                    launcher = Object.keys(step["pins"])[i];
+                    for (let x = 0; x < fireworks.length; x++) {
+                        firework = fireworks[x];
+                        node = getNodeFromFirework(launcher, firework);
+                        document.getElementById("node-" + node).classList.add("node-running");
+                    }
                 }
             }
         }

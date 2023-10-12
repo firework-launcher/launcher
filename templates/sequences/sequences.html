@@ -10,6 +10,7 @@
                 <button class="firework_button" id="run_{{ sequence }}" onclick="run_sequence('{{ sequence }}')">Run</button>
                 <button class="firework_button" id="delete_{{ sequence }}" onclick="delete_sequence('{{ sequence }}')">Delete</button>
                 <button class="firework_button" id="edit_{{ sequence }}" onclick="edit_sequence('{{ sequence }}')">Edit</button>
+                <a class="firework_button" href="/sequences/visualize/{{ sequence }}">Visualize</a>
             </h1><br/>
         </div>
     {% endfor %}

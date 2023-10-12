@@ -96,6 +96,9 @@
     --dfDeleteHoverBorderSize: 2px;
     --dfDeleteHoverBorderColor: #000000;
     --dfDeleteHoverBorderRadius: 50px;
+
+    --dfNodeBackgroundColorFired: rgb(28, 145, 33);
+    --dfNodeBoxShadowColorFired: rgb(0, 103, 14);
   
   }
   
@@ -112,6 +115,11 @@
     background-image: var(--dfBackgroundImage);
   }
   
+  .node-running {
+    background: var(--dfNodeBackgroundColorFired) !important;
+    box-shadow:  var(--dfNodeBoxShadowHL) var(--dfNodeBoxShadowVL) var(--dfNodeBoxShadowBR) var(--dfNodeBoxShadowS) var(--dfNodeBoxShadowColorFired) !important;
+  }
+
   .drawflow .drawflow-node {
     display: var(--dfNodeType);
     background: var(--dfNodeBackgroundColor);

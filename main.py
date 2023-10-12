@@ -381,6 +381,14 @@ def sequence_edit(sequence):
 
     return render_template('sequences/builder.html', launchers=launchers, name=config.config['branding']['name'], page='Sequence Builder', edit=True, sequence=sequence)
 
+@app.route('/sequences/visualize/<string:sequence>')
+def sequence_visualize(sequence):
+    """
+    Path to visualize a sequence.
+    """
+
+    return render_template('sequences/visualize.html', page='Sequence Visualizer', name=config.config['branding']['name'], sequence_name=sequence)
+
 def secure_filename(filename):
     """
     Replacement for werkzeug.secure_filename()

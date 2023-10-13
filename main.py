@@ -750,6 +750,15 @@ def trigger_firework(data):
         queue[launcher].append(firework)
         socketio.emit('firework_launch', {'firework': firework, 'launcher': launcher})
 
+@socketio.on("firenow")
+def firenow(sequence):
+    """
+    Skips delays in sequence for if a firework ends
+    earlier than expected.
+    """
+
+    launcher_io.running_sequence_data[sequence]['firenow'] = True
+
 def reset_queue():
     """
     This fully clears the queue.

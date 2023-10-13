@@ -118,7 +118,6 @@ class Launcher:
             self.send_obj.send(json.dumps(data).encode())
             self.launcher_io.logging.debug('Sent step to ESP Node: {} ({})'.format(self.name, self.port))
             time.sleep(1)
-            time.sleep(int(step['delay']))
 
     def arm(self):
         self.send_obj.send(json.dumps({

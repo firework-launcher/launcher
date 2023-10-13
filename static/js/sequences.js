@@ -7,7 +7,12 @@ function finish_sequence(sequence) {
     run.setAttribute("onclick", "run_sequence('" + sequence + "')");
     stop_sequence_element = document.getElementById("stop_" + sequence);
     stop_sequence_element.remove();
+    document.getElementById("firenow_" + sequence).setAttribute("style", "display: none");
 };
+
+function firenow(sequence) {
+    socket.emit("firenow", sequence);
+}
 
 socket.on("running_sequence", (sequence) => {
     run = document.getElementById("run_" + sequence);
@@ -22,6 +27,7 @@ socket.on("running_sequence", (sequence) => {
     stop_sequence_element.innerText = "Stop";
     h1sequence_element = document.getElementById("h1sequence_" + sequence);
     h1sequence_element.appendChild(stop_sequence_element);
+    document.getElementById("firenow_" + sequence).setAttribute("style", "");
 });
 
 function run_sequence(sequence) {

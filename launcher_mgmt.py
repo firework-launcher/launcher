@@ -84,7 +84,7 @@ class LauncherIOMGMT:
         """
 
         thread_id = random.randrange(1, 1000000)
-        self.running_sequence_data[sequence_name] = {'stop': False, 'error': False, 'next_step_epoch_est': 0, 'runthread_id': thread_id}
+        self.running_sequence_data[sequence_name] = {'stop': False, 'error': False, 'next_step_epoch_est': 0, 'runthread_id': thread_id, 'firenow': False}
         all_launchers = self.get_launchers_in_sequence(sequence_data)
         all_armed = True
         for launcher in all_launchers:
@@ -108,6 +108,12 @@ class LauncherIOMGMT:
                             break
                         threading.Thread(target=self.launchers[launcher].run_step, args=[{'pins': sequence_data[step]['pins'][launcher], 'delay': sequence_data[step]['delay']}]).start()
                     self.launchers[launcher].run_step({'pins': sequence_data[step]['pins'][launcher], 'delay': sequence_data[step]['delay']})
+                    time_when_finished = time.time()+sequence_data[step]['delay']
+                    while time.time() < time_when_finished:
+                        if self.running_sequence_data[sequence_name]['firenow']:
+                            break
+                    self.running_sequence_data[sequence_name]['firenow'] = False
+
                 except:
                     print(traceback.format_exc())
                     self.running_sequence_data[sequence_name]['error'] = 'failed'

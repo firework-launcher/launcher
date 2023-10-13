@@ -37,14 +37,13 @@ class Launcher:
         """
         Runs a step in a sequence. Just a list of fireworks to trigger at the same time.
         The step dictionary looks something like this:
-        {"pins": [1, 2, 3], "delay": 1}
+        {"pins": [1, 2, 3], "delay": 1} (Do not use time.sleep on the delay. That is done already after this function.)
         The delay is in seconds.
         """
 
         if self.armed:
             self.launcher_io.logging.debug('Launcher {} ({}) should now launch these fireworks: '.format(self.name, self.port, step['pins']))
             time.sleep(1)
-            time.sleep(int(step['delay']))
 
     def arm(self):
         """

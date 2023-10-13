@@ -136,7 +136,8 @@ function finish_sequence(sequence) {
     run = document.getElementById("run_button");
     run.innerText = "Run";
     run.setAttribute("onclick", "run_sequence('" + sequence + "')");
-    stop_button = document.getElementById("stop_button").setAttribute("style", "display: none");
+    document.getElementById("stop_button").setAttribute("style", "display: none");
+    document.getElementById("firenow").setAttribute("style", "display: none");
     resetFiredColors();
 };
 
@@ -146,8 +147,13 @@ socket.on("running_sequence", () => {
     run.innerText = "Running";
     id = setInterval(async function () { await check_sequence(sequence) }, 500); 
     interval_id = id;
-    stop_button = document.getElementById("stop_button").setAttribute("style", "");
+    document.getElementById("stop_button").setAttribute("style", "");
+    document.getElementById("firenow").setAttribute("style", "")
 });
+
+function firenow() {
+    socket.emit("firenow", sequence);
+}
 
 function run_sequence() {
     socket.emit("run_sequence", sequence);

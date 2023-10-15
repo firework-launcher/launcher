@@ -27,6 +27,7 @@ class Launcher:
         self.type = 'espnode'
         self.channels_connected = []
         self.armed = False
+        self.version = 'Unknown'
         self.count = count
         self.sequences_supported = True
         try:
@@ -54,6 +55,8 @@ class Launcher:
                     pass
                 else:
                     inputs = data['inputData']
+                    if 'version' in data:
+                        self.version = str(data['version'])
                     if not inputs == []:
                         data1 = '{0:b}'.format(inputs[0])
                         zeros_to_add = 8-len(data1)
@@ -130,6 +133,27 @@ class Launcher:
                     'code': 3,
                 }).encode())
         self.armed = False
+
+
+    def enter_ota(self):
+        self.send_obj.send(json.dumps({
+            'code': 5
+        }).encode())
+        while True:
+            try:
+                requests.get('http://' + self.port)
+            except:
+                pass
+            else:
+                break
+            time.sleep(0.1)
+
+    def reboot(self):
+        self.enter_ota()
+        try:
+            requests.get('http://{}/restart'.format(self.port))
+        except:
+            pass
 
     def remove(self):
         self.send_obj.close()

@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="settings_content">
+    <h1>Manage ESP Nodes</h1>
+    {% for node in nodes %}
+        <h2>{{ node.name }} ({{ node.port }}) <a class="firework_button" href="/settings/launchers/espnode_settings/start{{ urlencode(node.port, safe='') }}">Manage</a></h2>
+    {% endfor %}
+</div>
+{% endblock %}

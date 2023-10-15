@@ -245,6 +245,51 @@ def launcher_edit_name(launcher):
         abort(404)
     return render_template('settings/launchers/edit_name.html', page='Change Name', name=config.config['branding']['name'], launcher_name=launcher_io.launchers[launcher].name)
 
+@app.route('/settings/launchers/espnode_settings')
+def espnode_settings_listing():
+    nodes = []
+    for launcher in launcher_io.launchers:
+        if launcher_io.launchers[launcher].type == 'espnode':
+            nodes.append(launcher_io.launchers[launcher])
+    return render_template('settings/launchers/node_settings/listing.html', page='Node Settings', name=config.config['branding']['name'], urlencode=urllib.parse.quote, nodes=nodes)
+
+@app.route('/settings/launchers/espnode_settings/<path:node>')
+def node_manage(node):
+    if launcher_io.launchers == {}:
+        return redirect('/settings/launchers/none')
+    node = node[5:]
+    if not node in launcher_io.launchers:
+        abort(404)
+    return render_template('settings/launchers/node_settings/manage.html', node=launcher_io.launchers[node], page='Manage Node - ' + launcher_io.launchers[node].name, name=config.config['branding']['name'])
+
+@app.route('/settings/launchers/espnode_settings/<path:node>/reboot')
+def node_reboot(node):
+    node = node[5:]
+    if not node in launcher_io.launchers:
+        abort(404)
+    node = launcher_io.launchers[node]
+    node.reboot()
+    return redirect(request.path[:-7])
+
+@app.route('/settings/launchers/espnode_settings/<path:node>/wifi')
+def node_wifi(node):
+    node = node[5:]
+    if not node in launcher_io.launchers:
+        abort(404)
+    node = launcher_io.launchers[node]
+    node.enter_ota()
+    remove_launcher(node.port)
+    return redirect('http://{}'.format(node.port))
+
+@app.route('/settings/launchers/espnode_settings/<path:node>/remove')
+def node_remove(node):
+    node = node[5:]
+    if not node in launcher_io.launchers:
+        abort(404)
+    node = launcher_io.launchers[node]
+    remove_launcher(node.port)
+    return redirect('/settings/launchers/espnode_settings')
+
 @socketio.on('update_fp')
 def update_fp(data):
     launcher = data['launcher']

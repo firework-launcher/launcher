@@ -119,6 +119,8 @@ function updateFireworkSelector() {
                 firework_button.setAttribute("style", "color: " + profile["color"] + "; border-color: " + profile["color"])
                 firework_button.setAttribute("onclick", "selectFirework('" + labels[launcher][Object.keys(labels[launcher])[x]] + "')");
                 firework_button.innerText = labels[launcher][Object.keys(labels[launcher])[x]];
+                firework_button.innerHTML += "<br/>";
+                firework_button.innerHTML += launcherfirework[0] + ", " + launcherfirework[1];
                 firework_select.appendChild(firework_button);
             }
         }

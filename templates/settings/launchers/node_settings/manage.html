@@ -4,11 +4,12 @@
     <h1>{{ node.name }} ({{ node.port }})</h1>
     <h2>Firmware version: {{ node.version }}</h2>
     <button class="firework_button" id="reboot" onclick="reboot()">Reboot</a>
-    <button class="firework_button" id="change_wifi" onclick="change_wifi()">Change WiFi details</a>
+    <button class="firework_button" id="configure" onclick="configure()">Configure</a>
     <button class="firework_button" id="remove" onclick="remove_node()">Remove</a>
 </div>
 <script>
     node_port = "{{ node.port }}";
+    node_version = "{{ node.version }}";
 </script>
 <script src="/static/js/manage_node.js"></script>
 {% endblock %}

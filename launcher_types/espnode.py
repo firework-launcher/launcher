@@ -107,6 +107,16 @@ class Launcher:
             self.launcher_io.logging.debug('Triggered firework {} on launcher {}'.format(firework, self.port))
             time.sleep(1)
     
+    def check_version_required(self, version):
+        """
+        Check if the firmware version is over something. Return false if unknown.
+        """
+
+        if version == 'Unknown':
+            return False
+        else:
+            return self.version >= version
+    
     def run_step(self, step):
         """
         Creates a dictionary to send to the ESP that has the correct format

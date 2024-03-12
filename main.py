@@ -277,6 +277,8 @@ def node_wifi(node):
     if not node in launcher_io.launchers:
         abort(404)
     node = launcher_io.launchers[node]
+    if node.check_version_required(2):
+        return redirect('http://{}'.format(node.port))
     node.enter_ota()
     remove_launcher(node.port)
     return redirect('http://{}'.format(node.port))

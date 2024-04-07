@@ -332,9 +332,13 @@ function save_delaymodal() {
     modal_delay = document.getElementById("delaymodal_delay");
     modal_nodeId = document.getElementById("delaymodal_nodeId");
     nodeId = modal_nodeId.value;
-    editor.updateNodeDataFromId(nodeId, {"delay": parseInt(modal_delay.value)});
+    delay_amount = parseInt(modal_delay.value);
+    if (delay_amount < 0) {
+        delay_amount = 1;
+    }
+    editor.updateNodeDataFromId(nodeId, {"delay": delay_amount});
     close_modal("delaymodal");
-    document.getElementById("node-" + nodeId).children[1].children[0].children[0].children[0].innerText = modal_delay.value + " second(s)";
+    document.getElementById("node-" + nodeId).children[1].children[0].children[0].children[0].innerText = delay_amount + " second(s)";
 }
 
 function close_modal(modal) {
@@ -436,6 +440,11 @@ function editSelectedNode() {
     }
 }
 
+function deleteNode() {
+    if (!(selectedNode == null)) {
+        editor.removeNodeId("node-" + selectedNode);
+    }
+}
 
 function save(name) {
     save_data = editor.export();

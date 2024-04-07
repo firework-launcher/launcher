@@ -19,12 +19,12 @@ class ConfigMGMT:
         """
 
         if not os.path.exists(self.config_dir + file):
-            f = open(self.config_dir + file, 'x')
-            f.write(json.dumps(placeholder_data, indent=4))
-            f.close()
-        f = open(self.config_dir + file)
-        data = json.loads(f.read())
-        f.close()
+            file_obj = open(self.config_dir + file, 'x')
+            file_obj.write(json.dumps(placeholder_data, indent=4))
+            file_obj.close()
+        file_obj = open(self.config_dir + file)
+        data = json.loads(file_obj.read())
+        file_obj.close()
         filename_no_ext = file.split('.')[0]
         self.config[filename_no_ext] = data
         self.config_metadata[filename_no_ext] = {'filename': file}
@@ -35,6 +35,6 @@ class ConfigMGMT:
         """
 
         for file in self.config:
-            f = open(self.config_dir + self.config_metadata[file]['filename'], 'w')
-            f.write(json.dumps(self.config[file], indent=4))
-            f.close()
+            file_obj = open(self.config_dir + self.config_metadata[file]['filename'], 'w')
+            file_obj.write(json.dumps(self.config[file], indent=4))
+            file_obj.close()

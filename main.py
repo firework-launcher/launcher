@@ -445,11 +445,11 @@ def secure_filename(filename):
 
     allowed_characters = string.ascii_uppercase + string.ascii_lowercase + string.digits + '-.'
     new_filename = []
-    for x in filename:
-        if not x in allowed_characters:
+    for character in filename:
+        if not character in allowed_characters:
             new_filename.append('_')
         else:
-            new_filename.append(x)
+            new_filename.append(character)
     return ''.join(new_filename)
 
 @app.route('/settings')
@@ -593,22 +593,22 @@ def parse_sequence(data):
     new_steps = {
         data['name']: {}
     }
-    x = 1
+    index = 1
 
     for step in steps:
-        new_steps[data['name']]['Step {}'.format(x)] = {}
-        new_steps[data['name']]['Step {}'.format(x)]['pins'] = {}
+        new_steps[data['name']]['Step {}'.format(index)] = {}
+        new_steps[data['name']]['Step {}'.format(index)]['pins'] = {}
         for node in steps[step]:
             node_data = getNodeFromId(node, data)
-            if not node_data['data']['launcher'] in new_steps[data['name']]['Step {}'.format(x)]['pins']:
-                new_steps[data['name']]['Step {}'.format(x)]['pins'][node_data['data']['launcher']] = []
-            new_steps[data['name']]['Step {}'.format(x)]['pins'][node_data['data']['launcher']].append(node_data['data']['firework'])
-            if len(delay_times) == x:
+            if not node_data['data']['launcher'] in new_steps[data['name']]['Step {}'.format(index)]['pins']:
+                new_steps[data['name']]['Step {}'.format(index)]['pins'][node_data['data']['launcher']] = []
+            new_steps[data['name']]['Step {}'.format(index)]['pins'][node_data['data']['launcher']].append(node_data['data']['firework'])
+            if len(delay_times) == index:
                 delay = 1
             else:
-                delay = delay_times[x]-delay_times[x-1]
-            new_steps[data['name']]['Step {}'.format(x)]['delay'] = delay
-        x += 1
+                delay = delay_times[index]-delay_times[index-1]
+            new_steps[data['name']]['Step {}'.format(index)]['delay'] = delay
+        index += 1
     return new_steps
 
 @socketio.on('sequencebuilder_save')
@@ -766,11 +766,11 @@ def firework_serial_write(launcher):
         try:
             if not launcher in launcher_io.launchers:
                 break
-            i = 0
+            index = 0
             for pin in queue[launcher]:
                 launcher_io.trigger_firework(launcher, int(pin))
                 del queue[launcher][i]
-                i = i + 1
+                index = index + 1
                 logging.info('{} Queue update: {}'.format(launcher, queue))
         except Exception as e:
             logging.error('Recieved error from queue {}: {}: {}'.format(launcher, type(e).__name__, str(e)))

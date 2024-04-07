@@ -769,7 +769,7 @@ def firework_serial_write(launcher):
             index = 0
             for pin in queue[launcher]:
                 launcher_io.trigger_firework(launcher, int(pin))
-                del queue[launcher][i]
+                del queue[launcher][index]
                 index = index + 1
                 logging.info('{} Queue update: {}'.format(launcher, queue))
         except Exception as e:

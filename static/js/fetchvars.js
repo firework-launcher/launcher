@@ -1,11 +1,7 @@
-const { reactive, createApp } = Vue
-
-var root_noreact = {};
-
+var root = {};
 async function fetch_variables(script) {
     response = await fetch(window.origin + "/home/launcher_json_data");
-    root_noreact = await response.json();
-    root = reactive(root_noreact)
+    root = await response.json();
     main_script = document.createElement("script");
     main_script.setAttribute("src", script);
     setTimeout(function() {

@@ -56,9 +56,7 @@ def home():
     for launcher in launcher_io.launchers:
         launchers_armed[launcher] = launcher_io.launchers[launcher].armed
 
-    return render_template('home.html', 
-        launchers=launcher_io.get_ports(),
-        launchers_armed=launchers_armed,
+    return render_template('home.html',
         name=config.config['branding']['name']
     )
 

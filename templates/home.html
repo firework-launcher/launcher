@@ -7,55 +7,76 @@
     <title>{{ name }}</title>
   </head>
   <body>
-    <ul class="navbar">
-      <li class="navbar-item-li"><a class="navtitle" href="/">{{ name }}</a></li>
-        <li class="navbar-item-li"><a class="navbar-item" onclick="dev();" id="devbutton">Profiles</a></li>
-        <li class="navbar-item-li"><a class="navbar-item" onclick="arm_all()" id="armbutton">Arm all</a></li>
-        <li class="navbar-item-li"><a class="navbar-item" onclick="disarm_all()" id="disarmbutton">Disarm all</a></li>
-        <li class="navbar-item-li"><a class="navbar-item" onclick="manage_labels()" id="labelsbutton">Labels</a></li>
-        <li class="navbar-item-li"><a class="navbar-item" href="/settings">Settings</a></li>
-        <li class="navbar-item-li"><a class="navbar-item" href="/sequences">Sequences</a></li>
-      <li class="navbar-item-hamburger"><a class="hamburger-menu" onclick="expand_hamburger()"><img src="/static/svgs/bars.svg" width="20" class="hamburger-menu-svg" alt="Hamburger Menu"/></a></li>
-    </ul>
-    <div id="hamburgerExpandMenu">
-        <a class="navbar-item-expanded" onclick="dev();" id="devbutton_">Profiles</a>
-        <a class="navbar-item-expanded" onclick="reset_all()" id="resetbutton_">Reset all</a>
-        <a class="navbar-item-expanded" onclick="arm_all()" id="armbutton_">Arm all</a>
-        <a class="navbar-item-expanded" onclick="disarm_all()" id="disarmbutton_">Disarm all</a>
-        <a class="navbar-item-expanded" onclick="manage_labels()" id="labelsbutton_">Labels</a>
-        <a class="navbar-item-expanded" href="/settings">Settings</a>
-        <a class="navbar-item-expanded" href="/sequences">Sequences</a>
-    </div>
-    <div id="node_warn_crash" class="warn_msg">
-      <p id="node_warn_crash_txt" style="margin: 0; color: black;"></p>
-    </div>
-    <div class="content" id="content">
-      <div id="launchers">
-      {% for launcher in launchers %}
-        <h2 style="text-align: center;">{{ launcher }} ({{ launchers[launcher] }})<br/>
-        <span><a class="resetbutton" id="armbutton_{{ launchers[launcher] }}" {% if launchers_armed[launchers[launcher]] %}style="display: none"{% endif %} onclick="arm('{{ launchers[launcher] }}')">Arm</a></span>
-        <span><a class="resetbutton" id="disarmbutton_{{ launchers[launcher] }}" {% if not launchers_armed[launchers[launcher]] %}style="display: none"{% endif %} onclick="disarm('{{ launchers[launcher] }}')">Disarm</a></span>
-        <span><a class="resetbutton" onclick="reset('{{ launchers[launcher] }}');">Reset</a></span>
-        </h2>
-        <div class="firework_buttons" id="firework_buttons_{{ launchers[launcher] }}"></div>
-      {% endfor %}
+    <div id="app">
+      <ul class="navbar">
+        <li class="navbar-item-li"><a class="navtitle" href="/">{{ name }}</a></li>
+          <li class="navbar-item-li"><a class="navbar-item" onclick="dev();" id="devbutton">Profiles</a></li>
+          <li class="navbar-item-li"><a class="navbar-item" onclick="arm_all()" id="armbutton">Arm all</a></li>
+          <li class="navbar-item-li"><a class="navbar-item" onclick="manage_labels()" id="labelsbutton">Labels</a></li>
+          <li class="navbar-item-li"><a class="navbar-item" href="/settings">Settings</a></li>
+          <li class="navbar-item-li"><a class="navbar-item" href="/sequences">Sequences</a></li>
+        <li class="navbar-item-hamburger"><a class="hamburger-menu" onclick="expand_hamburger()"><img src="/static/svgs/bars.svg" width="20" class="hamburger-menu-svg" alt="Hamburger Menu"/></a></li>
+      </ul>
+      <div id="hamburgerExpandMenu">
+          <a class="navbar-item-expanded" onclick="dev();" id="devbutton_">Profiles</a>
+          <a class="navbar-item-expanded" onclick="reset_all()" id="resetbutton_">Reset all</a>
+          <a class="navbar-item-expanded" onclick="arm_all()" id="armbutton_">Arm all</a>
+          <a class="navbar-item-expanded" onclick="disarm_all()" id="disarmbutton_">Disarm all</a>
+          <a class="navbar-item-expanded" onclick="manage_labels()" id="labelsbutton_">Labels</a>
+          <a class="navbar-item-expanded" href="/settings">Settings</a>
+          <a class="navbar-item-expanded" href="/sequences">Sequences</a>
       </div>
-      <div class="legend" id="legend">
-        <h2>Legend</h2>
+      <div id="node_warn_crash" class="warn_msg">
+        <p id="node_warn_crash_txt" style="margin: 0; color: black;"></p>
       </div>
-    </div>
-    <div class="modal" id="modal">
-      <div class="inner-modal">
-        <h3 style="margin-top: 0;" id="launcher-indicator"></h3>
-        <h3 id="firework-indicator"></h3>
-        <p id="special_characters" style="display: none">Please do not use special characters</p>
-        <input placeholder="Label" class="label_box" type="text" id="label_content">
-        <div class="modal-button">
-          <button class="firework_button" onclick="add_label()">Add</button>
-          <button class="firework_button" onclick="close_modal()">Close</button>
+      <div class="content" id="content">
+        <div>
+          <div v-for="([launcher_id, launcher_name], index) in Object.entries(root.launcher_data.names)">
+            <div :id="launcher_id">
+              <h2 style="text-align: center">[[ launcher_name ]] ([[ launcher_id ]])<br/>
+                <span><a class="resetbutton arm" @click="arm_toggle">[[ root.launcher_data.armed[launcher_id] ? "Disarm" : "Arm" ]]</a></span>
+                <span><a class="resetbutton" @click="reset(launcher_id)">Reset</a></span>
+              </h2>
+              <div class="firework_buttons">
+                <a v-for="index in root.launcher_data.counts[launcher_id]" 
+                  :key="index"
+                  :class="{
+                    'firework_button': true,
+                    'remove': root.fireworks_launched[launcher_id].includes(index),
+                    'disarmed': !root.launcher_data.armed[launcher_id],
+                    'disconnected': !root.launcher_data.channels_connected[launcher_id].includes(index)
+                  }" 
+                  @click="button_clicked(launcher_id, index)">
+                  #[[ index ]]
+                </a>
+
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="legend" id="legend">
+          <h2>Legend</h2>
+          <p v-for="([profile_id, profile], index) in Object.entries(root.firework_profiles[root.launchers[0]])"
+            class="legend-txt"
+            :style="{ color: profile.color }">
+            [[ profile.name ]]
+          </p>
+        </div>
+      </div>
+      <div class="modal" id="modal">
+        <div class="inner-modal">
+          <h3 style="margin-top: 0;" id="launcher-indicator"></h3>
+          <h3 id="firework-indicator"></h3>
+          <p id="special_characters" style="display: none">Please do not use special characters</p>
+          <input placeholder="Label" class="label_box" type="text" id="label_content">
+          <div class="modal-button">
+            <button class="firework_button" onclick="add_label()">Add</button>
+            <button class="firework_button" onclick="close_modal()">Close</button>
+          </div>
         </div>
       </div>
     </div>
+    <script src="/static/js/vue.js"></script>
     <script src="/static/js/socketio.js"></script>
     <script src="/static/js/fetchvars.js"></script>
     <script>
